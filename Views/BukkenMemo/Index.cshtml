@@ -1,0 +1,138 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model BukkenMemoViewModel;
+@{
+    ViewData["Title"] = "物件メモ";
+
+}
+@section Styles {
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jqueryui@1.11.1/jquery-ui.theme.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+}
+<div class="row">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">ホーム</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                物件メモ
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="card">
+    <form id="frm" asp-controller="BukkenMemo" asp-action="Index" method="post">
+        <div class="card-header d-flex align-items-center">
+            <div class="col-md-6 col-12 d-flex align-items-center me-2">
+                <div class="input-group">
+                    <span class="input-group-text">物件名・物件番号</span>
+                    <input asp-for="@Model.cond_bukken_name" class="form-control site_change_post">
+                </div>
+            </div>
+            <div class="col-md-3 col-12  align-items-center d-flex px-0">
+                <div class="input-group">
+                    <span class="input-group-text">契約状態</span>
+                    <select asp-for="@Model.cond_contract_status" asp-items="@Model.cond__list_contract_status" class="form-select site_change_post">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    <div class="card-body">
+        <table class="table datatables mx-0 my-0">
+
+            <thead class="card-header">
+                <tr>
+
+                    <th style="min-width:700px;">物件名</th>
+                    <th style="min-width:70px;">未読件数</th>
+                    <th style="min-width:150px;">最終更新者</th>
+                    <th style="min-width:130px;">最終更新日時</th>
+                </tr>
+            </thead>
+            <tbody class="card-body">
+
+                @foreach (var capsule in Model.list_bukken)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="BukkenMemo" asp-action="BukkenMemoDetail" asp-route-bukken_cd="@capsule.bukken_cd" asp-route-cond_bukken_name="@Model.cond_bukken_name">
+                                【@capsule.bukken_cd】@capsule.bukken_name
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge bg-warning text-dark">@capsule.count</span>
+                        </td>
+                        <td>
+                            <span>@capsule.update_user</span>
+
+                            @*ダウンロードボタン*@
+                            @*                            <a type="button" class="btn btn btn-pink" asp-action="BUkkenMemo" asp-route-keiyakuNo="" asp-route-gyo="" data-outputSize="">
+                        <i class="bi bi-download"></i>
+                        </a>
+                        *@
+
+                        </td>
+                        <td>
+                            <span>@capsule.update_date</span>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+
+        @*                     @for (var i = 0; i < Model.list_report[a].Count; i++)
+        {
+        <div class="row py-1">
+        <div class="col">
+        <span>@Model.list_report[a][i].name</span>　<span>@Model.list_report[a][i].report_date</span>　<span>日報　</span>
+        <span id="" class="badge bg-warning text-dark">@Model.list_report[a][i].count</span>
+        <br>
+        <span>最終更新日時：</span><span>@Model.list_report[a][i].update_date</span>
+        <br>
+        <span style="white-space: pre-wrap">@Model.list_report[a][i].message</span>
+        </div>
+        <div class="col text-end">
+        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="4" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
+        <i class="bi bi-check-circle"></i> 確認
+        </a>
+        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="5" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
+        <i class="bi bi-plus"></i> コメント
+        </a>
+        @if (Model.list_report[a][i].isMe)
+        {
+        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="2" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
+        <i class="bi bi-pencil"></i> 変更
+        </a>
+        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="3" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-danger">
+        <i class="bi bi-trash3"></i> 削除
+        </a>
+        }
+        else
+        {
+        <a class="btn btn-info invisible">
+        <i class="bi bi-pencil"></i> 変更
+        </a>
+        <a class="btn btn-info invisible">
+        <i class="bi bi-trash3"></i> 削除
+        </a>
+        }
+        </div>
+        </div>
+        if (i != Model.list_report[a].Count - 1)
+        {
+        <div class="border-top mt-2 pb-2">
+        </div>
+        }
+        }
+        *@
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

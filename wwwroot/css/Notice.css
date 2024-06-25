@@ -1,0 +1,19 @@
+/*.dropdown-menu.show {
+    top: 81px !important;
+    left: 12px !important;
+}
+*/
+.dropdown-item {
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.fileAreaHeitWidth {
+    min-width: 92px;
+    max-width: 92px;
+}
+
+.fileAreaInnerWidth {
+    min-width: 80px;
+    max-width: 80px;
+}

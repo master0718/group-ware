@@ -1,0 +1,157 @@
+.selectize-input {
+    height: 100%;
+}
+
+.cell-color {
+    background-color: var(--bs-cell-color) !important;
+}
+
+/*　グループ週　*/
+.fc-timeline-header-row .fc-day div > a
+{
+    color: black;
+}
+.fc-timeline-header-row .fc-day
+{
+    background-color: #efefef;
+}
+.fc-timeline-header-row .fc-day-sat
+{
+    background-color: #dcf0fa !important;
+}
+.fc-timeline-header-row .fc-day-sun, .ast-holiday
+{
+    background-color: #fae6ee !important;
+}
+/*　個人週　個人月　*/
+.fc-col-header-cell.fc-day div > a
+{
+    color: black;
+}
+.fc-col-header-cell.fc-day
+{
+    background-color: #efefef;
+}
+.fc-col-header-cell.fc-day-sat
+{
+    background-color: #dcf0fa;
+}
+.fc-col-header-cell.fc-day-sun, .ast-holiday
+{
+    background-color: #fae6ee;
+}
+
+/*　日　*/
+.fc-timeline-header-row .fc-timeline-slot
+{
+    background-color: #f2f2f2;
+}
+
+.fc-timeline-event
+{
+    padding: 0px 0px;
+}
+
+.event {
+    color: red; /* Set the text color to red */
+}
+.fc-date {
+    color: black;
+}
+.fc-title {
+    color: #3c88bf;
+    word-break: break-all;
+    white-space: break-spaces;
+}
+.fc-type {
+    background-color: #3182dc;
+    color: white;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+.fc-lock {
+    color: #8c8888;
+}
+
+.fc-day {
+    font-weight: 100;
+}
+
+.fc-day-today {
+    font-weight: 600;
+}
+
+.btn input[type="radio"] {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.select-selected {
+    background-color: #ffffff;
+    padding: .375rem .75rem;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.select-items {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    width: 100%;
+    z-index: 99;
+}
+
+.select-items div {
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.select-items div:hover {
+    background-color: #ddd;
+}
+
+.select-hide {
+    display: none;
+}
+
+.select-arrow {
+    content: '';
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    margin-left: 10px;
+    transform: rotate(45deg);
+}
+
+.select-arrow-active {
+    transform: rotate(-135deg);
+}
+
+.square {
+    margin-right: 5px;
+    height: 1rem;
+    width: 1rem;
+}
+
+.twoMonth .fc .fc-view-harness {
+    height: auto !important;
+}
+
+.twoMonth .fc .fc-view-harness-active > .fc-view {
+    position: static !important;
+    height: 100%;
+    overflow: unset !important;
+}

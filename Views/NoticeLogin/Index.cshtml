@@ -1,0 +1,81 @@
+﻿@model NoticeLoginViewModel
+
+@{
+#pragma warning disable CS8600, CS8601, CS8602, CS8604, CS8618, CS8629
+    ViewData["Title"] = "社内連絡";
+}
+<link rel="stylesheet" href="~/css/Notice.css" />
+
+<div class="row">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">ホーム</a></li>
+            <li class="breadcrumb-item"><a asp-controller="NoticeLogin" asp-action="Index">システム連絡</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                登録
+            </li>
+        </ol>
+    </nav>
+</div>
+@*エラーメッセージ表示*@
+<form id="frm" method="post" asp-controller="NoticeLogin" asp-action="Create" enctype="multipart/form-data">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="page-title mb-0">システム連絡</h4>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary kakuninDialog" id="submitButton">
+                    <i class="bi bi-plus-lg"></i>
+                    登　録
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row text-danger p-3" asp-validation-summary="ModelOnly"></div>
+
+            @*                <h5 class="font-18 mt-0 text-center">社内通知</h5>
+            *@
+            <div class="row">
+                <div class="col form-group mb-3">
+                    <div>
+                        <label asp-for="@Model.title" class="form-label"></label>
+                        <input type="text" asp-for="@Model.title" class="form-control bg-white" />
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.title" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col form-group mb-3">
+                    <div>
+                        <label asp-for="@Model.message" class="form-label"></label>
+                        <textarea asp-for="@Model.message" rows="7" class="form-control bg-white" placeholder="">
+                            @Html.Raw(Model.message.Replace(Environment.NewLine, "<br>"))
+                                    </textarea>
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.message" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end align-items-center">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary kakuninDialog" id="submitButton">
+                    <i class="bi bi-plus-lg"></i>
+                    登　録
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    }
+    @*     <script src="~/js/Notice.js" asp-append-version="true"></script>
+ *@
+}
+
+

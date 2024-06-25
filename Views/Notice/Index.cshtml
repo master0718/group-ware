@@ -1,0 +1,120 @@
+﻿@model NoticeViewModel
+
+@{
+#pragma warning disable CS8600, CS8601, CS8602, CS8604, CS8618, CS8629
+    ViewData["Title"] = "社内連絡";
+}
+<link rel="stylesheet" href="~/css/Notice.css" />
+
+<div class="row">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">ホーム</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Notice" asp-action="Index">社内連絡</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                新規登録
+            </li>
+        </ol>
+    </nav>
+</div>
+@*エラーメッセージ表示*@
+<form id="frm" method="post" asp-controller="Notice" asp-action="Create" enctype="multipart/form-data">
+    <input type="hidden" asp-for="@Model.Delete_files" />
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="page-title mb-0">社内連絡</h4>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary kakuninDialog" id="submitButton">
+                    <i class="bi bi-plus-lg"></i>
+                    登　録
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row text-danger p-3" asp-validation-summary="ModelOnly"></div>
+            <div class="row">
+                <div class="col form-group mb-3">
+                    <div>
+                        <label asp-for="@Model.Message" class="form-label"></label>
+                        <textarea asp-for="@Model.Message" rows="7" class="form-control bg-white" placeholder="">
+                            @Html.Raw(Model.Message.Replace(Environment.NewLine, "<br>"))
+                                    </textarea>
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.Message" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            @***********************************************************************************@
+
+            <div class="row" id="div_icon">
+                @if (Model.List_T_INFO_FILE.Count != 0)
+                {
+                    @for (int i = 0; i < Model.List_T_INFO_FILE.Count; i++)
+                    {
+                        <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeitWidth">
+                            <input type="hidden" asp-for="@Model.List_T_INFO_FILE[i].fileName">
+                            <input type="hidden" asp-for="@Model.List_T_INFO_FILE[i].file_no">
+                            <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.List_T_INFO_FILE[i].fileName">
+
+                                    <div class="div_img_file bg-light p-2">
+                                        @{
+                                            var icon = System.IO.Path.GetExtension(Model.List_T_INFO_FILE[i].fileName).Remove(0, 1) + ".svg";
+                                        }
+
+                                        <img src="~/images/file-icons/@icon" alt="icon" class="">
+                                    </div>
+                                    <div class="text-wrap main_files">@Model.List_T_INFO_FILE[i].fileName</div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_name="@Model.List_T_INFO_FILE[i].fileName">削除</button>
+                                <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.List_T_INFO_FILE[i].fileName">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                            </ul>
+                        </div>
+
+                    }
+                }
+            </div>
+            <div class="row" id="fileArea">
+                <input type="hidden" asp-for="@Model.work_dir">
+                <input type="hidden" asp-for="@Model.dic_cd">
+                <input type="hidden" asp-for="@Model.dir_no">
+                <div class="col-12 card dropArea border-0 px-2 ">
+                    <div class="text-center px-3 py-3 border-primary bg-white" style=" border: 3px dotted #adadad!important;">
+                        <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                        <label class="input-group-btn hand-pointer">
+                            <span class="btn btn-secondary">
+                                ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
+                            </span>
+                        </label>
+                        <br>
+                        <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                    </div>
+                    @*                         <div id="message_file1" class="text-right"></div>
+                    *@
+                </div>
+            </div>
+
+            @***********************************************************************************@
+        </div>
+        <div class="card-footer d-flex justify-content-end align-items-center">
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-primary kakuninDialog" id="submitButton">
+                    <i class="bi bi-plus-lg"></i>
+                    登　録
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    }
+    <script src="~/js/File.js" asp-append-version="true"></script>
+}
+
+

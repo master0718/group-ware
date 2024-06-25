@@ -1,0 +1,32 @@
+﻿<div id="modal-direct-delete-confirm" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="title">確認</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="bodyContent">@ViewData["ConfirmText"]</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> いいえ
+                </button>
+                <button type="button" class="btn btn-success" onclick="onDeleteConfirm()">
+                    <i class="bi bi-check"></i> はい
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function onDeleteConfirmModal() {
+        $('#modal-direct-delete-confirm').modal('show');
+    }
+
+    function onDeleteConfirm() {
+        window.location.href = deleteAction + "?" + deleteKey + "=" + deleteId
+    }
+</script>
+

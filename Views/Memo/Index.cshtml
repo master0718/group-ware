@@ -1,0 +1,265 @@
+﻿@using Microsoft.Extensions.Configuration
+@using web_groupware.Utilities
+@inject IConfiguration Configuration
+
+@{
+    ViewData["Title"] = "伝言・電話メモ";
+}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="~/css/memo.css" rel="stylesheet" />
+</head>
+
+<body class="loading">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">伝言・電話メモ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="padding-top:25px">
+        <div class="card-body">
+            <form id="selectionForm" asp-controller="Memo" asp-action="Filter" method="post">
+                <div class="row text-right mb-2">
+                    <div class="col-3">
+                        <select class="form-select" id="filter_user" name="filter_user" onchange="FilterChanged()">
+                            <option selected="" value=0>すべて</option>
+                            <option value=1>本人</option>
+                            @foreach (var item in Model.groupList)
+                            {
+                                <option value="@(item.group_cd + 2)">@item.group_name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <select class="form-select" id="filter_state" name="filter_state" onchange="FilterChanged()">
+                            @{
+                                int idx = 0;
+                            }
+                            @foreach (var item in MemoTypes.AllTypes)
+                            {
+                                <option value=@idx>@MemoTypes.AllTypes[idx]</option>
+                                idx++;
+                            }
+                        </select>
+                    </div>
+                </div>
+            </form>
+            <button class="btn btn-success waves-effect waves-light mb-3" onclick="createMemoDlg()">
+                <i class="mdi mdi-plus me-1"></i>
+                新規登録
+            </button>
+            <table class="table table-responsive mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th width="5%">
+                            時刻
+                        </th>
+                        <th width="5%">
+                            状態
+                        </th>
+                        <th width="10%">
+                            対象者
+                        </th>
+                        <th width="20%">
+                            用件
+                        </th>
+                        <th width="10%">
+                            電話番号
+                        </th>
+                        <th width="25%">
+                            伝言
+                        </th>
+                        <th width="10%">
+                            発信者
+                        </th>
+                        <th width="10%">
+                            既読者
+                        </th>
+                        <th width="5%">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="memo_table">
+                    @foreach (var memo in Model.memoList)
+                    {
+                        <tr>
+                            <td class="font-13">
+                                @{
+                                    string newstr = (memo.receiver_type == 1 ? "group" : "staff") + memo.receiver_cd;
+                                }
+                                <a href="javascript:void(0);" onclick="editMemoDlg(@memo.memo_no, @memo.state, '@newstr', '@memo.phone', @memo.comment_no, '@memo.readers', '@memo.working_msg', '@memo.finish_msg', '@memo.is_editable')">
+                                    @memo.create_date
+                                </a>
+                            </td>
+                            <td>
+                                @if (@memo.state == 0)
+                                {
+                                    <span class="badge label-table bg-info text-light">@MemoTypes.Unread</span>
+                                }
+                                else if (@memo.state == 1)
+                                {
+                                    <span class="badge label-table bg-danger text-light">@MemoTypes.Read</span>
+                                }
+                                else if (@memo.state == 2)
+                                {
+                                    <span class="badge label-table bg-success">@MemoTypes.Working</span>
+                                }
+                                else if (@memo.state == 3)
+                                {
+                                    <span class="badge label-table bg-secondary text-light">@MemoTypes.Finish</span>
+                                }
+                            </td>
+                            <td class="font-13">@memo.receiver_name</td>
+                            <td>
+                                @{
+                                    string comment_str = "";
+                                    foreach (var comment_item in Model.commentList)
+                                    {
+                                        if (comment_item.comment_no == memo.comment_no)
+                                        {
+                                            comment_str = comment_item.comment;
+                                            break;
+                                        }
+                                    }
+                                }
+                                <span>@comment_str</span>
+                            </td>
+                            <td class="font-13">@memo.phone</td>
+                            @{
+                                string content_id = "table_content" + memo.memo_no;
+                            }
+                            <td class="font-13" id=@content_id style="word-break: break-word;">@memo.content</td>
+                            <td class="font-13">@memo.sender_name</td>
+                            <td class="font-13">@memo.readers</td>
+                            <td>
+                                @if (memo.is_editable)
+                                {
+                                    <a asp-action="Delete" asp-route-id="@memo.memo_no" onclick="return confirm('削除してもよろしいですか？')" class="action-icon px-1">
+                                        <i class="mdi mdi-delete"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <!-- Modal of Memo -->
+            <div id="memo-modal" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title" id="title"></h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        @using (Html.BeginForm("Create", "Memo", FormMethod.Post, new { id="form-create" }))
+                        {
+                            <div class="modal-body p-4">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3">
+                                            <label class="form-label">宛先</label>
+                                            <select class="form-select" name="receiver" id="receiver">
+                                                <optgroup label="社員">
+                                                    @foreach (var item in Model.staffList)
+                                                    {
+                                                        <option value="@("staff" + item.staff_cd)">@item.staff_name</option>
+                                                    }
+                                                </optgroup>
+                                                <optgroup label="グループ">
+                                                    @foreach (var item in Model.groupList)
+                                                    {
+                                                        <option value="@("group" + item.group_cd)">@item.group_name</option>
+                                                    }
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="field-1" class="form-label">用件</label>
+                                            <select class="form-select" id="comment">
+                                                @foreach (var item in Model.commentList)
+                                                {
+                                                    <option value=@item.comment_no>@item.comment</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="field-2" class="form-label">電話番号</label>
+                                            <input type="text" class="form-control" name="phone" id="phone" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3 no-margin">
+                                            <label for="field-7" class="form-label">伝言</label>
+                                            <textarea name="content" id="content" class="form-control" maxlength="255" rows="3" placeholder="" style="margin-top: 0px; margin-bottom: 0px; height: 100px;"></textarea>
+                                            <span class="text-danger" id="content-error"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="mb-3 no-margin">
+                                            <label class="form-label">既読者</label>
+                                            <span id="readers" style="margin-left:10px"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="checkbox_div">
+                                    <div class="row" style="margin-top:10px">
+                                        <div class="col-md-3">
+                                            <label class="form-check-label" for="flexCheckDefault">対応します</label>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input class="form-check-input" type="checkbox" id="checkWorking" onclick="checkWorking_Clicked()">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:10px">
+                                        <div class="col-md-3">
+                                            <label class="form-check-label" for="flexCheckDefault">処理済</label>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <input class="form-check-input" type="checkbox" value=0 id="checkFinish" onclick="checkFinish_Clicked()">
+                                        </div>
+                                    </div>
+                                    <div class="form-label" id="working_msg" style="margin-top:20px"></div>
+                                    <div class="form-label" id="finish_msg" style="margin-top:10px"></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="flex-1">
+                                    <button type="button" class="btn btn-danger waves-effect flex-1" data-bs-dismiss="modal">キャンセル</button>
+                                </div>
+                                <div class="flex-2">
+                                    <button type="submit" class="btn btn-success waves-effect waves-light flex-2" id="btn-create">保存</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+            $("#filter_state").val(@Model.selectedState);
+            $("#filter_user").val(@Model.selectedUser);
+
+        </script>
+    }
+
+</body>
+</html>

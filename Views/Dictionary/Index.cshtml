@@ -1,0 +1,85 @@
+﻿@model web_groupware.Models.DictionaryDetailViewModel
+
+@{
+    ViewData["Title"] = "辞書マスタ";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">辞書マスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="">
+        <div class="card-body">
+            <a class="fileupload btn btn-success waves-effect waves-light mb-3" asp-action="Create">
+                追加
+            </a>
+            <table class="table datatables">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>
+                            辞書区分
+                        </th>
+                        <th>
+                            辞書コード
+                        </th>
+                        <th>
+                            内容
+                        </th>
+                        <th>
+                            コメント
+                        </th>
+                        <th>
+                            更新者
+                        </th>
+                        <th>
+                            更新日時
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model.dicList) {
+                    <tr>
+                        <td>
+                            @item.dic_cd
+                        </td>
+                        <td>
+                            @item.dic_kb
+                        </td>
+                        <td>
+                            @item.content
+                        </td>
+                        <td>
+                            @item.comment
+                        </td>
+                        <td>
+                            @item.update_user
+                        </td>
+                        <td>
+                            @item.update_date
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-dic_cd="@item.dic_cd" asp-route-dic_kb="@item.dic_kb" class="btn btn-primary">
+                                <i class="mdi mdi-pencil"></i>
+                            </a> 
+                            <a asp-action="Delete" asp-route-dic_cd="@item.dic_cd" asp-route-dic_kb="@item.dic_kb" class="btn btn-danger">
+                                <i class="mdi mdi-delete"></i>
+                            </a>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/Dictionary.js" asp-append-version="true"></script>
+    }
+}

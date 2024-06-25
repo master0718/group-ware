@@ -1,0 +1,311 @@
+is_global = true
+build_property.TargetFramework = net6.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = web_groupware
+build_property.RootNamespace = web_groupware
+build_property.ProjectDir = E:\WorkSpace\work\C#, ASP.NET\mygroupware-master\web-groupware\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 6.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = true
+build_property.MSBuildProjectDirectory = E:\WorkSpace\work\C#, ASP.NET\mygroupware-master\web-groupware
+build_property._RazorSourceGeneratorDebug = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Attendance/ExportToExcel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXR0ZW5kYW5jZVxFeHBvcnRUb0V4Y2VsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Attendance/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXR0ZW5kYW5jZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Base/DialogStaff.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQmFzZVxEaWFsb2dTdGFmZi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Board/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9hcmRcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Board/index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9hcmRcaW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Board/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9hcmRcVXBkYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Board/_FileList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQm9hcmRcX0ZpbGVMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/BukkenMemo/BukkenMemoDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVra2VuTWVtb1xCdWtrZW5NZW1vRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/BukkenMemo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQnVra2VuTWVtb1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Dictionary/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGljdGlvbmFyeVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Dictionary/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGljdGlvbmFyeVxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Dictionary/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGljdGlvbmFyeVxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Dictionary/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRGljdGlvbmFyeVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/EmployeeGroup/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVHcm91cFxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/EmployeeGroup/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVHcm91cFxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/EmployeeGroup/GetDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVHcm91cFxHZXREZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Employee/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Employee/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Employee/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZWVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Facility/Calendar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjaWxpdHlcQ2FsZW5kYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Facility/CreateNormal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjaWxpdHlcQ3JlYXRlTm9ybWFsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Facility/EditNormal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjaWxpdHlcRWRpdE5vcm1hbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Facility/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjaWxpdHlcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Facility/_FileList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjaWxpdHlcX0ZpbGVMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/FileManager/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmlsZU1hbmFnZXJcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Group/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JvdXBcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Group/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JvdXBcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Group/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JvdXBcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Group/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JvdXBcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Home/Back_to_parent.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxCYWNrX3RvX3BhcmVudC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Home/ShowImage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTaG93SW1hZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Login/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTG9naW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Memo_received.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xNZW1vX3JlY2VpdmVkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/Memo_sent.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xNZW1vX3NlbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Memo/_MemoBody.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtb1xfTWVtb0JvZHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/NoticeLogin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWNlTG9naW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Notice/ConfirmDialog.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWNlXENvbmZpcm1EaWFsb2cuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Notice/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWNlXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Place/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhY2VcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Place/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhY2VcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Place/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhY2VcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Place/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGxhY2VcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Report/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Report/ReportDetail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0XFJlcG9ydERldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/RestrationReport/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVzdHJhdGlvblJlcG9ydFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Schedule/Calendar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NoZWR1bGVcQ2FsZW5kYXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Schedule/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NoZWR1bGVcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Schedule/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NoZWR1bGVcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Schedule/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NoZWR1bGVcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Schedule/_FileList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2NoZWR1bGVcX0ZpbGVMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_ConfirmModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Db25maXJtTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_DeleteConfirmModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EZWxldGVDb25maXJtTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_DirectDeleteConfirmModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9EaXJlY3REZWxldGVDb25maXJtTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Todo/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Todo/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Todo/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb1xVcGRhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Todo/_FileList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVG9kb1xfRmlsZUxpc3QuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/WorkFlow/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya0Zsb3dcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/WorkFlow/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya0Zsb3dcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/WorkFlow/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya0Zsb3dcVXBkYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/WorkFlow/_FileList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcV29ya0Zsb3dcX0ZpbGVMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-jz39dnrv3r
+
+[E:/WorkSpace/work/C\#\, ASP.NET/mygroupware-master/web-groupware/Views/Shared/_Layout_headerSidebar_off.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXRfaGVhZGVyU2lkZWJhcl9vZmYuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-ywkfz52ee6

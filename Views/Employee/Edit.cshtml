@@ -1,0 +1,79 @@
+﻿@model web_groupware.Models.EmployeeViewModel
+
+@{
+    ViewData["Title"] = "社員マスタ（更新）";
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">社員マスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="">
+        <div class="card-body">
+            <form asp-controller="Employee" asp-action="Edit" asp-route-id="@Model.staf_cd" class="form-box">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group">
+                        <label asp-for="@Model.staf_cd" class="control-label"></label>
+                        <input asp-for="@Model.staf_cd" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group mt-2">
+                        <label asp-for="@Model.password" class="control-label"></label>
+                        <input asp-for="@Model.password" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group mt-2">
+                        <label asp-for="@Model.staf_name" class="control-label"></label>
+                        <input asp-for="@Model.staf_name" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group mt-2">
+                        <label asp-for="@Model.mail" class="control-label"></label>
+                        <input asp-for="@Model.mail" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group mt-2">
+                        <div class="form-check mb-0">
+                            <label class="control-label">
+                            <input type="checkbox" id="auth_admin" name="auth_admin" value="1" class="form-check-input"
+                            @(Model.auth_admin == 1 ? "checked" : "") />
+                            管理者権限</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-12 form-group mt-2">
+                        <label asp-for="@Model.workflow_auth" class="control-label">承認者権限</label>
+                        <select asp-for="@Model.workflow_auth" class="form-control">
+                            <option value="0">一般</option>
+                            <option value="1">管理者</option>
+                            <option value="2">決裁者</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <a class="btn btn-primary" asp-controller="Employee" asp-action="Index">キャンセル</a>
+                    </div>
+                    <div class="col text-end">
+                        <button type="submit" class="btn btn-primary">更　新</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/Employee.js" asp-append-version="true"></script>
+    }
+}

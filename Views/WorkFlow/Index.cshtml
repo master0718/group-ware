@@ -1,0 +1,420 @@
+﻿@{
+    ViewData["Title"] = "ワークフロー	";
+}
+
+@model web_groupware.Models.WorkFlowViewModel
+
+<div class="row">
+    <nav class="col-lg-4 col-md-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+            <li class="breadcrumb-item active" aria-current="page">ワークフロー</li>
+        </ol>
+    </nav>
+</div>
+<div class="card">
+    <div class="card-header align-items-center">
+        <div class="d-flex">
+            <a class="btn btn-primary" style="margin-left: auto" asp-action="Create">
+                <i class="bi bi-plus"></i> 新規登録
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="btn-group float-end" role="group" aria-label="Basic example">
+            <button class="btn btn-primary waves-effect waves-light mb-3">
+                申請中
+            </button>
+            <button class="btn btn-warning waves-effect waves-light mb-3">
+                承認済み
+            </button>
+            <button class="btn btn-danger waves-effect waves-light mb-3">
+                否決
+            </button>
+            <button class="btn btn-info waves-effect waves-light mb-3">
+                決済申請中
+            </button>
+            <button class="btn btn-success waves-effect waves-light mb-3">
+                決済承認済み
+            </button>
+        </div>
+        <table class="table table-centered  table-nowrap mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">ファイル名</th>
+                    <th scope="col">日付</th>
+                    <th scope="col">タイトル</th>
+                    <th scope="col">説明</th>
+                    <th scope="col">サイズ</th>
+                    <th scope="col" class="text-center" style="width: 125px;">動作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int idx = 1;
+                }
+                @foreach (var item in Model.fileList)
+                {
+                    @functions {
+                    string GetRowColor(int managerStatus)
+                    {
+                        switch (managerStatus)
+                        {
+                            case 0:
+                                return "";
+                            case 1:
+                                return "bg-primary";
+                            case 2:
+                                return "bg-warning";
+                            case 3:
+                                return "bg-danger";
+                            case 4:
+                                return "bg-info";
+                            case 5:
+                                return "bg-success";
+                            default:
+                                return "bg-danger";
+                        }
+                        }
+                    }
+                    <tr class="workflow @GetRowColor(item.approver_status == 0 ? item.manager_status : item.approver_status + 3)" data-id="@item.id" role="button">
+                        <td>@idx</td>
+                        <td>
+                            @if (@item.icon != "")
+                            {
+                                <img src="~/images/file-icons/@item.icon" height="30" alt="icon" class="me-2">
+                            }
+                            @if (@item.type == 1)
+                            {
+                                <a href="javascript:void(0);" class="text-dark">@item.filename</a>
+                            }
+                            else @if(item.filename != null)
+                            {
+                                @Html.ActionLink(item.filename, "DownloadFile", "WorkFlow", new
+                                    {
+                                        id = item.id
+                                    })
+                                ;
+                            }
+                        </td>
+                        <td class="font-13">@item.update_date</td>
+                        <td class="font-13">@item.title</td>
+                        <td class="font-13">@item.description</td>
+                        <td>
+                            @if (@item.size >= 1024)
+                            {
+                                var sizeInKB = item.size / 1024;
+                                <span>@sizeInKB KB</span>
+                            }
+                            else
+                            {
+                                <span>@item.size B</span>
+                            }
+                        </td>
+                        <td>
+                            <ul class="list-inline table-action m-0">
+                                <li class="list-inline-item">
+                                    @if (@item.type == 1)
+                                    {
+                                        <a href="javascript:void(0);" class="action-icon px-1" id="@item.id" onclick="renameFolder(@item.id, '@item.filename')">
+                                            <i class="mdi mdi-pencil"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0);" class="action-icon px-1" id="@item.id" onclick="openModifyModal(@item.id)">
+                                            <i class="mdi mdi-pencil"></i>
+                                        </a>
+                                    }
+                                </li>
+                                <li class="list-inline-item">
+                                    @if (item.manager_status == 0)
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@item.id" onclick="return confirm('Are you sure to delete?')">
+                                            <i class="mdi mdi-delete"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a disabled>
+                                            <i class="mdi mdi-delete"></i>
+                                        </a>
+                                    }
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    idx++;
+                }
+            </tbody>
+        </table>
+        <!-- Modal to modify workflow -->
+        <div class="modal fade" id="modify-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="modal-title">ワークフロー</h5>
+                    </div>
+                    <div class="modal-body px-4 pb-4 pt-0">
+                        @using (Html.BeginForm("Update", "WorkFlow", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <div id="workFlowContent"></div>
+                        }
+                    </div>
+                </div> <!-- end modal-content-->
+            </div> <!-- end modal dialog-->
+        </div>
+        <!-- end modal-->
+        <!-- Modal to create workflow -->
+        <div class="modal fade" id="create-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="modal-title">ワークフロー</h5>
+                    </div>
+                    <div class="modal-body px-4 pb-4 pt-0">
+                        <!-- <form class="needs-validation" name="folder-form" id="form-folder" novalidate> -->
+                        @using (Html.BeginForm("Create", "WorkFlow", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {
+                                <div class="mb-3">
+                                    <label for="file" class="form-label">Select File</label>
+                                    <input type="file" class="form-control" id="file" name="file" onchange="showFileName(this)">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">タイトル</label>
+                                    <input type="text" class="form-control" id="title" name="title">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">説明</label>
+                                    <textarea class="form-control" id="description" name="description"></textarea>
+                                </div>
+                                <!-- <button type="submit" class="btn btn-primary">Upload</button> -->
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <button type="submit" class="btn btn-success" id="btn-save-event">保存</button>
+                                </div>
+                            </div>
+                        }
+                        <!-- </form> -->
+                    </div>
+                </div> <!-- end modal-content-->
+            </div> <!-- end modal dialog-->
+        </div>
+        <!-- end modal-->
+        <!-- Modal to rename folder -->
+        <div class="modal fade" id="folder-modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="modal-title">ワークフロー</h5>
+                    </div>
+                    <div class="modal-body px-4 pb-4 pt-0">
+                        <form class="needs-validation" name="folder-form" id="form-folder" novalidate>
+                            <input type="text" name="id" id="folder-id" hidden />
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="mb-2">
+                                        <label class="control-label form-label">フォルダ名</label>
+                                        <input class="form-control" placeholder="Input Folder Name" type="text" name="title" id="folder-name" required />
+                                        <div class="invalid-feedback">Please provide a valid folder name</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <button type="submit" class="btn btn-success" id="btn-save-event">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div> <!-- end modal-content-->
+            </div> <!-- end modal dialog-->
+        </div>
+        <!-- end modal-->
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/WorkFlow.js" asp-append-version="true"></script>
+    }
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        var workFlowId, manager_status=1, approver_status = 0, workflow_auth = 0;
+        function showFileName(file) {
+            var fileName = file.files[0].name;
+            document.getElementById("filename").innerHTML = fileName;
+            $('#upload').prop('disabled', false);
+        }
+        function download(id) {
+        }
+        function renameFolder(id, name) {
+            $('#folder-id').val(id);
+            $('#folder-name').val(name);
+
+            var myModal = new bootstrap.Modal(document.getElementById('folder-modal'), {});
+            myModal.toggle();
+        }
+        function openAddModal() {
+            $('#create-modal').modal('show');
+        }
+        function applyWorkflow(approve) {
+            if (approve) {
+                if (approver_status != 0) {
+                    manager_status = manager_status;
+                    approver_status = approver_status;
+                } else if (manager_status != 0) {
+                    manager_status = 2;
+                    approver_status = 1;
+                } 
+                if (workflow_auth == 1) {
+                    data = {
+                        id: workFlowId,
+                        manager_status: 2,
+                        approver_status: 1,
+                        comment: ''
+                    }
+                } else if (workflow_auth == 2) {
+                    data = {
+                        id: workFlowId,
+                        manager_status: manager_status,
+                        approver_status: 2,
+                        comment: ''
+                    }
+                } else {
+                    data = {
+                        id: workFlowId,
+                        manager_status: 1,
+                        approver_status: 0,
+                        comment: ''
+                    }
+                }
+            }
+            else {
+                var comment = $('#comment').val();
+                if (!comment) {
+                    alert('You have to write comment when you reject');
+                    return;
+                }
+                if (workflow_auth == 1) {
+                    data = {
+                        id: workFlowId,
+                        manager_status: 3,
+                        approver_status: 0,
+                        comment: comment
+                    }
+                } else if (workflow_auth == 2) {
+                    data = {
+                        id: workFlowId,
+                        manager_status: manager_status,
+                        approver_status: 3,
+                        comment: comment
+                    }
+                }
+            }
+            $.ajax({
+                method: "post",
+                url: '@Url.Action("ApplyWorkFlow", "WorkFlow")',
+                data: data,
+                success: function (result) {
+                    $('#modify-modal').modal('hide');
+                    window.location.href = window.location.href;
+                },
+                error: function (xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            })
+        }
+        function downloadFile(id) {
+            window.location.href = '@Url.Action("DownloadFile", "WorkFlow")' + '?id=' + id;
+        }
+        function openModifyModal(id) {
+            workFlowId = id;
+            $.ajax({
+                method: "post",
+                url: '@Url.Action("GetSelectedData", "WorkFlow")',
+                data: {
+                    id: id
+                },
+                success: function (result) {
+                    const html = `
+                                    ${result.workFlowDetail.icon !== "" ? `<img src="../images/file-icons/${result.workFlowDetail.icon}" height="30" alt="icon" class="me-2">` : ""}
+                                    ${result.workFlowDetail.type === 1 ? `<a href="javascript:void(0);" class="text-dark" onclick="downloadFile(${result.workFlowDetail.id})">${result.workFlowDetail.filename ?? ''}</a>` :
+                                    `<a href="#" onclick="downloadFile(${result.workFlowDetail.id})">${result.workFlowDetail.filename ?? ''}</a>`}
+                                    <input type="text" class="form-control" id="id" name="id" value="${result.workFlowDetail.id}" hidden>
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">タイトル</label>
+                                    <input type="text" class="form-control" id="title" name="title" value="${result.workFlowDetail.title}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">説明</label>
+                                    <textarea class="form-control" id="description" name="description">${result.workFlowDetail.description}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label">コメント</label>
+                                        <textarea class="form-control" id="comment" name="comment">${result.workFlowDetail.comment ?? ''}</textarea>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-4">
+                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button type="submit" class="btn btn-success" id="btn-save-event">保存</button>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button type="button" class="btn btn-success" id="btn-request-event" onclick="applyWorkflow(true)">申し込み</button>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button type="button" class="btn btn-success" id="btn-approve-event" onclick="applyWorkflow(true)">承認</button>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button type="button" class="btn btn-danger" id="btn-reject-event" onclick="applyWorkflow(false)">否決</button>
+                                        </div>
+                                    </div>`;
+                    $('#workFlowContent').html(html);
+                    workflow_auth = result.workflow_auth;
+                    if (result.workFlowDetail.manager_status !== 0 && result.workflow_auth == 0) {
+                        // Disable the "保存" button
+                        $('#btn-save-event').prop('disabled', true);
+                        $('#btn-request-event').prop('disabled', true);
+                        $('#comment').parent().hide();
+                        $('#btn-approve-event').parent().hide();
+                        $('#btn-reject-event').parent().hide();
+                    } else if (result.workFlowDetail.manager_status !== 0 && result.workflow_auth != 0) {
+                        manager_status = result.workFlowDetail.manager_status;
+                        approver_status = result.workFlowDetail.approver_status;
+                        $('#btn-save-event').parent().hide();
+                        $('#btn-request-event').parent().hide();
+                        $('#btn-approve-event').parent().show();
+                        $('#btn-reject-event').parent().show();
+                        if (approver_status > 1 && workflow_auth == 1) {
+                            $('#btn-approve-event').prop('disabled', true);
+                            $('#btn-reject-event').prop('disabled', true);
+                        }
+                    } else if (result.workFlowDetail.manager_status == 0 && result.workflow_auth == 0) {
+                        $('#btn-save-event').prop('disabled', false);
+                        $('#btn-request-event').prop('disabled', false);
+                        $('#comment').parent().hide();
+                        $('#btn-approve-event').parent().hide();
+                        $('#btn-reject-event').parent().hide();
+                    }
+                    $('#modify-modal').modal('show');
+                },
+                error: function (xhr) {
+                    alert("Error: " + xhr.responseText);
+                }
+            });
+        }
+    </script>
+}

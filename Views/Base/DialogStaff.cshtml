@@ -1,0 +1,53 @@
+﻿@model web_groupware.Models.BaseDialogStaffViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "_Layout_headerSidebar_off";
+}
+
+<div class="modal-content container-fluid p-3">
+    <div id="BaseDialogStaff_js_select_no" class="d-none"></div>
+    <div class="row modal-header">
+        <h4 class="modal-title">社員検索</h4>
+    </div>
+    <div class="row modal-body mt-2">
+        <form asp-controller="Base" asp-action="DialogStaff" class="form-box site_change_post">
+            <div class="col">
+                <label>グループ</label>
+                <select asp-for="@Model.Selected_group_cd" asp-items="@Model.List_group_cd" class="form-select form-control-sm">
+                    <option value="-1">全て</option>
+                </select>
+            </div>
+        </form>
+        <div class="col">
+            <table class="table  table-striped table-hover mt-2">
+                @for (int i = 0; i < Model.List_staf_cd.Count(); i++)
+                {
+                    <tr>
+                        <td class="">
+                            <input type="hidden" asp-for="@Model.List_staf_cd[i].Staf_cd" class="staf_cd" />
+                            <label class="staf_name"><input asp-for="@Model.List_staf_cd[i].Is_checked" class="me-2"/>@Model.List_staf_cd[i].Staf_name</label>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+
+    </div>
+    <div class="row justify-content-between modal-footer">
+        <div class="col">
+            <button type="button" class="site_iframe_close btn btn-primary">閉じる</button>
+        </div>
+        <div class="col text-end">
+            <button class="btn btn-primary BaseDialogStaff_js_choose">選択</button>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/BaseDialogStaff.js" asp-append-version="true"></script>
+    }
+}

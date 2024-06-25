@@ -1,0 +1,76 @@
+﻿@model web_groupware.Models.DictionaryDetail
+
+@{
+    ViewData["Title"] = "辞書マスタ（更新）";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">辞書マスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="">
+        <div class="card-body">
+            <form asp-controller="Dictionary" asp-action="Edit" asp-route-dic_cd="@Model.dic_cd" asp-route-dic_kp="@Model.dic_kb" method="post" class="form-box">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="dic_cd" />
+                <div class="row">
+                    <div class="col-md-6 col-12 form-group">
+                        <label asp-for="@Model.dic_kb" class="control-label">辞書コード</label>
+                        <input asp-for="@Model.dic_kb" class="form-control" />
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.dic_kb" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-12 form-group mt-2">
+                        <label asp-for="@Model.dic_cd" class="control-label">辞書区分</label>
+                        <input asp-for="@Model.dic_cd" class="form-control" />
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.dic_cd" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-12 form-group mt-2">
+                        <label asp-for="@Model.content" class="control-label">内容</label>
+                        <textarea asp-for="@Model.content" class="form-control"></textarea>
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.content" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-12 form-group mt-2">
+                        <label asp-for="@Model.comment" class="control-label">コメント</label>
+                        <textarea asp-for="@Model.comment" class="form-control"></textarea>
+                    </div>
+                    <div>
+                        <span asp-validation-for="@Model.comment" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col">
+                        <a class="btn btn-primary" asp-controller="Dictionary" asp-action="Index">キャンセル</a>
+                    </div>
+                    <div class="col text-end">
+                        <button type="submit" class="btn btn-primary">更　新</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/Dictionary.js" asp-append-version="true"></script>
+    }
+}

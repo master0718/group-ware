@@ -1,0 +1,296 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model BukkenMemoDetailViewModel;
+
+@{
+    ViewData["Title"] = "物件メモ詳細";
+
+}
+<link rel="stylesheet" href="~/css/BaseDialogStaff.css" />
+<link href="~/css/BukkenMemo.css" rel="stylesheet" />
+<link href="~/css/file.css" rel="stylesheet" />
+<div class="row">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">ホーム</a></li>
+            <li class="breadcrumb-item"><a asp-controller="BukkenMemo" asp-action="Index">物件メモ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                物件メモ詳細
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="text-danger" asp-validation-summary="ModelOnly"></div>
+<div class="card">
+    <form id="frm" asp-controller="BukkenMemo" asp-action="Create" method="post">
+        <input type="hidden" asp-for="@Model.bukken_cd" />
+        @*         <input type="hidden" asp-for="@Model.list_staff" />
+        *@
+        <input type="hidden" asp-for="@Model.cond_bukken_name" />
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="page-title mb-0">
+                @Model.bukken_name
+            </h4>
+            <div class="d-flex justify-content-end">
+                <a type="button" asp-controller="BukkenMemo" asp-action="Index" asp-route-cond_bukken_name="@Model.cond_bukken_name" class="btn btn-secondary" style="margin-right: 10px">
+                    <i class="bi bi-arrow-return-left"></i> キャンセル
+                </a>
+                <button type="button" class="btn btn-primary kakuninDialog">
+                    <i class="bi bi-plus-lg"></i>
+                    コメント投稿
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <div class="col">
+                        物件基本情報
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6 col-12">
+                            <div class="">
+                                <h5 class="">物件名</h5>
+                            </div>
+                            <div>
+                                <span class="">@Model.bukken_nameWithCode</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div>
+                                <h5 class="">住所</h5>
+                            </div>
+                            <div>
+                                <span class="">
+                                    @Model.zip
+                                </span>
+                                <span class="">
+                                    @Model.address1
+                                </span>
+                                <span class="">
+                                    @Model.address2
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-header card-footer d-flex align-items-center">
+                    <div class="col">
+                        コメント
+                    </div>
+                </div>
+                <div id="" class="card-body ">
+                    <div id="" class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-2">
+                                    コメント日時
+                                </div>
+                                <div class="col-2">
+                                    投稿者
+                                </div>
+                                <div class="col-7">
+                                    コメント内容
+                                </div>
+                                <div class="col-1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="scroll-inner" class="card-body scroll">
+                            @for (var i = 0; i < Model.list_detail.Count; i++)
+                            {
+                                <div class="row">
+                                    <div class="col-2">
+                                        <span>@Model.list_detail[i].update_date</span>
+                                    </div>
+                                    <div class="col-2">
+                                        <span>@Model.list_detail[i].update_user</span>
+                                    </div>
+                                    <div class="col-7">
+                                        <span style="white-space: pre-wrap">@Model.list_detail[i].message</span>
+                                    </div>
+                                    <div class="col-1">
+                                        @if (!Model.list_detail[i].already_read_comment)
+                                        {
+                                            <button type="button" data-site_form="form_Read_comment" data-site_confirm="このコメントを確認済みにしてもよろしいですか？" data-comment_no="@Model.list_detail[i].comment_no" class="btn btn-primary Report_save_comment_no kakuninDialog">
+                                                <i class="bi bi-check-circle"></i>
+                                                確認
+                                            </button>
+                                        }
+
+                                    </div>
+
+                                </div>
+                                @if (Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED.Count != 0)
+                                {
+                                    <div class="row">
+                                        <div class="col d-flex">
+
+                                            @for (int k = 0; k < Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED.Count; k++)
+                                            {
+                                                <div class="div_icon_child dropdown fileAreaHeitWidth">
+                                                    <input type="hidden" asp-for="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">
+                                                    <input type="hidden" asp-for="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].file_no">
+                                                    <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                                        <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">
+
+                                                            <div class="div_img_file bg-light p-2">
+                                                                @{
+                                                                    var icon = System.IO.Path.GetExtension(Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName).Remove(0, 1) + ".svg";
+                                                                }
+
+                                                                <img src="~/images/file-icons/@icon" alt="icon" class="">
+                                                            </div>
+                                                            <div class="text-wrap">@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName</div>
+                                                        </div>
+                                                    </button>
+                                                    <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                                        @*                                                 <button class="dropdown-item delete_file" type="button" role="button" id="delete_@k" data-dir_kind="1" data-file_name="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">削除</button>
+                                            *@
+                                                        <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName" data-dir_no_child="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].comment_no">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                                    </ul>
+                                                </div>
+
+                                            }
+                                        </div>
+                                    </div>
+
+                                }
+
+                                if (i != Model.list_detail.Count - 1)
+                                {
+                                    <div class="border-top mt-2 pb-2">
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                    </div>
+                    @***********************************************************************************@
+                    <input type="hidden" asp-for="@Model.Delete_files" />
+                    <div class="row mt-3" id="div_icon">
+                            @if (Model.List_T_BUKKENCOMMENT_FILE.Count != 0)
+                            {
+                                @for (int i = 0; i < Model.List_T_BUKKENCOMMENT_FILE.Count; i++)
+                                {
+                                    <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeitWidth">
+                                        <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
+                                        <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].file_no">
+                                        <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                            <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
+
+                                                <div class="div_img_file bg-light p-2">
+                                                    @{
+                                                        var icon = System.IO.Path.GetExtension(Model.List_T_BUKKENCOMMENT_FILE[i].fileName).Remove(0, 1) + ".svg";
+                                                    }
+
+                                                    <img src="~/images/file-icons/@icon" alt="icon" class="">
+                                                </div>
+                                                <div class="text-wrap main_files">@Model.List_T_BUKKENCOMMENT_FILE[i].fileName</div>
+                                            </div>
+                                        </button>
+                                        <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                            <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">削除</button>
+                                            <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                    </div>
+                    <div class="row" id="fileArea">
+                        <input type="hidden" asp-for="@Model.work_dir">
+                        <input type="hidden" asp-for="@Model.dic_cd">
+                        <input type="hidden" asp-for="@Model.dir_no">
+                        <div class="col-12 card dropArea border-0 px-3 ">
+                            <div class="text-center px-3 py-3 border-primary bg-white" style=" border: 3px dotted #adadad!important;">
+                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                <label class="input-group-btn hand-pointer">
+                                    <span class="btn btn-secondary">
+                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
+                                    </span>
+                                </label>
+                                <br>
+                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            </div>
+                            @*                         <div id="message_file1" class="text-right"></div>
+                            *@
+                        </div>
+                    </div>
+
+                    @***********************************************************************************@
+
+
+                    <div class="row mt-3">
+                        <div class="col">
+                            <div>
+                                <textarea asp-for="@Model.message_new" rows="4" class="form-control bg-white" placeholder="コメント記載"></textarea>
+                            </div>
+                            <div>
+                                <span asp-validation-for="@Model.message_new" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*                     <div class="row mt-3">
+                    <div class="col">
+                    <label asp-for="@Model.list_selected_staf_cd" class="form-label"></label>
+                    <div class="row form-group">
+                    <div class="col-10">
+                    <select asp-for="@Model.list_selected_staf_cd" asp-items="@Model.list_staff" class="form-control form-control-sm d-none BaseDialogStaff_js_select">
+                    </select>
+                    <div>
+                    <span asp-validation-for="@Model.list_selected_staf_cd" class="text-danger"></span>
+                    </div>
+                    </div>
+                    <div class="col-2 text-end">
+                    <a asp-controller="Base" asp-action="DialogStaff" date-BaseDialogStaff_js_a_no="0" class="btn btn-primary site_iframe_30_80 BaseDialogStaff_js_search">社員検索</a>
+                    </div>
+                    </div>
+                    </div>
+                    </div>
+                    *@
+                </div>
+
+
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <h4 class="page-title mb-0">　</h4>
+            <div class="d-flex justify-content-end">
+                <a type="button" asp-controller="BukkenMemo" asp-action="Index" asp-route-cond_bukken_name="@Model.cond_bukken_name" class="btn btn-secondary" style="margin-right: 10px">
+                    <i class="bi bi-arrow-return-left"></i> キャンセル
+                </a>
+                <button type="button" class="btn btn-primary kakuninDialog">
+                    <i class="bi bi-plus-lg"></i>
+                    コメント投稿
+                </button>
+            </div>
+        </div>
+
+    </form>
+    <form id="form_Read_comment" asp-controller="BukkenMemo" asp-action="Read_comment" method="post">
+        <input type="hidden" asp-for="@Model.already_read_comment_no" />
+        <input type="hidden" asp-for="@Model.bukken_cd" />
+        @*         <input type="hidden" asp-for="@Model.list_staff" />
+        *@
+        <input type="hidden" asp-for="@Model.cond_bukken_name" />
+    </form>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/BaseDialogStaff.js" asp-append-version="true"></script>
+        <script src="~/js/BukkenMemo.js" asp-append-version="true"></script>
+    }
+    <script src="~/js/File.js" asp-append-version="true"></script>
+}
+
+

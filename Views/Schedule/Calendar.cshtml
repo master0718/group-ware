@@ -1,0 +1,94 @@
+﻿@model web_groupware.Models.ScheduleViewModel
+
+@{
+    ViewData["Title"] = "スケジュール";
+}
+
+@section Styles {
+    <link href="~/css/schedule.css" rel="stylesheet" />
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid" id="root">
+        <div class="row mb-3">
+            <nav class="col" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">スケジュール</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="card">
+            <div class="card-header justify-content-between">
+                <h4 class="mb-0"></h4>
+                <div class="col-auto d-flex">
+                    <div>
+                        @if (Model.GroupList != null)
+                        {
+                            <select id="group_list" class="form-select me-3" style="width:200px">
+                                <option value="0">全員</option>
+                                @foreach (var group in Model.GroupList)
+                                {
+                                    <option value="@group.group_cd">@group.group_name</option>
+                                }
+                            </select>
+                        } else if (Model.StaffList != null)
+                        {
+                            <select id="staff_list" class="form-select me-3" style="width:200px">
+                                @foreach (var staff in Model.StaffList)
+                                {
+                                    if (staff.staf_cd == Model.staf_cd)
+                                    {
+                                        <option value="@staff.staf_cd" selected>@staff.staf_name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@staff.staf_cd">@staff.staf_name</option>
+                                    }
+                                }
+                            </select>
+                        }
+                    </div>
+                    <div style="margin-left: auto">
+                        <button type="button" id="add_schedule" class="btn btn-primary"><i class="bi bi-plus"></i> 予定を登録する</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <input hidden asp-for="@Model.startDate" />
+
+                <div class="row">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/lib/fullcalendar/index.global.min.js" asp-append-version="true"></script>
+        <script src="~/lib/fullcalendar/premium-common/index.global.min.js" asp-append-version="true"></script>
+        <script src="~/lib/fullcalendar/scrollgrid/index.global.min.js" asp-append-version="true"></script>
+        <script src="~/lib/fullcalendar/timeline/index.global.min.js" asp-append-version="true"></script>
+        <script src="~/lib/fullcalendar/resource/index.global.min.js" asp-append-version="true"></script>
+        <script src="~/lib/fullcalendar/resource-timeline/index.global.min.js" asp-append-version="true"></script>
+        @if (ViewBag.ViewMode.Contains("Group"))
+        {
+            <script src="~/js/ScheduleGroup.js" asp-append-version="true"></script>
+        } else if (ViewBag.ViewMode.Contains("Week"))
+        {
+            <script src="~/js/SchedulePersonWeek.js" asp-append-version="true"></script>
+        } else
+        {
+            <script src="~/js/SchedulePersonMonth.js" asp-append-version="true"></script>
+        }
+        <script src="~/js/ScheduleRepetition.js" asp-append-version="true"></script>
+    }
+    <script>
+        var viewMode = '@ViewBag.ViewMode';
+    </script>
+}

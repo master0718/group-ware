@@ -1,0 +1,121 @@
+﻿@using web_groupware.Utilities
+
+<div class="card">
+    <div class="card-header justify-content-between">
+        <h4 class="mb-0"></h4>
+        <div class="col-auto d-flex">
+            <form id="selectionForm" asp-controller="Memo" asp-action="Filter" method="post" asp-route-is_sent="@Model.isSent" class="d-flex">
+                <div class="input-group" style="flex-wrap: nowrap;">
+                    <span class="input-group-text">宛先</span>
+                    <select class="form-select me-3" id="filter_user" name="filter_user" style="width:120px" onchange="FilterChanged()">
+                        <option selected="" value=0>すべて</option>
+                        <option value=1>本人</option>
+                        @foreach (var item in Model.groupList)
+                        {
+                            <option value="@(item.group_cd + 2)">@item.group_name</option>
+                        }
+                    </select>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text">状態</span>
+                    <select class="form-select" id="filter_state" name="filter_state" style="width:120px" onchange="FilterChanged()">
+                        @{
+                            int idx = 0;
+                        }
+                        @foreach (var item in MemoTypes.AllTypes)
+                        {
+                            <option value=@idx>@MemoTypes.AllTypes[idx]</option>
+                            idx++;
+                        }
+                    </select>
+                </div>
+            </form>
+
+            <div style="margin-left: auto">
+                <button type="button" id="add_memo" class="btn btn-primary"><i class="bi bi-plus"></i> 新規登録</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            @foreach (var item in Model.memoList)
+            {
+                <div class="col-12">
+                    <div class="card mb-3">
+                        <div class="card-header justify-content-between">
+                            <span></span>
+                            <span>時刻：@item.create_date</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-title h5">
+                                @{
+                                    string comment_str = "";
+                                    foreach (var comment_item in Model.commentList)
+                                    {
+                                        if (comment_item.comment_no == item.comment_no)
+                                        {
+                                            comment_str = comment_item.comment;
+                                            break;
+                                        }
+                                    }
+                                }
+                                @comment_str
+                            </p>
+
+                            <div class="card-text">
+                                <table class="table mb-0">
+                                    <tr>
+                                        <td class="border-0">
+                                            <table class="table table-sm mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="border-0 border-bottom border-dark-subtle">
+                                                            @item.receiver_name：
+
+                                                            @if (@item.state == 0)
+                                                            {
+                                                                <span class="badge text-bg-info">@MemoTypes.Unread</span>
+                                                            }
+                                                            else if (@item.state == 1)
+                                                            {
+                                                                <span class="badge text-bg-danger">@MemoTypes.Read</span>
+                                                            }
+                                                            else if (@item.state == 2)
+                                                            {
+                                                                <span class="badge text-bg-success">@MemoTypes.Working</span>
+                                                            }
+                                                            else if (@item.state == 3)
+                                                            {
+                                                                <span class="badge text-bg-secondary">@MemoTypes.Finish</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+                        <div class="card-footer justify-content-between">
+
+                            @{
+                                var actionEdit = ViewBag.ViewMode == "Memo_sent" ? "EditSent" : "EditReceived";
+                                var actionDelete = ViewBag.ViewMode == "Memo_sent" ? "DeleteSent" : "DeleteReceived";
+                            }
+                            <a asp-action="@actionEdit" asp-route-memo_no="@item.memo_no" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> 変更
+                            </a>
+                            <a asp-action="@actionDelete" asp-route-memo_no="@item.memo_no" class="btn btn-danger">
+                                <i class="bi bi-trash3"></i> 削除
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

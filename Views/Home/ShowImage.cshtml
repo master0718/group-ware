@@ -1,0 +1,14 @@
+@model web_groupware.Models.HomeShowImageViewModel
+@{
+    ViewData["Title"] = "添付ファイル";
+    Layout = "_Layout_headerSidebar_off";
+}
+<style>
+    img {
+        object-fit: contain;
+        max-width: 90vw;
+    }
+</style>
+<div class="container-fluid text-center">
+    <img src="@Model.Src" oncontextmenu="return false;" style="" />
+</div>

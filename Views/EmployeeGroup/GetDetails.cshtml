@@ -1,0 +1,59 @@
+﻿@model web_groupware.Models.EmployeeGroupDetailViewModel
+
+@{
+    ViewData["Title"] = "社員グループマスタ";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">社員グループマスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="">
+        <div class="card-body">
+            <a class=" btn btn-success waves-effect waves-light mb-3" asp-action="Create" asp-route-id="@ViewContext.RouteData.Values["id"]">
+                メンバ―追加
+            </a>
+            <table class="table datatables">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>
+                            メンバー
+                        </th>
+                        <th>
+                            グループ
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.empGroupList)
+                {
+                    <tr>
+                        <td>
+                            @item.staf_name
+                        </td>
+                        <td>
+                            @item.group_name
+                        </td>
+                        <td>
+                            <a asp-action="Delete" asp-route-group_cd="@item.group_cd" asp-route-staf_cd="@item.staf_cd" class="btn btn-danger">
+                                <i class="mdi mdi-delete"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/EmployeeGroup.js" asp-append-version="true"></script>
+    }
+}

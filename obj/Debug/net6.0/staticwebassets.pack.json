@@ -1,0 +1,829 @@
+{
+  "Files": [
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\obj\\Debug\\net6.0\\scopedcss\\projectbundle\\web-groupware.bundle.scp.css",
+      "PackagePath": "staticwebassets\\web-groupware.bundle.scp.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\Files\\Attendance.xlsx",
+      "PackagePath": "staticwebassets\\Files\\Attendance.xlsx"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\Files\\Portfolio2.png",
+      "PackagePath": "staticwebassets\\Files\\Portfolio2.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\Files\\Portofolio3.png",
+      "PackagePath": "staticwebassets\\Files\\Portofolio3.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\Files\\Screenshot 2024-05-07 165447.png",
+      "PackagePath": "staticwebassets\\Files\\Screenshot 2024-05-07 165447.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\Files\\portfolio4.png",
+      "PackagePath": "staticwebassets\\Files\\portfolio4.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\BaseDialogStaff.css",
+      "PackagePath": "staticwebassets\\css\\BaseDialogStaff.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\BukkenMemo.css",
+      "PackagePath": "staticwebassets\\css\\BukkenMemo.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Notice.css",
+      "PackagePath": "staticwebassets\\css\\Notice.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\RestrationReport.css",
+      "PackagePath": "staticwebassets\\css\\RestrationReport.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\bootstrap.main.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\bootstrap.main.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\creative.app-dark.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\creative.app-dark.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\creative.app.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\creative.app.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\creative.bootstrap-dark.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\creative.bootstrap-dark.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\creative.bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\creative.bootstrap.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\daygrid.main.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\daygrid.main.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\icons.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\icons.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\list.main.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\list.main.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\main.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\main.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\Schedule\\timegrid.main.min.css",
+      "PackagePath": "staticwebassets\\css\\Schedule\\timegrid.main.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\board.css",
+      "PackagePath": "staticwebassets\\css\\board.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\calendar\\bootstrap-datepicker3.min.css",
+      "PackagePath": "staticwebassets\\css\\calendar\\bootstrap-datepicker3.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\calendar\\jquery-ui-smoothness.css",
+      "PackagePath": "staticwebassets\\css\\calendar\\jquery-ui-smoothness.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\file.css",
+      "PackagePath": "staticwebassets\\css\\file.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\icons.min.css",
+      "PackagePath": "staticwebassets\\css\\icons.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\memo.css",
+      "PackagePath": "staticwebassets\\css\\memo.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\schedule.css",
+      "PackagePath": "staticwebassets\\css\\schedule.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\css\\waves.min.css",
+      "PackagePath": "staticwebassets\\css\\waves.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\materialdesignicons-webfont.woff",
+      "PackagePath": "staticwebassets\\fonts\\materialdesignicons-webfont.woff"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\materialdesignicons-webfont.woff2",
+      "PackagePath": "staticwebassets\\fonts\\materialdesignicons-webfont.woff2"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\remixicon.eot",
+      "PackagePath": "staticwebassets\\fonts\\remixicon.eot"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\remixicon.ttf",
+      "PackagePath": "staticwebassets\\fonts\\remixicon.ttf"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\remixicon.woff",
+      "PackagePath": "staticwebassets\\fonts\\remixicon.woff"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\fonts\\remixicon.woff2",
+      "PackagePath": "staticwebassets\\fonts\\remixicon.woff2"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\avatar-1.jpg",
+      "PackagePath": "staticwebassets\\images\\avatar-1.jpg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\avatar-2.jpg",
+      "PackagePath": "staticwebassets\\images\\avatar-2.jpg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\avatar-3.jpg",
+      "PackagePath": "staticwebassets\\images\\avatar-3.jpg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\bg-login.jpg",
+      "PackagePath": "staticwebassets\\images\\bg-login.jpg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\favicon.ico",
+      "PackagePath": "staticwebassets\\images\\favicon.ico"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\3ds.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\3ds.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\aac.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\aac.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\ai.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\ai.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\avi.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\avi.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\bmp.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\bmp.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\cad.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\cad.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\cdr.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\cdr.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\css.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\css.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\dat.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\dat.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\dll.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\dll.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\dmg.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\dmg.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\doc.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\doc.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\eps.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\eps.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\fla.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\fla.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\flv.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\flv.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\folder.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\folder.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\gif.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\gif.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\html.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\html.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\indd.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\indd.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\iso.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\iso.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\jpg.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\jpg.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\js.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\js.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\midi.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\midi.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\mov.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\mov.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\mp3.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\mp3.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\mpg.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\mpg.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\pdf.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\pdf.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\php.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\php.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\png.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\png.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\ppt.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\ppt.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\ps.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\ps.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\psd.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\psd.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\raw.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\raw.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\sql.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\sql.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\svg.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\svg.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\tif.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\tif.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\txt.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\txt.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\wmv.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\wmv.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\xls.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\xls.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\xlsx.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\xlsx.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\xml.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\xml.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\file-icons\\zip.svg",
+      "PackagePath": "staticwebassets\\images\\file-icons\\zip.svg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\icon_smart_tomorrow_ai.png",
+      "PackagePath": "staticwebassets\\images\\icon_smart_tomorrow_ai.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\image-16x16.jpg",
+      "PackagePath": "staticwebassets\\images\\image-16x16.jpg"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\logo-dark1212.png",
+      "PackagePath": "staticwebassets\\images\\logo-dark1212.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\logo_ast_3.png",
+      "PackagePath": "staticwebassets\\images\\logo_ast_3.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\shape-one.png",
+      "PackagePath": "staticwebassets\\images\\shape-one.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\shape-two.png",
+      "PackagePath": "staticwebassets\\images\\shape-two.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\simpleWrite16.png",
+      "PackagePath": "staticwebassets\\images\\simpleWrite16.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\images\\write16.png",
+      "PackagePath": "staticwebassets\\images\\write16.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\AjaxInterceptor.js",
+      "PackagePath": "staticwebassets\\js\\AjaxInterceptor.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\BaseDialogStaff.js",
+      "PackagePath": "staticwebassets\\js\\BaseDialogStaff.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Board.js",
+      "PackagePath": "staticwebassets\\js\\Board.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\BoardCreate.js",
+      "PackagePath": "staticwebassets\\js\\BoardCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\BukkenMemo.js",
+      "PackagePath": "staticwebassets\\js\\BukkenMemo.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Dictionary.js",
+      "PackagePath": "staticwebassets\\js\\Dictionary.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Employee.js",
+      "PackagePath": "staticwebassets\\js\\Employee.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\EmployeeGroup.js",
+      "PackagePath": "staticwebassets\\js\\EmployeeGroup.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Facility.js",
+      "PackagePath": "staticwebassets\\js\\Facility.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\FacilityCreate.js",
+      "PackagePath": "staticwebassets\\js\\FacilityCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\File.js",
+      "PackagePath": "staticwebassets\\js\\File.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Group.js",
+      "PackagePath": "staticwebassets\\js\\Group.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Memo.js",
+      "PackagePath": "staticwebassets\\js\\Memo.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\MemoCreate.js",
+      "PackagePath": "staticwebassets\\js\\MemoCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Report.js",
+      "PackagePath": "staticwebassets\\js\\Report.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\ScheduleCreate.js",
+      "PackagePath": "staticwebassets\\js\\ScheduleCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\ScheduleGroup.js",
+      "PackagePath": "staticwebassets\\js\\ScheduleGroup.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\SchedulePersonMonth.js",
+      "PackagePath": "staticwebassets\\js\\SchedulePersonMonth.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\SchedulePersonWeek.js",
+      "PackagePath": "staticwebassets\\js\\SchedulePersonWeek.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\ScheduleRepetition.js",
+      "PackagePath": "staticwebassets\\js\\ScheduleRepetition.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\Todo.js",
+      "PackagePath": "staticwebassets\\js\\Todo.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\TodoCreate.js",
+      "PackagePath": "staticwebassets\\js\\TodoCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\WorkFlow.js",
+      "PackagePath": "staticwebassets\\js\\WorkFlow.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\WorkFlowCreate.js",
+      "PackagePath": "staticwebassets\\js\\WorkFlowCreate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\attendance_.js",
+      "PackagePath": "staticwebassets\\js\\attendance_.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\dashboard-crm.init.js",
+      "PackagePath": "staticwebassets\\js\\dashboard-crm.init.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\colorbox\\colorbox.css",
+      "PackagePath": "staticwebassets\\lib\\colorbox\\colorbox.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\colorbox\\jquery.colorbox-ja.js",
+      "PackagePath": "staticwebassets\\lib\\colorbox\\jquery.colorbox-ja.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\colorbox\\jquery.colorbox.js",
+      "PackagePath": "staticwebassets\\lib\\colorbox\\jquery.colorbox.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\.bower.json",
+      "PackagePath": "staticwebassets\\lib\\datatables\\.bower.json"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\Contributing.md",
+      "PackagePath": "staticwebassets\\lib\\datatables\\Contributing.md"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\Readme.md",
+      "PackagePath": "staticwebassets\\lib\\datatables\\Readme.md"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\bower.json",
+      "PackagePath": "staticwebassets\\lib\\datatables\\bower.json"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\dataTables.bootstrap.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\dataTables.bootstrap.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\jquery.dataTables.min.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\jquery.dataTables.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\jquery.dataTables.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\jquery.dataTables.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\license.txt",
+      "PackagePath": "staticwebassets\\lib\\datatables\\license.txt"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.bootstrap.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.bootstrap.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.bootstrap.min.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.bootstrap.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.foundation.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.foundation.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.foundation.min.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.foundation.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.jqueryui.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.jqueryui.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\dataTables.jqueryui.min.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\dataTables.jqueryui.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\jquery.dataTables.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\jquery.dataTables.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\jquery.dataTables.min.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\jquery.dataTables.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\css\\jquery.dataTables_themeroller.css",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\css\\jquery.dataTables_themeroller.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\Sorting icons.psd",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\Sorting icons.psd"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\favicon.ico",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\favicon.ico"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\sort_asc.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\sort_asc.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\sort_asc_disabled.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\sort_asc_disabled.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\sort_both.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\sort_both.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\sort_desc.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\sort_desc.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\images\\sort_desc_disabled.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\images\\sort_desc_disabled.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.bootstrap.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.bootstrap.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.bootstrap.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.bootstrap.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.foundation.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.foundation.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.foundation.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.foundation.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.jqueryui.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.jqueryui.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\dataTables.jqueryui.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\dataTables.jqueryui.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\jquery.dataTables.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\jquery.dataTables.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\jquery.dataTables.min.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\jquery.dataTables.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\media\\js\\jquery.js",
+      "PackagePath": "staticwebassets\\lib\\datatables\\media\\js\\jquery.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\sort_asc.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\sort_asc.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\sort_asc_disabled.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\sort_asc_disabled.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\sort_both.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\sort_both.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\sort_desc.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\sort_desc.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datatables\\sort_desc_disabled.png",
+      "PackagePath": "staticwebassets\\lib\\datatables\\sort_desc_disabled.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datepicker\\css\\bootstrap-datepicker.min.css",
+      "PackagePath": "staticwebassets\\lib\\datepicker\\css\\bootstrap-datepicker.min.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datepicker\\js\\bootstrap-datepicker.ja.min.js",
+      "PackagePath": "staticwebassets\\lib\\datepicker\\js\\bootstrap-datepicker.ja.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\datepicker\\js\\bootstrap-datepicker.min.js",
+      "PackagePath": "staticwebassets\\lib\\datepicker\\js\\bootstrap-datepicker.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\premium-common\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\premium-common\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\resource-timeline\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\resource-timeline\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\resource\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\resource\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\scrollgrid\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\scrollgrid\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\fullcalendar\\timeline\\index.global.min.js",
+      "PackagePath": "staticwebassets\\lib\\fullcalendar\\timeline\\index.global.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-ui\\datepicker-ja.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-ui\\datepicker-ja.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation-unobtrusive\\LICENSE.txt",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\LICENSE.txt"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation-unobtrusive\\jquery.validate.unobtrusive.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation\\LICENSE.md",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\LICENSE.md"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation\\dist\\additional-methods.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\additional-methods.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery-validation\\dist\\jquery.validate.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery.scrollto.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery.scrollto.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery.todo.js",
+      "PackagePath": "staticwebassets\\lib\\jquery.todo.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\jquery\\jquery-3.7.1.min.js",
+      "PackagePath": "staticwebassets\\lib\\jquery\\jquery-3.7.1.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\moment.min.js",
+      "PackagePath": "staticwebassets\\lib\\moment.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\popper.js\\popper.min.js",
+      "PackagePath": "staticwebassets\\lib\\popper.js\\popper.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\popper.js\\popper_1.16.0.min.js",
+      "PackagePath": "staticwebassets\\lib\\popper.js\\popper_1.16.0.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\css\\selectize.bootstrap2.css",
+      "PackagePath": "staticwebassets\\lib\\selectize\\css\\selectize.bootstrap2.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\css\\selectize.bootstrap3.css",
+      "PackagePath": "staticwebassets\\lib\\selectize\\css\\selectize.bootstrap3.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\css\\selectize.css",
+      "PackagePath": "staticwebassets\\lib\\selectize\\css\\selectize.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\css\\selectize.default.css",
+      "PackagePath": "staticwebassets\\lib\\selectize\\css\\selectize.default.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\css\\selectize.legacy.css",
+      "PackagePath": "staticwebassets\\lib\\selectize\\css\\selectize.legacy.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\js\\selectize.min.js",
+      "PackagePath": "staticwebassets\\lib\\selectize\\js\\selectize.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\selectize\\js\\standalone\\selectize.min.js",
+      "PackagePath": "staticwebassets\\lib\\selectize\\js\\standalone\\selectize.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\simplebar.min.js",
+      "PackagePath": "staticwebassets\\lib\\simplebar.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\sortablejs\\Sortable.min.js",
+      "PackagePath": "staticwebassets\\lib\\sortablejs\\Sortable.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\sortablejs\\modular\\sortable.complete.esm.js",
+      "PackagePath": "staticwebassets\\lib\\sortablejs\\modular\\sortable.complete.esm.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\sortablejs\\modular\\sortable.core.esm.js",
+      "PackagePath": "staticwebassets\\lib\\sortablejs\\modular\\sortable.core.esm.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\sortablejs\\modular\\sortable.esm.js",
+      "PackagePath": "staticwebassets\\lib\\sortablejs\\modular\\sortable.esm.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\timepicker\\bootstrap-timepicker.css",
+      "PackagePath": "staticwebassets\\lib\\timepicker\\bootstrap-timepicker.css"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\timepicker\\bootstrap-timepicker.js",
+      "PackagePath": "staticwebassets\\lib\\timepicker\\bootstrap-timepicker.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\lib\\waves.min.js",
+      "PackagePath": "staticwebassets\\lib\\waves.min.js"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\uploads\\Matheus Silva De Carvalho.pdf",
+      "PackagePath": "staticwebassets\\uploads\\Matheus Silva De Carvalho.pdf"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\uploads\\MatheusSilvaDeCarvalhoResume.pdf",
+      "PackagePath": "staticwebassets\\uploads\\MatheusSilvaDeCarvalhoResume.pdf"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\uploads\\Portfolio2.png",
+      "PackagePath": "staticwebassets\\uploads\\Portfolio2.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\uploads\\Screenshot 2024-05-07 165447.png",
+      "PackagePath": "staticwebassets\\uploads\\Screenshot 2024-05-07 165447.png"
+    },
+    {
+      "Id": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\wwwroot\\uploads\\portfolio4.png",
+      "PackagePath": "staticwebassets\\uploads\\portfolio4.png"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.build.web-groupware.props",
+      "PackagePath": "build\\web-groupware.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildMultiTargeting.web-groupware.props",
+      "PackagePath": "buildMultiTargeting\\web-groupware.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.buildTransitive.web-groupware.props",
+      "PackagePath": "buildTransitive\\web-groupware.props"
+    },
+    {
+      "Id": "obj\\Debug\\net6.0\\staticwebassets\\msbuild.web-groupware.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

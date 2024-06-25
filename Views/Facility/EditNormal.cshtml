@@ -1,0 +1,354 @@
+@model web_groupware.Models.ScheduleDetailViewModel
+@using web_groupware.Utilities;
+
+@{
+    ViewData["Title"] = "予約の編集";
+    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
+    ViewData["FormName"] = "facilityForm";
+}
+
+@section Styles {
+    <link href="~/css/schedule.css" rel="stylesheet" />
+    <link href="~/css/file.css" rel="stylesheet" />
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Facility" asp-action="@ViewBag.ViewMode" asp-route-start_date="@ViewBag.StartDate" class="text-decoration-none">施設予約</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">詳細</li>
+                </ol>
+            </nav>
+        </div>
+        <form asp-action="EditNormal" id="facilityForm" class="form-box" method="post" enctype="multipart/form-data">
+            <div class="card" style="">
+                <div class="card-header justify-content-between d-flex align-items-center">
+                    <span>
+                        <h4 class="mb-0" id="pageTitle">詳細内容</h4>
+                    </span>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </button>
+                        <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </button>
+                        <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                        <button type="button" class="btn btn-primary btnCopy" style="margin-right: 10px">
+                            <i class="bi bi-copy"></i> コピー
+                        </button>
+                        <button type="button" class="btn btn-primary btnSave" hidden>
+                            <i class="bi bi-floppy"></i> 保存
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input hidden asp-for="@Model.schedule_no" />
+                    <input hidden asp-for="@Model.start_datetime" />
+                    <input hidden asp-for="@Model.end_datetime" />
+                    <input hidden asp-for="@Model.file_nos_remove" value="@Model.file_nos_remove" />
+                    <input hidden asp-for="@Model.Delete_files" />
+                    <input hidden asp-for="@Model.repeat_type" />
+                    <input hidden asp-for="@Model.every_on" />
+                    @{
+                        ViewData["DeleteID"] = Model.schedule_no;
+                    }
+
+                    <div class="form-group row mt-3 px-3">繰り返し条件</div>
+                    <div class="form-group row mt-3 px-3">
+                        <div class="col-lg-2 col-sm-6 mb-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="0" name="repeatTypeRadio" disabled /> 無し
+                            </label>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 mb-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="1" name="repeatTypeRadio" disabled /> 毎日
+                            </label>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 mb-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="2" name="repeatTypeRadio" disabled /> 毎日（土日祝以外）
+                            </label>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mb-4 pe-0 d-flex">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="3" name="repeatTypeRadio" disabled /> 毎週
+                            </label>
+                            <select id="list-week" class="form-select bg-white ms-3" style="max-width:100px;margin-top:-8px;height:38px" disabled>
+                                <option value="1">月曜日</option>
+                                <option value="2">火曜日</option>
+                                <option value="3">水曜日</option>
+                                <option value="4">木曜日</option>
+                                <option value="5">金曜日</option>
+                                <option value="6">土曜日</option>
+                                <option value="7">日曜日</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 mb-4 pe-0 d-flex">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="4" name="repeatTypeRadio" disabled /> 毎月
+                            </label>
+                            <select id="list-day" class="form-select bg-white ms-3" style="max-width:100px;margin-top:-8px;height:38px" disabled>
+                                @for (var i = 1; i <= 31; i++)
+                                {
+                                    var dayName = i + "日";
+                                    <option value="@i">@dayName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group px-3">期限</div>
+                    <div class="form-group row mt-3 px-3">
+                        <div class="col-2 mb-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="0" name="repeatLimitRadio" checked disabled /> 無し
+                            </label>
+                        </div>
+                        <div class="col mb-4 d-flex">
+                            <label class="form-check-label" style="width:80px">
+                                <input class="form-check-input me-1" type="radio" value="1" name="repeatLimitRadio" disabled /> 期日
+                            </label>
+                            <div class="d-flex" style="margin-top:-8px">
+                                <div class="input-group position-relative me-3" id="input-repeatdate-from-wrapper">
+                                    <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.repeat_date_from" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-from-wrapper" readonly>
+                                    <span class="input-group-text" id="repeatdate-from-icon"><i class="bi bi-calendar-event"></i></span>
+                                </div>
+                                <span class="mt-1">~</span>
+                                <div class="input-group position-relative ms-3" id="input-repeatdate-to-wrapper">
+                                    <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.repeat_date_to" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-to-wrapper" readonly>
+                                    <span class="input-group-text" id="repeatdate-to-icon"><i class="bi bi-calendar-event"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-3 mt-2" id="timeRange">
+                        <label class="control-label">日付</label>
+                        <div class="col-sm-2">
+                            <div class="input-group position-relative" id="input-date-wrapper">
+                                <input type="text" class="form-control bg-white site_calendar" id="input-date" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-date-wrapper" readonly>
+                                <span class="input-group-text" id="date-from-icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <a class="btn btn-outline-primary rounded-pill ms-3" id="btnToday">今日</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-3 mt-3" id="dailyTimeRange">
+                        <div class="col-sm-6 mb-3">
+                            <label class="control-label" asp-for="@Model.time_from"></label>
+                            <div class="input-group position-relative">
+                                <input class="form-control input-time bg-white" asp-for="@Model.time_from" readonly />
+                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="control-label" asp-for="@Model.time_to"></label>
+                            <div class="input-group position-relative">
+                                <input class="form-control input-time bg-white" asp-for="@Model.time_to" readonly />
+                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<div class="form-group mt-3">
+                        <label class="control-label">時間</label>
+                        <div class="input-group">
+                            <input class="form-control input-time bg-white" id="input-time-from" readonly />
+                            <span class="input-group-text" id="time-from-icon"><i class="bi bi-clock"></i></span>
+
+                            <span class="px-4 pt-1">～</span>
+
+                            <input class="form-control input-time bg-white" id="input-time-to" readonly />
+                            <span class="input-group-text" id="time-to-icon"><i class="bi bi-clock"></i></span>
+                        </div>
+                    </div>*@
+
+                    <div class="form-group row mt-3">
+                        <div class="col-sm-2">
+                            <label class="control-label me-4" asp-for="@Model.schedule_type"></label>
+                            <div class="custom-select">
+                                <input type="hidden" asp-for="@Model.schedule_type">
+                                <div class="select-selected">---<i class="select-arrow"></i></div>
+                                <div class="select-items select-hide">
+                                @if (Model.ScheduleTypeList != null)
+                                {
+                                    @foreach (var item in Model.ScheduleTypeList)
+                                    {
+                                        <div data-value="@item.schedule_type"><span class="square" style="background-color: @item.color;"></span>@item.schedule_typename</div>
+                                    }
+                                }                                
+                                </div>
+                            </div>                             
+                            <!-- <select asp-for="@Model.schedule_type" class="form-control selectize me-4 bg-white" disabled>
+                                @if (Model.ScheduleTypeList != null)
+                                {
+                                    @foreach (var item in Model.ScheduleTypeList)
+                                    {
+                                        <option value=@item.schedule_type>@item.schedule_typename</option>
+                                    }
+                                }
+                            </select> -->
+                        </div>
+                        <div class="col-sm-10" style="margin-top:22px">
+                            <input asp-for="@Model.title" class="form-control bg-white" type="text" readonly />
+                            <span asp-validation-for="@Model.title" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label asp-for="@Model.memo" class="form-label"></label>
+                        <textarea asp-for="@Model.memo" class="form-control bg-white"
+                                  rows="15" style="margin-top: 0px; margin-bottom: 0px" readonly></textarea>
+                        <span asp-validation-for="@Model.memo" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="@Model.MyStaffList" class="control-label"></label>
+                            <select asp-for="@Model.MyStaffList" class="form-control" multiple disabled>
+                                <option value=""></option>
+                                <optgroup label="グループ">
+                                    @if (Model.GroupList != null)
+                                    {
+                                        @foreach (var item in Model.GroupList)
+                                        {
+                                            <option value="G-@item.group_cd" data-staff_cds='@string.Join(",", @item.staffs)'>@item.group_name</option>
+                                        }
+                                    }
+                                </optgroup>
+                                <optgroup label="個人">
+                                    @if (Model.StaffList != null)
+                                    {
+                                        @foreach (var item in Model.StaffList)
+                                        {
+                                            <option value="S-@item.staf_cd">@item.staf_name</option>
+                                        }
+                                    }
+                                </optgroup>
+                            </select>
+                            <span asp-validation-for="@Model.MyStaffList" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="@Model.MyPlaceList" class="control-label"></label>
+                            <select asp-for="@Model.MyPlaceList" class="form-control" multiple disabled>
+                                <option value=""></option>
+                                @if (Model.PlaceList != null)
+                                {
+                                    @foreach (var item in Model.PlaceList)
+                                    {
+                                        <option value="@item.place_cd">@item.place_name</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="@Model.MyPlaceList" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group form-check mb-3 ms-1">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="@Model.is_private" disabled/>
+                            @Html.DisplayNameFor(model => model.is_private)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.File" class="form-label"></label>
+                        <partial name="_FileList" model="@Model.fileModel" />
+                    </div>
+
+                    <div class="row mb-3" id="fileArea">
+                        <input type="hidden" asp-for="@Model.work_dir">
+                        <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.SCHEDULE">
+                        <input type="hidden" id="dir_no" value="@Model.schedule_no">
+                        <div class="validation-pdf-error text-danger d-none">@Messages.BOARD_ALLOWED_FILE_EXTENSIONS</div>
+
+                        <div class="col-12 dropArea border-0 p-2">
+                            <div id="drag_area" class="text-center px-3 py-3 bg-white">
+                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                <label class="input-group-btn hand-pointer">
+                                    <span class="btn btn-secondary">
+                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File" accept=".pdf" disabled>
+                                    </span>
+                                </label>
+                                <br>
+                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            </div>
+                            @*                         <div id="message_file1" class="text-right"></div>
+                            *@
+                        </div>
+                    </div>
+                    <div class="form-group row mt-3" id="create_info">
+                        <div class="col-sm-6">
+                            <label class="control-label me-4" asp-for="@Model.create_user"></label>
+                            <input asp-for="@Model.create_user" class="form-control bg-white" type="text" readonly />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="control-label me-4" asp-for="@Model.create_date"></label>
+                            <input asp-for="@Model.create_date" class="form-control bg-white" type="text" readonly />
+                        </div>
+                    </div>
+                    <div class="form-group row mt-3" id="update_info">
+                        <div class="col-sm-6">
+                            <label class="control-label me-4" asp-for="@Model.update_user"></label>
+                            <input asp-for="@Model.update_user" class="form-control bg-white" type="text" readonly />
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="control-label me-4" asp-for="@Model.update_date"></label>
+                            <input asp-for="@Model.update_date" class="form-control bg-white" type="text" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </button>
+                        <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </button>
+                        <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                        <button type="button" class="btn btn-primary btnCopy" style="margin-right: 10px">
+                            <i class="bi bi-copy"></i> コピー
+                        </button>
+                        <button type="button" class="btn btn-primary btnSave" hidden>
+                            <i class="bi bi-floppy"></i> 保存
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script src="~/js/FacilityCreate.js" asp-append-version="true"></script>
+        <script src="~/js/File.js" asp-append-version="true"></script>
+    }
+    <script>
+        var isEditable = false
+        var hasCopied = false
+        var viewMode = '@ViewBag.ViewMode'
+        var startDate = '@ViewBag.StartDate'
+        var schedule_no = $('#schedule_no').val()
+        var fileRemoveList = []
+        var deleteAction = "DeleteNormal"
+        var deleteKey = "schedule_no"
+        var deleteId = $('#schedule_no').val()
+    </script>
+}

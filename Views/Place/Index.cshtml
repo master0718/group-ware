@@ -1,0 +1,66 @@
+﻿@model web_groupware.Models.PlaceViewModel
+
+@{
+    ViewData["Title"] = "施設マスタ";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">施設マスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <a class="btn btn-success waves-effect waves-light mb-3" asp-action="Create">
+                追加
+            </a>
+            <table class="table datatables">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>
+                            施設コード
+                        </th>
+                        <th>
+                            施設名
+                        </th>
+                        <th>
+                            並び順
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+            @foreach (var item in Model.placeList) {
+                    <tr>
+                        <td>
+                            @item.place_cd
+                        </td>
+                        <td>
+                            @item.place_name
+                        </td>
+                        <td>
+                            @item.sort
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-place_cd="@item.place_cd" class="btn btn-primary">
+                                <i class="mdi mdi-pencil"></i>
+                            </a> 
+                            <a asp-action="Delete" asp-route-place_cd="@item.place_cd" class="btn btn-danger">
+                                <i class="mdi mdi-delete"></i>
+                            </a>
+                        </td>
+                    </tr>
+            }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

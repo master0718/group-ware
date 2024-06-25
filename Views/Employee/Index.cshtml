@@ -1,0 +1,100 @@
+﻿@model EmployeeListViewModel
+
+@{
+    ViewData["Title"] = "社員マスタ";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box page-title-box-alt">
+                <h4 class="page-title">社員マスタ</h4>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="">
+        <div class="card-body">
+            <table class="table datatables">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>
+                            社員番号
+                        </th>
+                        <th>
+                            スタッフ名
+                        </th>
+                        <th>
+                            パスワード
+                        </th>
+                        <th>
+                            メールアドレス
+                        </th>
+                        <th>
+                            管理者権限
+                        </th>
+                        <th>
+                            承認者権限
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.list_employee)
+                    {
+                        <tr>
+                            <td>
+                                @item.staf_cd
+                            </td>
+                            <td>
+                                @item.staf_name
+                            </td>
+                            <td>
+                                @item.password
+                            </td>
+                            <td>
+                                @item.mail
+                            </td>
+                            <td>
+                                @((item.auth_admin == 1) ? "管理者" : "一般")
+                            </td>
+                            <td>
+                                @{
+                                    string role = string.Empty;
+                                    switch (item.workflow_auth)
+                                    {
+                                        case 1:
+                                            role = "管理者";
+                                            break;
+                                        case 2:
+                                            role = "決裁者";
+                                            break;
+                                        default:
+                                            role = "一般";
+                                            break;
+                                    }
+                                }
+                                @role
+                            </td>
+
+                            <td>
+                                <a class="btn btn-primary" asp-action="Edit" asp-route-id="@item.staf_cd">
+                                    <i class="mdi mdi-pencil"></i>
+                                </a>
+                                @*                             <a asp-action="Delete" asp-route-id="@item.staf_cd" class="btn btn-danger">
+                            <i class="mdi mdi-delete"></i>
+                            </a>
+                            *@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/Employee.js" asp-append-version="true"></script>
+    }
+}

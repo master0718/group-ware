@@ -1,0 +1,48 @@
+﻿@model web_groupware.Models.TodoFileModel
+
+@section Styles {
+    <link href="~/css/file.css" rel="stylesheet" />
+}
+
+<div class="row" id="div_icon">
+    @if (Model.fileList.Count != 0)
+    {
+        @for (int i = 0; i < Model.fileList.Count; i++)
+        {
+            <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeightWidth">
+                <input type="hidden" class="file_no" id="@Model.fileList[i].file_no" value="@Model.fileList[i].file_no">
+                @{
+                    var downloadClazz = "";
+                    var bsToggle = "data-bs-toggle='dropdown'";
+                    var controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+                }
+
+                <a class="bg-white border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth @downloadClazz" type="button" data-bs-toggle="dropdown" data-controller="@controllerName" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename" aria-expanded="false">
+                    <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.fileList[i].filename">
+
+                        <div class="div_img_file bg-light p-2">
+                            @{
+                                var icon = System.IO.Path.GetExtension(Model.fileList[i].filename).Remove(0, 1) + ".svg";
+                            }
+
+                            <img src="~/images/file-icons/@icon" alt="icon" width="64px" height="64px">
+                        </div>
+                        <div class="text-wrap main_files">@Model.fileList[i].filename</div>
+                    </div>
+                </a>
+
+                <ul class="dropdown-menu fileAreaInnerWidth text-center file-dropdown">
+                    <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename">削除</button>
+                    <a class="dropdown-item download_file" target="_blank" type="button" role="button" data-controller="@controllerName" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename">ダウンロード</a>
+                </ul>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/File.js" asp-append-version="true"></script>
+    }
+}

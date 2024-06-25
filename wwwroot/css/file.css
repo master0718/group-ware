@@ -1,0 +1,20 @@
+.fileAreaHeightWidth {
+    min-width: 92px;
+    max-width: 92px;
+}
+
+.fileAreaInnerWidth {
+    min-width: 80px;
+}
+
+#drag_area.drag-over {
+    background-color: #edf4f0;
+    border-color: #00836b;
+}
+
+#drag_area {
+    border: 3px dotted #adadad;
+}
+.fileAreaInnerWidth .dropdown-item {
+    padding: 0px;
+}

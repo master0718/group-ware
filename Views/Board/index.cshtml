@@ -1,0 +1,109 @@
+@model web_groupware.Models.BoardViewModel;
+@using web_groupware.Utilities;
+@{
+    ViewData["Title"] = "掲示板";
+}
+
+@section Styles {
+    <link href="~/css/board.css" rel="stylesheet" />
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid" id="root">
+        <div class="row mb-3">
+            <nav class="col-lg-4 col-md-3" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">掲示板</li>
+                </ol>
+            </nav>
+            <div class="col-lg-8 col-md-9 text-end">
+                @*<button type="button" id="add_facility" class="btn btn-primary">予定を登録する</button>*@
+                <div class="search-bar me-4">
+                    <div class="position-relative">
+                        <input id="text-searach" type="text" class="form-control form-control-light" placeholder="">
+                        <span class="bi bi-search"></span>
+                    </div>
+                </div>
+
+                <div class="applicant-select me-4">
+                    <select class="form-select bg-white" id="applicant">
+                        <option value="0">全員</option>
+                        @if (Model.staffList != null)
+                        {
+                            @foreach (var item in Model.staffList)
+                            {
+                                <option value=@item.staff_cd>@item.staff_name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <a class="btn btn-primary" style="margin-left: auto" asp-action="Create">
+                    <i class="bi bi-plus"></i> 課題の追加
+                </a>
+            </div>
+        </div>
+        
+        <div class="row">
+
+            @{
+                var upcomingList = Model.BoardList?.Where(x => x.status == BoardStatus.UPCOMING).ToList();
+                var requestingList = Model.BoardList?.Where(x => x.status == BoardStatus.REQUESTING).ToList();
+                var progressList = Model.BoardList?.Where(x => x.status == BoardStatus.IN_PROGRESS).ToList();
+                var completedList = Model.BoardList?.Where(x => x.status == BoardStatus.COMPLETED).ToList();
+                var lists = new[] { upcomingList, requestingList, progressList, completedList };
+                var ids = new int[] { BoardStatus.UPCOMING, BoardStatus.REQUESTING, BoardStatus.IN_PROGRESS, BoardStatus.COMPLETED };
+                var headerClasses = new string[] { "bg-upcoming", "bg-requesting", "bg-progress", "bg-completed" };
+                var headerTitles = new string[] { "未対応", "依頼中", "対応中", "完了" };
+            }
+
+            @for(var i = 0; i < 4; i++)
+            {
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="card board">
+                        <div class="card-body">
+                            <div class="list-header">
+                                <div class="@headerClasses[i]"></div>
+                                <span class="panel-title">@headerTitles[i]</span>
+                                <div class="badge item-count">@lists[i]?.Count</div>
+                            </div>
+                            <ul class="sortable-list tasklist list-unstyled" id="@ids[i]">
+                                @{
+                                    var list = lists[i];
+                                    @if (list != null)
+                                    {
+                                        foreach (var item in list)
+                                        {
+                                            <li id="board-@item.board_no" data-applicant_cd="@item.applicant_cd" class="task" draggable="false">
+                                                <div>
+                                                    <span class="badge @headerClasses[i]">@headerTitles[i]</span>
+                                                    <span class="fs-6"></span>
+                                                </div>
+                                                <p class="item-title mb-0">
+                                                    @item.title
+                                                </p>
+                                                <div class="d-flex">
+                                                    <span class="avatar-title rounded-circle bg-success text-white">@item.registrant_name?[0]</span>
+                                                    <span class="item-date pt-1 ps-2">@item.register_date</span>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/lib/sortablejs/Sortable.min.js" asp-append-version="true"></script>
+        <script src="~/js/Board.js" asp-append-version="true"></script>
+    }
+}

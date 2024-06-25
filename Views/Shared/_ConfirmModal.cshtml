@@ -1,0 +1,42 @@
+﻿<div id="modal-confirm" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <input type="hidden" id="formName" value="@ViewData["FormName"]">
+            <div class="modal-header">
+                <h4 class="modal-title" id="title">確認</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="bodyContent">@ViewData["ConfirmText"]</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> いいえ
+                </button>
+                <button type="button" class="btn btn-success" onclick="onConfirm('deleteForm')">
+                    <i class="bi bi-check"></i> はい
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function onConfirmModal() {
+        $('#modal-confirm').modal('show');
+    }
+
+    function onConfirm() {
+        var formId = $("#formName").val();
+        var selector = '#' + formId;
+        var form = $(selector);
+        if (form.length > 0) {
+            $('.loading').show();
+            
+            form.submit();
+        } else {
+            console.log('Form with id ' + formId + ' not found.');
+        }    
+    }
+</script>
+

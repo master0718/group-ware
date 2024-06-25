@@ -1,0 +1,202 @@
+﻿@model web_groupware.Models.BoardDetailViewModel
+@using web_groupware.Utilities;
+
+@{
+    ViewData["Title"] = "掲示板";
+    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
+    ViewData["FormName"] = "boardForm";
+}
+
+@section Styles {
+    <link href="~/css/board.css" rel="stylesheet" />
+    <link href="~/css/file.css" rel="stylesheet" />
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Board" asp-action="Index">掲示板</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">編集</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="card" style="">
+            <form asp-action="Update" id="boardForm" class="form-box" method="post" enctype="multipart/form-data">
+                <div class="card-header justify-content-between d-flex align-items-center">
+                    <span>
+                        <h4 class="mb-0">編集</h4>
+                    </span>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </button>
+                        <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                        <button type="button" class="btn btn-primary btnSave">
+                            <i class="bi bi-floppy"></i> 保存
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <input hidden asp-for="@Model.board_no" />
+                    <input hidden asp-for="@Model.registrant_name" />
+                    @*<input hidden asp-for="@Model.applicant_type" />*@
+                    <input hidden asp-for="@Model.applicant_cd" />
+                    <input hidden asp-for="@Model.file_nos_remove" value="@Model.file_nos_remove" />
+                    <input hidden asp-for="@Model.Delete_files" />
+                    @{
+                        ViewData["DeleteID"] = Model.board_no;
+                    }
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.title" class="form-label"></label>
+                        <input type="text" asp-for="@Model.title" class="form-control bg-white" />
+                        <span asp-validation-for="@Model.title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.content" class="form-label"></label>
+                        <textarea asp-for="@Model.content" class="form-control bg-white"
+                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <span asp-validation-for="@Model.content" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3 row">
+                        <label asp-for="@Model.applicant_cd" class="form-label"></label>
+                        <div class="col-12 col-md-3">
+                            <select class="form-select bg-white" id="applicant">
+                                <option value=""></option>
+                                @if (Model.staffList != null)
+                                {
+                                    @foreach (var item in Model.staffList)
+                                    {
+                                        if (item.staff_cd == Model.applicant_cd)
+                                        {
+                                            <option value=@item.staff_cd selected>@item.staff_name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value=@item.staff_cd>@item.staff_name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.File" class="form-label"></label>
+                        <partial name="_FileList" model="@Model.fileModel" />
+                    </div>
+
+                    <div class="row mb-3" id="fileArea">
+                        <input type="hidden" asp-for="@Model.work_dir">
+                        <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
+                        <input type="hidden" id="dir_no" value="@Model.board_no">
+
+                        <div class="col-12 dropArea border-0 p-2">
+                            <div id="drag_area" class="text-center px-3 py-3 bg-white">
+                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                <label class="input-group-btn hand-pointer">
+                                    <span class="btn btn-secondary">
+                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
+                                    </span>
+                                </label>
+                                <br>
+                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            </div>
+                            @*                         <div id="message_file1" class="text-right"></div>
+                            *@
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </button>
+                        <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                        <button type="button" class="btn btn-primary btnSave">
+                            <i class="bi bi-floppy"></i> 保存
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="mt-5 d-flex">
+            <span class="fw-semibold">コメント</span><span class="small pt-1">(<span id="comment-count">@Model.commentTotalCount</span>)</span>
+        </div>
+
+        <div class="card mt-2">
+            <div class="card-body" id="comment-list">
+                @if (Model.CommentList != null)
+                {
+                    var count = Math.Min(5, Model.commentTotalCount);
+                    @for (var i = 0; i < count; i++)
+                    {
+                        var item = Model.CommentList[i];
+                        <div class="comment-item d-flex" id="C-@item.comment_no">
+                            <span class="avatar-title rounded-circle bg-success text-white">@item.registrant_name?[0]</span>
+                            <div class="flex-1 pt-1 ps-2">
+                                <div class="fw-bold pb-2">
+                                    @item.registrant_name
+                                    <small class="text-muted fw-normal float-end pt-1 register-date">@item.register_date</small>
+                                </div>
+                                <span style="white-space: pre-wrap">@item.message</span>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="card-body pt-0">
+                @{
+                    string more_clazz = "d-none";
+                    if (Model.commentTotalCount > 5)
+                    {
+                        more_clazz = "";
+                    }
+                }
+                <div class="col-12 text-center @more_clazz">
+                    <div id="btnMore"><div class="btn-more"></div></div>
+                </div>
+
+                <div class="rounded mt-3 mb-3">
+                    <div class="form-box comment-area-box">
+                        <textarea id="message" class="form-control border resize-none"
+                                  rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <div class="p-2 text-end">
+                            <a class="btn btn-sm btn-primary" id="btnAddComment"><i class="bi bi-send me-2"></i>登録</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script src="~/js/BoardCreate.js" asp-append-version="true"></script>
+        <script src="~/js/File.js" asp-append-version="true"></script>
+    }
+    <script>
+        var isEditable = true
+        var fileRemoveList = []
+        var deleteAction = "Delete"
+        var deleteKey = "board_no"
+        var deleteId = $('#board_no').val()
+    </script>
+}

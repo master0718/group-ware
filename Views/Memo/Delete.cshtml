@@ -1,0 +1,181 @@
+﻿@model web_groupware.Models.MemoDetailViewModel;
+@{
+    ViewData["Title"] = "伝言・電話メモの削除";
+    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
+    ViewData["FormName"] = "memoForm";
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Memo" asp-action="@ViewBag.ViewMode" class="text-decoration-none">
+                        @{
+                            var caption = ViewBag.ViewMode == "Memo_sent" ? "伝言・電話メモ （自分作成）" : "伝言・電話メモ （自分宛て）";
+                        }
+                        @caption
+                    </a></li>
+                    <li class="breadcrumb-item active" aria-current="page">削除</li>
+                </ol>
+            </nav>
+        </div>
+        <form asp-action="Delete" id="memoForm" class="form-box" method="post" enctype="multipart/form-data">
+            <div class="card" style="">
+                <div class="card-header justify-content-between d-flex align-items-center">
+                    <span>
+                        <h4 class="mb-0">メモの削除</h4>
+                    </span>
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-secondary" asp-controller="Memo" asp-action="@ViewBag.ViewMode" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </a>
+                        <button type='button' class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <input hidden id="url_update_read" value="@Url.Action("UpdateReadState", "Memo")" />
+                    <input hidden asp-for="@Model.memo_no" />
+                    <input hidden asp-for="@Model.state" />
+                    <input hidden asp-for="@Model.receiver_type" />
+                    <input hidden asp-for="@Model.receiver_cd" />
+                    <input hidden asp-for="@Model.working" />
+                    <input hidden asp-for="@Model.finish" />
+                    <input hidden asp-for="@Model.working_msg" />
+                    <input hidden asp-for="@Model.finish_msg" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.receiver_cd" class="form-label"></label>
+                        <select class="form-select bg-white" id="receiver" disabled>
+
+                            <optgroup label="社員">
+                                @if (Model.staffList != null)
+                                {
+                                    @foreach (var item in Model.staffList)
+                                    {
+                                        if (Model.receiver_type == 0 && item.staff_cd == Model.receiver_cd)
+                                        {
+                                            <option value=@("staff" + item.staff_cd) selected>@item.staff_name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value=@("staff" + item.staff_cd)>@item.staff_name</option>
+                                        }
+                                    }
+                                }
+                            </optgroup>
+                            <optgroup label="グループ">
+                                @if (Model.groupList != null)
+                                {
+                                    @foreach (var item in Model.groupList)
+                                    {
+                                        if (Model.receiver_type == 1 && item.group_cd == Model.receiver_cd)
+                                        {
+                                            <option value=@("group" + item.group_cd) selected>@item.group_name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value=@("group" + item.group_cd)>@item.group_name</option>
+                                        }
+                                    }
+                                }
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.applicant_cd" class="form-label"></label>
+                        <select class="form-select bg-white" id="applicant" disabled>
+                            @if (Model.staffList != null)
+                            {
+                                @foreach (var item in Model.staffList)
+                                {
+                                    if (Model.applicant_type == 0 && item.staff_cd == Model.applicant_cd)
+                                    {
+                                        <option value=@("staff" + item.staff_cd) selected>@item.staff_name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value=@("staff" + item.staff_cd)>@item.staff_name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-8">
+                            <label asp-for="@Model.comment_no" class="form-label"></label>
+                            <select class="form-select bg-white" asp-for="@Model.comment_no" disabled>
+                                @if (Model.commentList != null)
+                                {
+                                    @foreach (var item in Model.commentList)
+                                    {
+                                        <option value=@item.comment_no>@item.comment</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label asp-for="@Model.phone" class="form-label"></label>
+                            <input type="text" asp-for="@Model.phone" class="form-control bg-white" readonly/>
+                            <span asp-validation-for="@Model.phone" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.content" class="form-label"></label>
+                        <textarea asp-for="@Model.content" class="form-control bg-white"
+                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px" readonly></textarea>
+                        <span asp-validation-for="@Model.content" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.readers" class="form-label"></label>
+                        <span asp-for="@Model.readers" class="ms-4"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label asp-for="@Model.working" class="form-label me-2"></label>
+                            <input id="check-working" class="form-check-input" type="checkbox" disabled>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="@Model.finish" class="form-label me-2"></label>
+                            <input id="check-finish" class="form-check-input" type="checkbox" disabled>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="form-label" id="working_msg_"></div>
+                        <div class="form-label mt-1" id="finish_msg_"></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-secondary" asp-controller="Memo" asp-action="@ViewBag.ViewMode" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        </a>
+                        <button type='button' class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script src="~/js/MemoCreate.js" asp-append-version="true"></script>
+    }
+    <script>
+        var viewMode = '@ViewBag.ViewMode'
+    </script>
+}

@@ -1,0 +1,142 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@model RestrationReportViewModel;
+
+@{
+    ViewData["Title"] = "退去修繕";
+
+}
+@* <link rel="stylesheet" href="~/css/RestrationReport.css" />
+ *@<div class="row">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">ホーム</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                退去修繕
+            </li>
+        </ol>
+    </nav>
+</div>
+<div class="card">
+    <form method="post" asp-controller="RestrationReport" asp-action="Index" enctype="multipart/form-data">
+        <div class="card-header align-items-center">
+            @*             <div class=" col-md-1 col-2 d-flex align-items-center">
+            <label class="mb-0 text-nowrap">日報年月日</label>
+            </div>
+            *@
+            <div class="row mx-0">
+                <div class="col-md-6 col-12  align-items-center d-flex px-0">
+                    <div class="input-group">
+                        <span class="input-group-text">退去日</span>
+                        <input type="text" asp-for="@Model.cond_leaving_date_from" class="form-control form-control-sm site_change_post site_calendar" style="max-width:100px;">
+                        <span class="input-group-text site_calendar_icon"><i class="bi bi-calendar-event"></i></span>
+                        <span class="input-group-text">～</span>
+                        <input type="text" asp-for="@Model.cond_leaving_date_to" class="form-control form-control-sm site_change_post site_calendar">
+                        <span class="input-group-text site_calendar_icon"><i class="bi bi-calendar-event"></i></span>
+
+                    </div>
+                </div>
+                <div class="col-md-2 col-6  align-items-center d-flex px-0 mt-md-0 mt-2">
+                    <div class="input-group me-2">
+                        <span class="input-group-text">物件コード</span>
+                        <input asp-for="@Model.cond_bukken_cd" class="form-control form-control-sm site_change_post">
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-6 align-items-center d-flex px-0 mt-md-0 mt-2">
+                    <div class="input-group">
+                        <span class="input-group-text">物件名</span>
+                        <input asp-for="@Model.cond_bukken_name" class="form-control form-control-sm site_change_post">
+                    </div>
+                </div>
+                <div class="col-md-4 col-12 align-items-center d-flex px-0 mt-2">
+                    <div class="input-group">
+                        <span class="input-group-text">発注者</span>
+                        <select asp-for="@Model.cond_staf_cd" asp-items="@Model.cond_staf_cd_option" class="form-select site_change_post">
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <div class="card-body">
+            <table class="RestrationReport_datatables datatables_css table my-0">
+                <!--ヘッダ-->
+                <thead class="">
+                    <tr class="">
+                        <th class="text-center"><div style="width:90px!important;">退去月日</div></th>
+                        <th class="text-center"><div style="width:66px!important;">コード</div></th>
+                        <th class="text-center"><div style="width:200px!important;">物件名</div></th>
+                        <th class="text-center"><div style="width:70px!important;">号室</div></th>
+                        <th class="text-center"><div style="width:130px!important;">補修業者</div></th>
+                        <th class="text-center"><div style="width:130px!important;">補修完了予定日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">補修完了日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">業者請求月</div></th>
+                        <th class="text-center"><div style="width:120px!important;">業者支払金額</div></th>
+                        <th class="text-center"><div style="width:240px!important;">補修内容</div></th>
+                        <th class="text-center"><div style="width:100px!important;">請求額</div></th>
+                        <th class="text-center"><div style="width:130px!important;">ｵｰﾅｰ回収予定日</div></th>
+                        <th class="text-center"><div style="width:130px!important;">借主回収予定日</div></th>
+                        <th class="text-center"><div style="width:130px!important;">美装業者</div></th>
+                        <th class="text-center"><div style="width:100px!important;">美装希望日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">美装完了日</div></th>
+                        <th class="text-center"><div style="width:130px!important;">OH業者</div></th>
+                        <th class="text-center"><div style="width:100px!important;">OH希望日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">OH完了日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">次回入居日</div></th>
+                        <th class="text-center"><div style="width:100px!important;">ｶｳﾝﾀｰ補修</div></th>
+                        <th class="text-center"><div style="width:110px!important;">発注者</div></th>
+                        <th class="text-center"><div style="width:90px!important;">発注No.</div></th>
+                        <th class="text-center"><div style="width:120px!important;">退去清掃預り</div></th>
+                        <th class="text-center"><div style="width:120px!important;">FF整備料預り</div></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var capsule in @Model.list_report)
+                    {
+                        <tr class="">
+                            <td class="col_1 border-right"><div class="text-center">@capsule.taikyo_ymd</div></td>
+                            <td class="col_2  border-right"><div class="text-end">@capsule.bukn_cd</div></td>
+                            <td class="col_3  border-right"><div class="">@capsule.bukn_name</div></td>
+                            <td class="col_4  border-right"><div class="text-end">@capsule.room_no</div></td>
+                            <td class=" border-right"><div class="">@capsule.HS_gyos_name</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.HS_yotei_ymd</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.HS_kanryo_ymd</div></td>
+                            <td class=" border-right"><div class="">@capsule.HS_seikyu_month</div></td>
+                            <td class=" border-right"><div class=" text-end">@capsule.HS_siharai_kin.ToString("N0")</div></td>
+                            <td class=" border-right"><div class="">@capsule.sagyo_naiyo</div></td>
+                            <td class=" border-right"><div class=" text-end">@capsule.HS_seikyu_kin.ToString("N0")</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.HS_kaiyotei_ow_ymd</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.HS_kaiyotei_ka_ymd</div></td>
+                            <td class=" border-right"><div class="">@capsule.BS_gyos_name</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.BS_yotei_ymd</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.BS_kanryo_ymd</div></td>
+
+                            <td class=" border-right"><div class="">@capsule.OH_gyos_name</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.OH_yotei_ymd</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.OH_kanryo_ymd</div></td>
+                            <td class=" border-right"><div class=" text-center">@capsule.nyukyo_ymd</div></td>
+                            <td class=" border-right"><div class="">@capsule.counter</div></td>
+                            <td class=" border-right"><div class="">@capsule.hachusya_nm</div></td>
+
+                            <td class=" border-right"><div class="">@capsule.hachu_no</div></td>
+                            <td class=" border-right"><div class=" text-end">@capsule.taikyo_seisou.ToString("N0")</div></td>
+                            <td class=" border-right"><div class=" text-end">@capsule.ff_seibi.ToString("N0")</div></td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        // <script src="/js/BukkenMemo.js" asp-append-version="true"></script>
+    }
+}
+
