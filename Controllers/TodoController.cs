@@ -79,9 +79,51 @@ namespace web_groupware.Controllers
                 });
             }
             
-
             return View(model);
 
+        }
+
+        [HttpGet]
+        public IActionResult TodoList(int response_status, int deadline_set, string keyword)
+        {
+            try
+            {
+                var todoList = _context.T_TODO.ToList();
+                if (response_status != -1)
+                {
+                    todoList = todoList.Where(x => x.response_status == response_status).ToList();
+                }
+                if (deadline_set != -1)
+                {
+                    todoList = todoList.Where(x => x.deadline_set == deadline_set).ToList();
+                }
+                if (keyword != null)
+                {
+                    todoList = todoList.Where(x => x.title.Contains(keyword) || x.description.Contains(keyword)).ToList();
+                }
+
+                TodoViewModel model = new TodoViewModel();
+
+                model.fileList.AddRange(todoList.Select(todo => new TodoDetail
+                {
+                    id = todo.id,
+                    sendUrl = todo.sendUrl,
+                    title = todo.title,
+                    description = todo.description,
+                    response_status = todo.response_status,
+                    deadline_set = todo.deadline_set,
+                    group_set = todo.group_set,
+                    public_set = todo.public_set,
+                    staf_name = todo.staf_name,
+                }));
+                return PartialView("_TodoListPartial", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         [HttpGet]

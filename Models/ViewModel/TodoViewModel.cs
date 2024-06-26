@@ -41,6 +41,7 @@ namespace web_groupware.Models
     {
         public List<TodoDetail>? fileList = new List<TodoDetail>();
         public List<UserInfo>? userList = new List<UserInfo>();
+        public List<T_TODO>? todoList = new List<T_TODO>();
         public int id {get; set;}
         
         public string? title { get; set; }

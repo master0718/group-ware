@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\web-groupware.csproj": {}
+    "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\web-groupware.csproj": {}
   },
   "projects": {
-    "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\web-groupware.csproj": {
+    "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\web-groupware.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\web-groupware.csproj",
+        "projectUniqueName": "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\web-groupware.csproj",
         "projectName": "web-groupware",
-        "projectPath": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\web-groupware.csproj",
+        "projectPath": "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\web-groupware.csproj",
         "packagesPath": "C:\\Users\\Hudong\\.nuget\\packages\\",
-        "outputPath": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\obj\\",
+        "outputPath": "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Hudong\\AppData\\Roaming\\NuGet\\NuGet.Config",

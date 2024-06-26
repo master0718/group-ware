@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "xYoFSnCTX70=",
+  "dgSpecHash": "XkCUu4PiWyM=",
   "success": true,
-  "projectFilePath": "E:\\WorkSpace\\work\\C#, ASP.NET\\mygroupware-master\\web-groupware\\web-groupware.csproj",
+  "projectFilePath": "E:\\WorkSpace\\work\\C#, ASP.NET\\group-ware\\web-groupware.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Hudong\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\Hudong\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

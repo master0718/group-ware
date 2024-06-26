@@ -18,7 +18,7 @@
         <div class="d-flex gap-0 col-lg-3 col-3">
             <label class=" my-auto text-center w-25">状態</label>
             <select class="form-select w-50" aria-label="状態" id="select-response" onchange="filterResponse();">
-                <option value="" selected>All</option>
+                <option value="-1" selected>All</option>
                 <option value=0>未対応</option>
                 <option value=1>対応中</option>
                 <option value=2>完了</option>
@@ -27,12 +27,12 @@
         <div class="d-flex col-lg-3 col-3">
             <label class=" my-auto text-center w-25">期限</label>
             <select class="form-select w-50" aria-label="期限" id="select-deadline" onchange="filterResponse();">
-                <option value="" selected>未設定</option>
+                <option value="-1" selected>未設定</option>
                 <option value=1>期限あり</option>
                 <option value=0>期限なし</option>
             </select>
         </div>
-        <div class="d-flex col-lg-3 col-3">
+        @* <div class="d-flex col-lg-2 col-2">
             <label class=" my-auto text-center w-25">担当者</label>
             <select class="form-select w-50 " aria-label="担当者" id="select-manager" onchange="filterResponse();">
                 <option value="" selected>未設定</option>
@@ -41,6 +41,12 @@
                     <option value=@user.userName >@user.userName</option>
                 }
             </select>
+        </div> *@
+        <div class="d-flex col-lg-3 col-3">
+            <div class="input-group me-3">
+                <span class="input-group-text">キーワード</span>
+                <input type="text" id="keyword" class="form-control" placeholder="キーワードを入力" aria-label="キーワード">
+            </div>
         </div>
         <div class="d-flex col-lg-3 col-3">
             <a class="btn btn-primary" style="margin-left: auto" asp-action="Create">
@@ -138,10 +144,10 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
         <script src="~/js/Todo.js" asp-append-version="true"></script>
     }
-
+    
     <script>
         var itemId;
-
+        
         function downloadFile(id) {
             getUrl(id);
             if (fileName) {
@@ -178,70 +184,6 @@
                     console.error("Error: " + xhr.responseText);
                 }
             });
-        }
-
-        function filterResponse() {
-            var selectValue = document.getElementById('select-response').value;
-            var selectDeadlineValue = document.getElementById('select-deadline').value;
-            var selectManagerValue = document.getElementById('select-manager').value;
-            var items = document.getElementsByClassName('border');
-
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
-                var itemStatus = item.getAttribute('data-status');
-                var itemDeadline = item.getAttribute('data-deadline');
-                var itemManager = item.getAttribute('data-user');
-                console.log(itemManager)
-
-                 if (selectValue === '' && selectDeadlineValue === '' && selectManagerValue === '') {
-                    item.classList.remove('d-none');
-                item.classList.add('d-flex');
-                } else if (selectValue !== '' && selectDeadlineValue !== '' && selectManagerValue !== '') {
-                    if (itemStatus === selectValue && itemDeadline === selectDeadlineValue && itemManager === selectManagerValue) {
-                        item.classList.remove('d-none');
-                item.classList.add('d-flex');
-                    } else {
-                        item.classList.remove('d-flex');
-                item.classList.add('d-none');
-                    }
-                } else if (selectValue !== '' && selectDeadlineValue !== '') {
-                    if (itemStatus === selectValue && itemDeadline === selectDeadlineValue) {
-                        item.classList.remove('d-none');
-                        item.classList.add('d-flex');
-                    } else {
-                        item.classList.remove('d-flex');
-                        item.classList.add('d-none');
-                    }
-                } else if (selectValue !== '' && selectManagerValue !== '') {
-                    if (itemStatus === selectValue && itemManager === selectManagerValue) {
-                        item.classList.remove('d-none');
-                        item.classList.add('d-flex');
-                    } else {
-                        item.classList.remove('d-flex');
-                        item.classList.add('d-none');
-                    }
-                } else if (selectDeadlineValue !== '' && selectManagerValue !== '') {
-                    if (itemDeadline === selectDeadlineValue && itemManager === selectManagerValue) {
-                        item.classList.remove('d-none');
-                        item.classList.add('d-flex');
-                    } else {
-                        item.classList.remove('d-flex');
-                        item.classList.add('d-none');
-                    }
-                } else if (selectValue !== '' && itemStatus === selectValue) {
-                    item.classList.remove('d-none');
-                    item.classList.add('d-flex');
-                } else if (selectDeadlineValue !== '' && itemDeadline === selectDeadlineValue) {
-                    item.classList.remove('d-none');
-                    item.classList.add('d-flex');
-                } else if (selectManagerValue !== '' && itemManager === selectManagerValue) {
-                    item.classList.remove('d-none');
-                    item.classList.add('d-flex');
-                } else {
-                    item.classList.remove('d-flex');
-                    item.classList.add('d-none');
-                }
-            }
         }
     </script>
 }
