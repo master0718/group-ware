@@ -67,7 +67,9 @@ namespace web_groupware.Controllers
                     group_set = item.group_set,
                     deadline_set = item.deadline_set,
                     response_status = item.response_status,
-                    staf_name = item.staf_name
+                    staf_name = item.staf_name,
+                    end_date = item.end_date,
+                    has_file = item.has_file,
                 });
             }
 
@@ -115,6 +117,8 @@ namespace web_groupware.Controllers
                     group_set = todo.group_set,
                     public_set = todo.public_set,
                     staf_name = todo.staf_name,
+                    end_date = todo.end_date,
+                    has_file = todo.has_file
                 }));
                 return PartialView("_TodoListPartial", model);
             }
@@ -209,6 +213,11 @@ namespace web_groupware.Controllers
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var userName = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
                     var now = DateTime.Now;
+                    var has_file = 0;
+                    if(request.File.Count > 0)
+                    {
+                        has_file = 1;
+                    }
 
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
                     var model = new T_TODO
@@ -222,8 +231,10 @@ namespace web_groupware.Controllers
                         deadline_set = request.deadline_set,
                         response_status = request.response_status,
                         staf_name = userName,
+                        end_date = request.end_date,
                         update_user = user_id,
                         update_date = now,
+                        has_file = has_file
                     };
 
                     _context.Add(model);
@@ -347,6 +358,7 @@ namespace web_groupware.Controllers
                 group_set = item.group_set,
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
+                end_date = item.end_date
             };
 
             model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
@@ -429,6 +441,11 @@ namespace web_groupware.Controllers
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var now = DateTime.Now;
+                var has_file = 0;
+                if (request.File.Count > 0)
+                {
+                    has_file = 1;
+                }
 
                 var model = _context.T_TODO.FirstOrDefault(x => x.id == request.id);
                 model.title = request.title;
@@ -438,6 +455,8 @@ namespace web_groupware.Controllers
                 model.deadline_set = request.deadline_set;
                 model.update_date = now;
                 model.response_status = request.response_status;
+                model.end_date = request.end_date;
+                model.has_file = has_file;
 
                 _context.T_TODO.Update(model);
 

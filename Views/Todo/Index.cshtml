@@ -83,15 +83,25 @@
                     <div class="d-flex justify-content-between my-1">
                         @if (item.description.Length <= 64)
                         {
-                            <div class="w-75">@item.description</div>
+                            <div class="w-50">@item.description</div>
                         }
                         else
                         {
-                            <div class="w-75">
+                            <div class="w-50">
                                 <span>
                                     @item.description.Substring(0, 60)
                                 </span>
                                 <span>...</span>
+                            </div>
+                        }
+                        @if (item.end_date != null)
+                        {
+                            <div>@item.end_date</div>
+                        }
+                        @if(item.has_file == 1)
+                        {
+                            <div class="d-flex justify-content-between">
+                                <i class="fa fa-file"></i>
                             </div>
                         }
                         @{
@@ -114,9 +124,9 @@
                                     break;
                             }
                         }
-
                     </div>
                 </div>
+                
                 @if (item.sendUrl != null)
                 {
                     <div class="d-flex m-auto" onclick="downloadFile(@(item.id))">

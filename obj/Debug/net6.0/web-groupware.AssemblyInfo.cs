@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("web-groupware")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a173e6c2a13264d9bcaa58c7fc819c7b2a230801")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2042520f7fad0fa92a911b6630c04380ac7f1210")]
 [assembly: System.Reflection.AssemblyProductAttribute("web-groupware")]
 [assembly: System.Reflection.AssemblyTitleAttribute("web-groupware")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

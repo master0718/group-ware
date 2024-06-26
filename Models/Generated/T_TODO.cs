@@ -25,5 +25,8 @@ namespace web_groupware.Models
 
         [DataType(DataType.DateTime)]
         public DateTime update_date { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime? end_date { get; set; }
+        public int? has_file { get; set; }
     }
 }

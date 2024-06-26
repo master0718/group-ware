@@ -1,6 +1,6 @@
 $(function () {
-    $(".todo").on('click', function () {
-        let itemId = $(this).attr('data-id');
+    $('.card-body').on('click', '.todo', function() {
+        let itemId = $(this).data('id');
         window.location.href = baseUrl + `Todo/Update?id=${itemId}`
     })
     
@@ -25,7 +25,6 @@ function filterResponse() {
         method: "get",
         url: 'Todo/TodoList' + '?response_status=' + responseStatus + '&deadline_set=' + deadlineSet + '&keyword=' + keyword,
         success: function (result) {
-            console.log(result);
             $('.card-body').html(result);
         },
         error: function (xhr) {

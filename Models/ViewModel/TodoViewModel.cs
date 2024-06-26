@@ -18,6 +18,9 @@ namespace web_groupware.Models
         public int response_status {get; set;}
         [Column(TypeName = "nvarchar(64)")]
         public string? staf_name {get; set;}
+        [DataType(DataType.DateTime)]
+        public DateTime? end_date { get; set; }
+        public int? has_file { get; set; }
     }
 
     public class UserInfo
@@ -57,10 +60,13 @@ namespace web_groupware.Models
         public string? staf_name {get; set;}
         [DisplayName("添付ファイル")]
         public string? Delete_files { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime? end_date { get; set; }
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();
         public string? work_dir { get; set; }
         public List<TodoViewModelStaff>? staffList = new();
+        public int? has_file { get; set; }
     }
 
     public class TodoUpdateModel
