@@ -39,9 +39,13 @@
                         <span>...</span>
                     </div>
                 }
-                @if (item.end_date != null)
+                @if (item.deadline_date != null)
                 {
-                    <div>@item.end_date</div>
+                    <div>@item.deadline_date</div>
+                }
+                else
+                {
+                    <div class="w-25"></div>
                 }
                 @if(item.has_file == 1)
                 {

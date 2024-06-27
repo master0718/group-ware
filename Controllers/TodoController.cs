@@ -68,7 +68,7 @@ namespace web_groupware.Controllers
                     deadline_set = item.deadline_set,
                     response_status = item.response_status,
                     staf_name = item.staf_name,
-                    end_date = item.end_date,
+                    deadline_date = item.deadline_date,
                     has_file = item.has_file,
                 });
             }
@@ -117,7 +117,7 @@ namespace web_groupware.Controllers
                     group_set = todo.group_set,
                     public_set = todo.public_set,
                     staf_name = todo.staf_name,
-                    end_date = todo.end_date,
+                    deadline_date = todo.deadline_date,
                     has_file = todo.has_file
                 }));
                 return PartialView("_TodoListPartial", model);
@@ -231,7 +231,7 @@ namespace web_groupware.Controllers
                         deadline_set = request.deadline_set,
                         response_status = request.response_status,
                         staf_name = userName,
-                        end_date = request.end_date,
+                        deadline_date = request.deadline_date,
                         update_user = user_id,
                         update_date = now,
                         has_file = has_file
@@ -358,7 +358,7 @@ namespace web_groupware.Controllers
                 group_set = item.group_set,
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
-                end_date = item.end_date
+                deadline_date = item.deadline_date
             };
 
             model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
@@ -446,6 +446,7 @@ namespace web_groupware.Controllers
                 {
                     has_file = 1;
                 }
+                
 
                 var model = _context.T_TODO.FirstOrDefault(x => x.id == request.id);
                 model.title = request.title;
@@ -455,7 +456,14 @@ namespace web_groupware.Controllers
                 model.deadline_set = request.deadline_set;
                 model.update_date = now;
                 model.response_status = request.response_status;
-                model.end_date = request.end_date;
+                if (request.deadline_set == 0)
+                {
+                    model.deadline_date = null;
+                }
+                else
+                {
+                    model.deadline_date = request.deadline_date;
+                }
                 model.has_file = has_file;
 
                 _context.T_TODO.Update(model);

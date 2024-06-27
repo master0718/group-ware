@@ -19,7 +19,7 @@ namespace web_groupware.Models
         [Column(TypeName = "nvarchar(64)")]
         public string? staf_name {get; set;}
         [DataType(DataType.DateTime)]
-        public DateTime? end_date { get; set; }
+        public DateTime? deadline_date { get; set; }
         public int? has_file { get; set; }
     }
 
@@ -61,7 +61,7 @@ namespace web_groupware.Models
         [DisplayName("添付ファイル")]
         public string? Delete_files { get; set; }
         [DataType(DataType.DateTime)]
-        public DateTime? end_date { get; set; }
+        public DateTime? deadline_date { get; set; }
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();
         public string? work_dir { get; set; }

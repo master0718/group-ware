@@ -65,10 +65,10 @@
                     </select>
                 </div>
 
-                <div class="form-group mb-3" id="end_date_area">
+                <div class="form-group mb-3" id="deadline_date_area">
                     <label asp-for="@Model.deadline_set" class="form-label">期限あり</label>
                     <div class="input-group position-relative me-3 w-50" id="input-repeatdate-from-wrapper">
-                        <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.end_date" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-from-wrapper" readonly>
+                        <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.deadline_date" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-from-wrapper" readonly>
                         <span class="input-group-text" id="repeatdate-from-icon"><i class="bi bi-calendar-event"></i></span>
                     </div>
                 </div>

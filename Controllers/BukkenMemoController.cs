@@ -57,7 +57,7 @@ namespace web_groupware.Controllers
                 sql.AppendLine("  	,B.bukn_name ");
                 sql.AppendLine("  	,S2.staf_name ");
                 sql.AppendLine("  	,S1.update_date  ");
-                sql.AppendLine(" FROM M_BUKKEN B ");
+                sql.AppendLine(" FROM T_BUKKEN B ");
                 sql.AppendLine(" LEFT JOIN ");
                 sql.AppendLine(" ( select bukken_cd,update_user,update_date,row_number() over(PARTITION BY bukken_cd ORDER BY update_date DESC) as num from T_BUKKENCOMMENT ) S1 ");
                 sql.AppendLine(" ON B.bukn_cd = S1.bukken_cd ");
