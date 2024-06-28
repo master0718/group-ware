@@ -35,6 +35,10 @@ $(function () {
         $('#todoForm').trigger("submit")
     })
 
+    $("#MyStaffList").selectize({
+        plugins: ["remove_button"]
+    })
+
 })
 
 function showEndDate() {

@@ -144,6 +144,8 @@ namespace web_groupware.Controllers
                 PrepareViewModel(viewModel);
 
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                viewModel.MyStaffList = new int[1];
+                viewModel.MyStaffList[0] = Convert.ToInt32(user_id);
                 string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                 string dir = Path.Combine(_uploadPath, dir_work);
                 //workディレクトリの作成
@@ -239,6 +241,12 @@ namespace web_groupware.Controllers
 
                     _context.Add(model);
 
+                    foreach (var item in request.MyStaffList)
+                    {
+                        var target = new T_TODOTARGET(todo_no, item);
+                        _context.Add(target);
+                    }
+
                     AddFiles(request.work_dir, todo_no);
 
                     await _context.SaveChangesAsync();
@@ -315,6 +323,7 @@ namespace web_groupware.Controllers
             try
             {
                 var viewModel = getTodoDetail(id);
+                PrepareViewModel(viewModel);
                 if (viewModel == null)
                 {
                     return (IActionResult)Index();
@@ -358,10 +367,29 @@ namespace web_groupware.Controllers
                 group_set = item.group_set,
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
-                deadline_date = item.deadline_date
+                deadline_date = item.deadline_date,
+                has_file = item.has_file
             };
 
             model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
+
+            var myStaffList = _context.T_TODOTARGET.Where(x => x.todo_no == id).ToList();
+            if (myStaffList != null && myStaffList.Count > 0)
+            {
+                int n = 0;
+                if (myStaffList != null)
+                    n += myStaffList.Count;
+
+                model.MyStaffList = new int[n];
+                int i = 0;
+                if (myStaffList != null)
+                {
+                    foreach (var staff in myStaffList)
+                    {
+                        model.MyStaffList[i++] = staff.staf_cd;
+                    }
+                }
+            }
 
             return model;
         }
@@ -441,11 +469,6 @@ namespace web_groupware.Controllers
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var now = DateTime.Now;
-                var has_file = 0;
-                if (request.File.Count > 0)
-                {
-                    has_file = 1;
-                }
                 
 
                 var model = _context.T_TODO.FirstOrDefault(x => x.id == request.id);
@@ -464,9 +487,29 @@ namespace web_groupware.Controllers
                 {
                     model.deadline_date = request.deadline_date;
                 }
-                model.has_file = has_file;
+                
+                if(request.File.Count > 0)
+                {
+                    model.has_file = 1;
+                }
+                else
+                {
+                    model.has_file = 0;
+                }
 
                 _context.T_TODO.Update(model);
+
+                var targetModel = _context.T_TODOTARGET.Where(x => x.todo_no == request.id).ToList();
+                if (targetModel.Count > 0 && targetModel != null)
+                {
+                    _context.T_TODOTARGET.RemoveRange(targetModel);
+                }
+
+                foreach (var item in request.MyStaffList)
+                {
+                    var target = new T_TODOTARGET(request.id, item);
+                    _context.Add(target);
+                }
 
                 //レコード登録前にmainからファイル削除
                 if (request.Delete_files != null)
