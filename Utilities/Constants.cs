@@ -22,6 +22,7 @@
         public const int FILE_NO = 16;
         public const int BUKKENCOMMENT_FILE_NO = 17;
         public const int TODO_NO = 18;
+        public const int TODO_COMMENT_NO = 19;
     }
     public class DIC_KB
     {
@@ -42,6 +43,7 @@
         public const string BUKKENCOMMENT_FILE = "6";
         public const string TODO = "8";
         public const string WORKFLOW = "9";
+        public const string TODO_COMMENT = "10";
     }
     public class DIC_KB_701_TEMPLETE_FILE
     {

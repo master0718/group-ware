@@ -209,6 +209,8 @@ namespace web_groupware.Controllers
                         approver_status = 0,
                         update_user = user_id,
                         update_date = now,
+                        create_user = user_id,
+                        create_date = now,
                     };
 
                     _context.Add(model);

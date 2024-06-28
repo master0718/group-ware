@@ -44,7 +44,7 @@ namespace web_groupware.Data
         public DbSet<T_TODOTARGET>? T_TODOTARGET { get; set; }
         public DbSet<T_TODOCOMMENT>? T_TODOCOMMENT { get; set; }
         public DbSet<T_TODOCOMMENT_FILE>? T_TODOCOMMENT_FILE { get; set; }
-
+        public DbSet<T_TODOCOMMENT_READ> T_TODOCOMMENT_READ { get; set; }
         public DbSet<T_SCHEDULE>? T_SCHEDULE { get; set; }
         public DbSet<T_SCHEDULE_FILE>? T_SCHEDULE_FILE { get; set; }
         public DbSet<T_SCHEDULEPEOPLE> T_SCHEDULEPEOPLE { get; set; }

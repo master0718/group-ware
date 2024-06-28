@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using web_groupware.Utilities;
 using NuGet.Protocol.Plugins;
+using Microsoft.Data.SqlClient;
+using System.Text;
 
 
 namespace web_groupware.Controllers
@@ -23,6 +25,7 @@ namespace web_groupware.Controllers
         private const int FILE_TYPE_FILE = 0;
         private const int FILE_TYPE_FOLDER = 1;
         private readonly string _uploadPath;
+        private readonly string _commentUploadPath;
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -43,6 +46,16 @@ namespace web_groupware.Controllers
             else
             {
                 _uploadPath = t_dic.content;
+            }
+            var t_comment_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.TODO_COMMENT);
+            if (t_comment_dic == null || t_comment_dic.content == null)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + Messages.DICTIONARY_FILE_PATH_NO_EXIST, DIC_KB.SAVE_PATH_FILE, DIC_KB_700_DIRECTORY.TODO_COMMENT);
+                throw new Exception(Messages.DICTIONARY_FILE_PATH_NO_EXIST);
+            }
+            else
+            {
+                _commentUploadPath = t_comment_dic.content;
             }
             _environment = hostingEnvironment;
         }
@@ -236,7 +249,9 @@ namespace web_groupware.Controllers
                         deadline_date = request.deadline_date,
                         update_user = user_id,
                         update_date = now,
-                        has_file = has_file
+                        has_file = has_file,
+                        create_date = now,
+                        create_user = user_id,
                     };
 
                     _context.Add(model);
@@ -617,6 +632,288 @@ namespace web_groupware.Controllers
                 _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
+            }
+        }
+
+        [HttpGet]
+        public IActionResult CommentList(int id)
+        {
+            try
+            {
+                TodoCommentModel model = new TodoCommentModel();
+
+                var items = _context.T_TODOCOMMENT.Where(x => x.todo_no == id).ToList(); ;
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+
+                foreach (var item in items)
+                {
+                    model.fileList.Add(new TodoCommentDetail
+                    {
+                        todo_no = item.todo_no,
+                        comment_no = item.comment_no,
+                        message = item.message,
+                        update_date = item.update_date.ToString("yyyy年M月d日 H時m分"),
+                        update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.update_user)).staf_name,
+                        CommentFileDetailList = _context.T_TODOCOMMENT_FILE.Where(x => x.comment_no == item.comment_no).ToList(),
+                        already_read_comment = _context.T_TODOCOMMENT_READ.FirstOrDefault(x => x.comment_no == item.comment_no && x.staf_cd == Convert.ToInt32(user_id)).alreadyread_flg
+                    });
+
+                }
+
+                string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string dir = Path.Combine(_commentUploadPath, dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(dir);
+                model.work_dir = dir_work;
+                model.id = id;
+                model.todo_no = id;
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CommentList(TodoCommentModel request)
+        {
+            /*try
+            {
+                if (!ModelState.IsValid)
+                {
+                    ModelState.AddModelError("", Messages.IS_VALID_FALSE);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.TODO_COMMENT, request.work_dir);
+                    return View(request);
+                }
+                if (request.File.Count > 5)
+                {
+                    ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.TODO_COMMENT, request.work_dir);
+                    return View(request);
+                }
+                var list_allowed_file_extentions = new List<string>() { ".pdf" };
+                for (int i = 0; i < request.File.Count; i++)
+                {
+                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
+                    {
+                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
+                        ResetWorkDir(DIC_KB_700_DIRECTORY.TODO_COMMENT, request.work_dir);
+                        return View(request);
+                    }
+                    if (request.File[i].Length > Format.FILE_SIZE)
+                    {
+                        ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
+                        ResetWorkDir(DIC_KB_700_DIRECTORY.TODO_COMMENT, request.work_dir);
+                        return View(request);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }*/
+            using IDbContextTransaction tran = _context.Database.BeginTransaction();
+            try
+            {
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var now = DateTime.Now;
+
+                var userName = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
+                var comment_no = GetNextNo(DataTypes.TODO_COMMENT_NO);
+
+                var model = new T_TODOCOMMENT
+                {
+                    comment_no = comment_no,
+                    todo_no = request.id,
+                    message = request.message_new,
+                    update_user = user_id,
+                    update_date = now,
+                };
+
+                _context.Add(model);
+
+                var readModel = new T_TODOCOMMENT_READ
+                {
+                    todo_no = request.id,
+                    comment_no = comment_no,
+                    staf_cd = Convert.ToInt32(user_id),
+                    alreadyread_flg = false,
+                    update_date = DateTime.Now,
+                    update_user = user_id
+                };
+
+                _context.Add(readModel);
+
+                //レコード登録前にmainからファイル削除
+                if (request.Delete_files != null)
+                {
+                    var arr_delete_files = request.Delete_files.Split(':');
+                    string dir_main = Path.Combine(_commentUploadPath, request.id.ToString());
+                    for (int i = 0; i < arr_delete_files.Length; i++)
+                    {
+                        if (arr_delete_files[i] != "")
+                        {
+                            var model_file = _context.T_TODOCOMMENT_FILE.First(x => x.comment_no == request.comment_no && x.filename == arr_delete_files[i]);
+                            _context.T_TODOCOMMENT_FILE.Remove(model_file);
+
+                            var filepath = Path.Combine(dir_main, arr_delete_files[i]);
+                            System.IO.File.Delete(filepath);
+                            System.IO.File.Delete(Path.ChangeExtension(filepath, "jpeg"));
+                        }
+                    }
+                }
+
+                AddCommentFiles(request.work_dir, comment_no);
+
+                await _context.SaveChangesAsync();
+                tran.Commit();
+
+                var dir = Path.Combine(_commentUploadPath, request.work_dir);
+                Directory.Delete(dir, true);
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                tran.Dispose();
+                throw;
+            }
+            
+            return RedirectToAction("CommentList", "Todo", new { id = request.id });
+        }
+
+        protected async void AddCommentFiles(string work_dir, int comment_no)
+        {
+            try
+            {
+                //ディレクトリ設定
+                string dir_main = Path.Combine(_commentUploadPath, comment_no.ToString());
+                if (!Directory.Exists(dir_main))
+                {
+                    Directory.CreateDirectory(dir_main);
+                }
+                //レコード登録　workディレクトリ
+                string dir = Path.Combine(_commentUploadPath, work_dir);
+                var work_dir_files = Directory.GetFiles(dir);
+                for (int i = 0; i < work_dir_files.Length; i++)
+                {
+                    var renamed_file = "";
+                    //同名ファイルが存在していたら名前変更
+                    if (System.IO.File.Exists(Path.Combine(dir_main, Path.GetFileName(work_dir_files[i]))))
+                    {
+                        var count = 1;
+                        while (true)
+                        {
+                            var arr_work = work_dir_files[i].Split(".");
+                            var kandidat = "";
+                            for (var w = 0; w < arr_work.Length - 1; w++)
+                            {
+                                kandidat = kandidat + arr_work[w] + ".";
+                            }
+                            kandidat = kandidat[..^1];
+                            kandidat = kandidat + '（' + count + '）';
+                            // ファイルの拡張子を取得
+                            string fileExtention = Path.GetExtension(work_dir_files[i]);
+                            kandidat += fileExtention;
+                            if (!System.IO.File.Exists(kandidat))
+                            {
+                                renamed_file = Path.Combine(dir, kandidat);
+                                break;
+                            }
+                            count++;
+                        }
+                    }
+                    else
+                    {
+                        renamed_file = work_dir_files[i];
+                    }
+
+                    var file_name = Path.GetFileName(renamed_file);
+
+                    T_TODOCOMMENT_FILE record_file = new()
+                    {
+                        comment_no = comment_no,
+                        file_no = GetNextNo(DataTypes.FILE_NO),
+                        //filepath = Path.Combine(dir_main, file_name),
+                        fullpath = Path.Combine(comment_no.ToString(), file_name),
+                        filename = file_name,
+                        update_date = DateTime.Now,
+                        update_user = @User.FindFirst(ClaimTypes.STAF_CD).Value
+                    };
+                    await _context.T_TODOCOMMENT_FILE.AddAsync(record_file);
+
+                    //ファイルをworkからmainにコピー
+                    System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
+                    pdfFileToImg(Path.Combine(dir_main, file_name));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        public IActionResult Read_comment(TodoCommentModel model)
+        {
+            try
+            {
+                ModelState.Clear();
+                using (IDbContextTransaction tran = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        StringBuilder sql = new StringBuilder();
+                        sql.AppendLine(" UPDATE ");
+                        sql.AppendLine(" T_TODOCOMMENT_READ ");
+                        sql.AppendLine(" SET alreadyread_flg=1");
+                        sql.AppendFormat(" ,update_user = '{0}' ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                        sql.AppendFormat(" ,update_date = '{0}' ", DateTime.Now);
+                        sql.AppendLine(" WHERE 1=1 ");
+                        sql.AppendFormat(" AND comment_no = {0} ", model.already_read_comment_no);
+                        sql.AppendFormat(" AND staf_cd = {0} ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                        using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
+                        {
+                            con.Open();
+                            using (SqlCommand cmd = con.CreateCommand())
+                            {
+                                cmd.CommandText = sql.ToString();
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                        /*var readModel = _context.T_TODOCOMMENT_READ.FirstOrDefault(x => x.comment_no == model.already_read_comment_no);
+                        readModel.alreadyread_flg = true;
+                        _context.T_TODOCOMMENT_READ.Update(readModel);
+                        tran.Commit();*/
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        tran.Dispose();
+                        ModelState.AddModelError("", Message_register.FAILURE_001);
+                        //SetSelectListItem(model);
+                        return View("CommentList", new { id = model.todo_no });
+                    }
+                }
+                return RedirectToAction("CommentList", new { id = model.todo_no});
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                ModelState.AddModelError("", Message_register.FAILURE_001);
+                //SetSelectListItem(model);
+                return View("CommentList", new { id = model.todo_no });
             }
         }
     }

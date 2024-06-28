@@ -28,5 +28,10 @@ namespace web_groupware.Models
         [DataType(DataType.DateTime)]
         public DateTime? deadline_date { get; set; }
         public int? has_file { get; set; }
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime create_date { get; set; }
     }
 }
