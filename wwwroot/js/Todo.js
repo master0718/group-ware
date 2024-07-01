@@ -14,6 +14,8 @@ $(function () {
     $('#keyword').on('blur', function() {
         filterResponse();
     });
+
+    checkDeadlineDate();
 })
 
 function filterResponse() {
@@ -33,3 +35,15 @@ function filterResponse() {
     })
 };
 
+function checkDeadlineDate() {
+    const deadlineElements = document.querySelectorAll('.deadline-date');
+
+    deadlineElements.forEach(function(element) {
+        const deadlineDate = new Date(element.getAttribute('data-deadline-date'));
+        const currentDate = new Date();
+
+        if (deadlineDate < currentDate) {
+            element.style.color = 'red';
+        }
+    });
+}

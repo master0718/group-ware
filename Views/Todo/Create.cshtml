@@ -114,13 +114,24 @@
                     <label asp-for="@Model.MyStaffList" class="control-label"></label>
                     <select asp-for="@Model.MyStaffList" class="form-control" multiple>
                         <option value=""></option>
-                        @if (Model.staffList != null)
-                        {
-                            @foreach (var item in Model.staffList)
+                        <optgroup label="グループ">
+                            @if (Model.GroupList != null)
                             {
-                                <option value="@item.staff_cd">@item.staff_name</option>
+                                @foreach (var item in Model.GroupList)
+                                {
+                                    <option value="G-@item.group_cd" data-staff_cds='@string.Join(",", @item.staffs)'>@item.group_name</option>                                            
+                                }
                             }
-                        }
+                        </optgroup>
+                        <optgroup label="個人">
+                            @if (Model.StaffList != null)
+                            {
+                                @foreach (var item in Model.StaffList)
+                                {
+                                    <option value="S-@item.staf_cd">@item.staf_name</option>
+                                }
+                            }
+                        </optgroup>
                     </select>
                     <span asp-validation-for="@Model.staffList" class="text-danger"></span>
                 </div>

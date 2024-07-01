@@ -30,8 +30,11 @@
                     <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
                         <i class="bi bi-arrow-return-left"></i> キャンセル
                     </button>
-                    <button type="button" class="btn btn-primary btnComment" style="margin-right: 10px">
+                    @* <button type="button" class="btn btn-primary btnComment" style="margin-right: 10px">
                         <i class="bi bi-plus"></i> コメント
+                    </button> *@
+                    <button type="button" class="btn btn-danger data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" btnDelete" style="margin-right: 10px">
+                        <i class="bi bi-delete"></i>  削除
                     </button>
                     <button type="button" class="btn btn-primary btnUpdate">
                         <i class="bi bi-floppy"></i> 保存
@@ -123,15 +126,54 @@
                     <label asp-for="@Model.MyStaffList" class="control-label"></label>
                     <select asp-for="@Model.MyStaffList" class="form-control" multiple>
                         <option value=""></option>
-                        @if (Model.staffList != null)
-                        {
-                            @foreach (var item in Model.staffList)
+                        <optgroup label="グループ">
+                            @if (Model.GroupList != null)
                             {
-                                <option value="@item.staff_cd">@item.staff_name</option>
+                                @foreach (var item in Model.GroupList)
+                                {
+                                    <option value="G-@item.group_cd" data-staff_cds='@string.Join(",", @item.staffs)'>@item.group_name</option>                                            
+                                }
                             }
-                        }
+                        </optgroup>
+                        <optgroup label="個人">
+                            @if (Model.StaffList != null)
+                            {
+                                @foreach (var item in Model.StaffList)
+                                {
+                                    <option value="S-@item.staf_cd">@item.staf_name</option>
+                                }
+                            }
+                        </optgroup>
                     </select>
                     <span asp-validation-for="@Model.staffList" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="@Model.create_user" class="form-label">作成者</label>
+                    <div class="d-flex">
+                        <p class="form-control w-25 border-none">
+                            @Html.DisplayFor(model => model.create_date)
+                        </p>
+                        <input asp-for="@Model.create_date" type="hidden"></input>
+                        <p class="form-control w-25">
+                            @Html.DisplayFor(model => model.create_user)
+                        </p>
+                        <input asp-for="@Model.create_user" type="hidden"></input>
+                    </div>
+                    
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="@Model.update_user" class="form-label">更新者</label>
+                    <div class="d-flex">
+                        <p class="form-control w-25">
+                            @Html.DisplayFor(model => model.update_date)
+                        </p>
+                        <input asp-for="@Model.update_date" type="hidden"></input>
+                        <p class="form-control w-25">
+                            @Html.DisplayFor(model => model.update_user)
+                        </p>
+                        <input asp-for="@Model.update_user" type="hidden"></input>
+                    </div>
+                    
                 </div>
             </div>
 
@@ -140,8 +182,11 @@
                     <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
                         <i class="bi bi-arrow-return-left"></i> キャンセル
                     </button>
-                    <button type="button" class="btn btn-primary btnComment" style="margin-right: 10px">
+                    @* <button type="button" class="btn btn-primary btnComment" style="margin-right: 10px">
                         <i class="bi bi-plus"></i> コメント
+                    </button> *@
+                    <button type="button" class="btn btn-danger data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" btnDelete" style="margin-right: 10px">
+                        <i class="bi bi-delete"></i>  削除
                     </button>
                     <button type="button" class="btn btn-primary btnUpdate">
                         <i class="bi bi-floppy"></i> 保存
@@ -159,4 +204,10 @@
         <script src="~/js/TodoCreate.js" asp-append-version="true"></script>
         <script src="~/js/File.js" asp-append-version="true"></script>
     }
+
+    <script>
+        var deleteAction = "Delete"
+        var deleteKey = "id"
+        var deleteId = $('#id').val()
+    </script>
 }

@@ -15,6 +15,7 @@ using web_groupware.Utilities;
 using NuGet.Protocol.Plugins;
 using Microsoft.Data.SqlClient;
 using System.Text;
+using System.IO.Packaging;
 
 
 namespace web_groupware.Controllers
@@ -63,9 +64,11 @@ namespace web_groupware.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+            var user_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
             TodoViewModel model = new TodoViewModel();
 
-            var items = await _context.T_TODO.ToListAsync();
+            var items = await _context.T_TODO.Where(x => x.staf_name == user_name).ToListAsync();
             var userInfoList = await _context.M_STAFF.ToListAsync();
                         
             foreach (var item in items)
@@ -103,7 +106,9 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var todoList = _context.T_TODO.ToList();
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var user_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
+                var todoList = _context.T_TODO.Where(x => x.staf_name == user_name).ToList();
                 if (response_status != -1)
                 {
                     todoList = todoList.Where(x => x.response_status == response_status).ToList();
@@ -157,8 +162,8 @@ namespace web_groupware.Controllers
                 PrepareViewModel(viewModel);
 
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-                viewModel.MyStaffList = new int[1];
-                viewModel.MyStaffList[0] = Convert.ToInt32(user_id);
+                viewModel.MyStaffList = new string[1];
+                viewModel.MyStaffList[0] = "S-" + user_id;
                 string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                 string dir = Path.Combine(_uploadPath, dir_work);
                 //workディレクトリの作成
@@ -181,6 +186,7 @@ namespace web_groupware.Controllers
         {
             try
             {
+                ModelState.Clear();
                 if (!ModelState.IsValid)
                 {
                     ModelState.AddModelError("", Messages.IS_VALID_FALSE);
@@ -258,8 +264,18 @@ namespace web_groupware.Controllers
 
                     foreach (var item in request.MyStaffList)
                     {
-                        var target = new T_TODOTARGET(todo_no, item);
-                        _context.Add(target);
+                        var cd = Convert.ToInt32(item[2..]);
+                        var type = item[..1];
+                        if (type == "S")
+                        {
+                            var target = new T_TODOTARGET(todo_no, cd);
+                            _context.Add(target);
+                        }
+                        else
+                        {
+                            var group = new T_TODOTARGET_GROUP(todo_no, cd);
+                            _context.Add(group);
+                        }
                     }
 
                     AddFiles(request.work_dir, todo_no);
@@ -383,25 +399,40 @@ namespace web_groupware.Controllers
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
                 deadline_date = item.deadline_date,
-                has_file = item.has_file
+                has_file = item.has_file,
+                update_date = item.update_date.ToString("yyyy年M月d日 H時m分"),
+                update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.update_user)).staf_name,
+                create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
+                create_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.create_user)).staf_name
             };
 
             model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
 
             var myStaffList = _context.T_TODOTARGET.Where(x => x.todo_no == id).ToList();
+            var myGroupList = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == id).ToList();
             if (myStaffList != null && myStaffList.Count > 0)
             {
                 int n = 0;
                 if (myStaffList != null)
                     n += myStaffList.Count;
+                if (myGroupList != null)
+                    n += myGroupList.Count;
 
-                model.MyStaffList = new int[n];
+                model.MyStaffList = new string[n];
                 int i = 0;
                 if (myStaffList != null)
                 {
                     foreach (var staff in myStaffList)
                     {
-                        model.MyStaffList[i++] = staff.staf_cd;
+                        model.MyStaffList[i++] = "S-" + staff.staf_cd;
+                    }
+                }
+
+                if(myGroupList != null)
+                {
+                    foreach(var group in myGroupList)
+                    {
+                        model.MyStaffList[i++] = "G-" + group.group_cd;
                     }
                 }
             }
@@ -418,14 +449,20 @@ namespace web_groupware.Controllers
                     // 編集のみ
                     model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == model.id).ToList();
                 }
-                model.staffList = _context.M_STAFF
+                model.StaffList = _context.M_STAFF
                     .Where(x => x.retired != 1)
-                    .Select(u => new TodoViewModelStaff
+                    .Select(u => new StaffModel
                     {
-                        staff_cd = u.staf_cd,
-                        staff_name = u.staf_name
+                        staf_cd = u.staf_cd,
+                        staf_name = u.staf_name
                     })
                     .ToList();
+                model.GroupList = _context.T_GROUPM.Select(x => new EmployeeGroupModel
+                {
+                    group_cd = x.group_cd,
+                    group_name = x.group_name,
+                    staffs = _context.T_GROUPSTAFF.Where(y => y.group_cd == x.group_cd).Select(y => y.staf_cd).ToList()
+                }).ToList();
             }
             catch (Exception ex)
             {
@@ -494,6 +531,8 @@ namespace web_groupware.Controllers
                 model.deadline_set = request.deadline_set;
                 model.update_date = now;
                 model.response_status = request.response_status;
+                model.update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_name == request.update_user).staf_cd.ToString();
+                model.has_file = request.has_file;
                 if (request.deadline_set == 0)
                 {
                     model.deadline_date = null;
@@ -503,14 +542,14 @@ namespace web_groupware.Controllers
                     model.deadline_date = request.deadline_date;
                 }
                 
-                if(request.File.Count > 0)
+                /*if(request.File.Count > 0)
                 {
                     model.has_file = 1;
                 }
                 else
                 {
                     model.has_file = 0;
-                }
+                }*/
 
                 _context.T_TODO.Update(model);
 
@@ -520,10 +559,26 @@ namespace web_groupware.Controllers
                     _context.T_TODOTARGET.RemoveRange(targetModel);
                 }
 
+                var targetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.id).ToList();
+                if (targetGroup.Count > 0 && targetGroup != null)
+                {
+                    _context.T_TODOTARGET_GROUP.RemoveRange(targetGroup);
+                }
+
                 foreach (var item in request.MyStaffList)
                 {
-                    var target = new T_TODOTARGET(request.id, item);
-                    _context.Add(target);
+                    var cd = Convert.ToInt32(item[2..]);
+                    var type = item[..1];
+                    if (type == "S")
+                    {
+                        var target = new T_TODOTARGET(request.id, cd);
+                        _context.Add(target);
+                    }
+                    else
+                    {
+                        var group = new T_TODOTARGET_GROUP(request.id, cd);
+                        _context.Add(group);
+                    }
                 }
 
                 //レコード登録前にmainからファイル削除
@@ -901,7 +956,6 @@ namespace web_groupware.Controllers
                         _logger.LogError(ex.StackTrace);
                         tran.Dispose();
                         ModelState.AddModelError("", Message_register.FAILURE_001);
-                        //SetSelectListItem(model);
                         return View("CommentList", new { id = model.todo_no });
                     }
                 }
@@ -912,9 +966,48 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 ModelState.AddModelError("", Message_register.FAILURE_001);
-                //SetSelectListItem(model);
                 return View("CommentList", new { id = model.todo_no });
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var todoTarget = _context.T_TODOTARGET.Where(x => x.todo_no == id).ToList();
+                if (todoTarget.Count > 0 && todoTarget != null)
+                {
+                    _context.T_TODOTARGET.RemoveRange(todoTarget);
+                }
+
+                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == id).ToList();
+                if (todoTargetGroup.Count > 0 && todoTargetGroup != null)
+                {
+                    _context.T_TODOTARGET_GROUP.RemoveRange(todoTargetGroup);
+                }
+
+                var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
+                if (todoFile.Count > 0 && todoFile != null)
+                {
+                    _context.T_TODO_FILE.RemoveRange(todoFile);
+                }
+
+                var todo = _context.T_TODO.FirstOrDefault(x => x.id == id);
+                if (todo != null)
+                {
+                    _context.T_TODO.Remove(todo);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+            }
+            return RedirectToAction("Index");
+
         }
     }
 }

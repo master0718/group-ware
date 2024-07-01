@@ -71,7 +71,13 @@ namespace web_groupware.Models
         [DisplayName("宛先")]
         //[Required(ErrorMessage = Messages.REQUIRED)]
         [MinLength(1, ErrorMessage = Messages.REQUIRED)]
-        public int[] MyStaffList { get; set; } = Array.Empty<int>();
+        public string[] MyStaffList { get; set; } = Array.Empty<string>();
+        public List<StaffModel> StaffList { get; set; } = new List<StaffModel>();
+        public List<EmployeeGroupModel> GroupList { get; set; } = new List<EmployeeGroupModel>();
+        public string update_user { get; set; }
+        public String update_date { get; set; }
+        public string create_user { get; set; }
+        public String create_date { get; set; }
     }
 
     public class TodoUpdateModel
