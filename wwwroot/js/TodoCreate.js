@@ -45,7 +45,6 @@ $(function () {
     })
 
     // checkHasFile();
-    
 })
 
 function showEndDate() {
