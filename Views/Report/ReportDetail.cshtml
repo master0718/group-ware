@@ -61,7 +61,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="page-title mb-0">日報<span>@word</span></h4>
                 <div class="d-flex justify-content-end">
-                    <a type="button" asp-controller="Report" asp-action="Index" asp-route-date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-isCancel="true" class="btn btn-secondary" style="margin-right: 10px">
+                    <a type="button" asp-controller="Report" asp-action="Index" asp-route-date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" class="btn btn-secondary" style="margin-right: 10px">
                         <i class="bi bi-arrow-return-left"></i> キャンセル
                     </a>
                     @if (@Model.mode == 1)
@@ -87,7 +87,7 @@
                     }
                     else if (@Model.mode == 4 && !Model.already_read)
                     {
-                        <button type="button" class="btn btn-primary kakuninDialog">
+                        <button type="button" data-site_confirm="確認済にしてよろしいですか？" class="btn btn-primary kakuninDialog">
                             <i class="bi bi-check-circle"></i>
                             @word
                         </button>
@@ -173,7 +173,7 @@
                         </div>
                     </div>
 
-                    <div id="" class="card scroll">
+                    <div id="" class="card scroll mb-3">
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-2">
@@ -206,7 +206,7 @@
                                     <div class="col-1">
                                         @if (Model.mode == 4 && !Model.list_report[i].already_read_comment)
                                         {
-                                            <button type="button" data-comment_no="@Model.list_report[i].comment_no" class="btn btn-sm btn-primary Report_save_comment_no kakuninDialog">
+                                            <button type="button" data-comment_no="@Model.list_report[i].comment_no" data-site_confirm="確認済にしてよろしいですか？" class="btn btn-sm btn-primary Report_save_comment_no kakuninDialog">
                                                 <i class="bi bi-check-circle"></i>
                                                 確認
                                             </button>
@@ -226,26 +226,54 @@
                 }
                 @if (Model.mode != 1)
                 {
-                    <div class="form-group row mt-3" id="create_info">
-                        <div class="col-sm-6">
-                            <label class="control-label me-4" asp-for="@Model.create_user"></label>
-                            <input asp-for="@Model.create_user" class="form-control bg-white" type="text" readonly />
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label">更新情報</label>
+                        @*                         <h5 class="fw-bold">更新情報</h5>
+                    *@
+                        <div class="row px-4">
+                            <div class="col-2">
+                                <label class="control-label mb-0">作成</label>
+                            </div>
+                            <div class="col-6">
+                                <label>@Model.create_date</label>
+                            </div>
+                            <div class="col-4">
+                                <label>@Model.create_user</label>
+                            </div>
                         </div>
-                        <div class="col-sm-6">
-                            <label class="control-label me-4" asp-for="@Model.create_date"></label>
-                            <input asp-for="@Model.create_date" class="form-control bg-white" type="text" readonly />
+                        <div class="row px-4">
+                            <div class="col-2">
+                                <label class="control-label mb-0">更新</label>
+                            </div>
+                            <div class="col-6">
+                                <label>@Model.update_date</label>
+                            </div>
+                            <div class="col-4">
+                                <label>@Model.update_user</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group row mt-3" id="update_info">
-                        <div class="col-sm-6">
-                            <label class="control-label me-4" asp-for="@Model.update_user"></label>
-                            <input asp-for="@Model.update_user" class="form-control bg-white" type="text" readonly />
-                        </div>
-                        <div class="col-sm-6">
-                            <label class="control-label me-4" asp-for="@Model.update_date"></label>
-                            <input asp-for="@Model.update_date" class="form-control bg-white" type="text" readonly />
-                        </div>
-                    </div>
+                    @*                     <div class="form-group row mt-3" id="create_info">
+                <div class="col-sm-6">
+                <label class="control-label me-4" asp-for="@Model.create_user"></label>
+                <input asp-for="@Model.create_user" class="form-control bg-white" type="text" readonly />
+                </div>
+                <div class="col-sm-6">
+                <label class="control-label me-4" asp-for="@Model.create_date"></label>
+                <input asp-for="@Model.create_date" class="form-control bg-white" type="text" readonly />
+                </div>
+                </div>
+                <div class="form-group row mt-3" id="update_info">
+                <div class="col-sm-6">
+                <label class="control-label me-4" asp-for="@Model.update_user"></label>
+                <input asp-for="@Model.update_user" class="form-control bg-white" type="text" readonly />
+                </div>
+                <div class="col-sm-6">
+                <label class="control-label me-4" asp-for="@Model.update_date"></label>
+                <input asp-for="@Model.update_date" class="form-control bg-white" type="text" readonly />
+                </div>
+                </div>
+                *@
                 }
                 @if (Model.mode == 5)
                 {
@@ -271,7 +299,7 @@
             <div class="card-footer d-flex justify-content-between align-items-center">
                 <h4 class="page-title mb-0 invisible">日報<span>@word</span></h4>
                 <div class="d-flex justify-content-end">
-                    <a type="button" asp-controller="Report" asp-action="Index" asp-route-date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-isCancel="true" class="btn btn-secondary" style="margin-right: 10px">
+                    <a type="button" asp-controller="Report" asp-action="Index" asp-route-date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" class="btn btn-secondary" style="margin-right: 10px">
                         <i class="bi bi-arrow-return-left"></i> キャンセル
                     </a>
                     @if (@Model.mode == 1)
@@ -297,7 +325,7 @@
                     }
                     else if (@Model.mode == 4 && !Model.already_read)
                     {
-                        <button type="button" class="btn btn-primary kakuninDialog">
+                        <button type="button" data-site_confirm="確認済にしてよろしいですか？" class="btn btn-primary kakuninDialog">
                             <i class="bi bi-check-circle"></i>
                             @word
                         </button>

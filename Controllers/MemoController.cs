@@ -33,21 +33,39 @@ namespace web_groupware.Controllers
         [HttpGet]
         public IActionResult Memo_sent(int state = 0, int user = 0)
         {
-            MemoViewModel model = CreateMemoViewModel(state, user, true);
-            TempData["is_sent"] = true;
-            TempData["view_mode"] = "sent";
-            ViewBag.ViewMode = "Memo_sent";
-            return View(model);
+            try
+            {
+                MemoViewModel model = CreateMemoViewModel(state, user, true);
+                TempData["is_sent"] = true;
+                TempData["view_mode"] = "sent";
+                ViewBag.ViewMode = "Memo_sent";
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         [HttpGet]
         public IActionResult Memo_received(int state = 0, int user = 0)
         {
-            MemoViewModel model = CreateMemoViewModel(state, user, false);
-            TempData["is_sent"] = false;
-            TempData["view_mode"] = "received";
-            ViewBag.ViewMode = "Memo_received";
-            return View(model);
+            try
+            {
+                MemoViewModel model = CreateMemoViewModel(state, user, false);
+                TempData["is_sent"] = false;
+                TempData["view_mode"] = "received";
+                ViewBag.ViewMode = "Memo_received";
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         [HttpPost]
@@ -66,13 +84,15 @@ namespace web_groupware.Controllers
 
         public MemoViewModel CreateMemoViewModel(int selected_state = 0, int selected_user = 0, bool is_sent = true)
         {
-            var model = new MemoViewModel
+            try
             {
-                selectedState = selected_state,
-                selectedUser = selected_user,
-                isSent = is_sent,
+                var model = new MemoViewModel
+                {
+                    selectedState = selected_state,
+                    selectedUser = selected_user,
+                    isSent = is_sent,
 
-                staffList = _context.M_STAFF
+                    staffList = _context.M_STAFF
                     .Where(x => x.retired != 1)
                     .Select(u => new MemoViewModelStaff
                     {
@@ -80,127 +100,137 @@ namespace web_groupware.Controllers
                         staff_name = u.staf_name
                     })
                     .ToList(),
-                groupList = _context.T_GROUPM
+                    groupList = _context.M_GROUP
                     .Select(g => new MemoViewModelGroup
                     {
                         group_cd = g.group_cd,
                         group_name = g.group_name
                     })
                     .ToList()
-            };
-            var comments = _context.M_DIC
-                .Where(m => m.dic_kb == 710)
-                .ToList();
-            foreach (var item in comments)
-            {
-                model.commentList.Add(new MemoComment
+                };
+                var comments = _context.M_DIC
+                    .Where(m => m.dic_kb == 710)
+                    .ToList();
+                foreach (var item in comments)
                 {
-                    comment_no = item.dic_cd,
-                    comment = item.content
-                });
-            }
+                    model.commentList.Add(new MemoComment
+                    {
+                        comment_no = item.dic_cd,
+                        comment = item.content
+                    });
+                }
 
-            int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
-            var memoList = _context.T_MEMO.ToList();
-            for (var i = memoList.Count - 1; i >= 0; i--)
-            {
-                var memo = memoList[i];
-
-                if (selected_state == 0 || memo.state == selected_state - 1)
+                int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
+                var memoList = _context.T_MEMO.ToList();
+                for (var i = memoList.Count - 1; i >= 0; i--)
                 {
-                    bool is_show = false;
-                    if (is_sent)
-                    {
-                        if (memo.sender_cd == user_id)
-                        {
-                            if (selected_user == 0) is_show = true;
-                            else if (selected_user == 1 && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
-                            else if (selected_user > 1 && memo.receiver_type == 1)
-                            {
-                                if (memo.receiver_cd == selected_user - 2) is_show = true;
-                            }
-                        }
+                    var memo = memoList[i];
 
-                    } else
+                    if (selected_state == 0 || memo.state == selected_state - 1)
                     {
-                        if ((selected_user == 0 || selected_user == 1) && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
-                        else if (memo.receiver_type == 1 && (selected_user == 0 || selected_user > 1 && memo.receiver_cd == selected_user - 2))
+                        bool is_show = false;
+                        if (is_sent)
                         {
-                            var memoReader = _context.T_MEMO_READ
-                                .Where(m => m.memo_no == memo.memo_no && m.staff_cd == user_id)
-                                .FirstOrDefault();
-                            // グループの対象社員は作成者が宛先を登録・変更したタイミングでグループに属していた社員
-                            if (memoReader != null)
+                            if (memo.sender_cd == user_id)
                             {
-                                is_show = model.groupList
-                                    .Where(m => m.group_cd == memo.receiver_cd)
-                                    .ToList().Any();
+                                if (selected_user == 0) is_show = true;
+                                else if (selected_user == 1 && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
+                                else if (selected_user > 1 && memo.receiver_type == 1)
+                                {
+                                    if (memo.receiver_cd == selected_user - 2) is_show = true;
+                                }
                             }
-                        }                        
-                    }
-                    if (is_show)
-                    {
-                        var receiver_name = "";
-                        if (memo.receiver_type == 0)
-                        {
-                            var user = model.staffList.FirstOrDefault(u => u.staff_cd == memo.receiver_cd);
-                            receiver_name = user.staff_name;
+
                         }
                         else
                         {
-                            var group = model.groupList.FirstOrDefault(u => u.group_cd == memo.receiver_cd);
-                            receiver_name = group.group_name;
+                            if ((selected_user == 0 || selected_user == 1) && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
+                            else if (memo.receiver_type == 1 && (selected_user == 0 || selected_user > 1 && memo.receiver_cd == selected_user - 2))
+                            {
+                                var memoReader = _context.T_INFO_PERSONAL
+                                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                                    .Where(m => m.first_no == memo.memo_no && m.staf_cd == user_id)
+                                    .FirstOrDefault();
+                                // グループの対象社員は作成者が宛先を登録・変更したタイミングでグループに属していた社員
+                                if (memoReader != null)
+                                {
+                                    is_show = model.groupList
+                                        .Where(m => m.group_cd == memo.receiver_cd)
+                                        .ToList().Any();
+                                }
+                            }
                         }
-                        var sender = model.staffList.FirstOrDefault(u => u.staff_cd == memo.sender_cd);
-                        var sender_name = sender?.staff_name;
+                        if (is_show)
+                        {
+                            var receiver_name = "";
+                            if (memo.receiver_type == 0)
+                            {
+                                var user = model.staffList.FirstOrDefault(u => u.staff_cd == memo.receiver_cd);
+                                receiver_name = user.staff_name;
+                            }
+                            else
+                            {
+                                var group = model.groupList.FirstOrDefault(u => u.group_cd == memo.receiver_cd);
+                                receiver_name = group.group_name;
+                            }
+                            var sender = model.staffList.FirstOrDefault(u => u.staff_cd == memo.sender_cd);
+                            var sender_name = sender?.staff_name;
 
-                        var memoReaders = _context.T_MEMO_READ
-                            .Include(m => m.staff)
-                            .Where(m => m.memo_no == memo.memo_no && m.read_flag)
-                            .ToList();
-                        var readerNames = "";
-                        foreach (var memoReader in memoReaders)
-                        {
-                            if (readerNames.Length != 0) readerNames += "、";
-                            readerNames += memoReader.staff.staf_name;
-                        }
-                        var working_msg = "";
-                        if (memo.working_cd > 0)
-                        {
-                            var working = model.staffList.FirstOrDefault(u => u.staff_cd == memo.working_cd);
-                            working_msg = memo.working_date.ToString("yyyy年M月d日 H時m分  ") + working.staff_name;
-                        }
-                        var finish_msg = "";
-                        if (memo.finish_cd > 0)
-                        {
-                            var working = model.staffList.FirstOrDefault(u => u.staff_cd == memo.finish_cd);
-                            finish_msg = memo.finish_date.ToString("yyyy年M月d日 H時m分  ") + working.staff_name;
-                        }
+                            var memoReaders = _context.T_INFO_PERSONAL
+                                .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                                .Where(m => m.first_no == memo.memo_no && m.already_checked)
+                                .Include(m => m.staff)
+                                .ToList();
+                            var readerNames = "";
+                            foreach (var memoReader in memoReaders)
+                            {
+                                if (readerNames.Length != 0) readerNames += "、";
+                                readerNames += memoReader.staff.staf_name;
+                            }
+                            var working_msg = "";
+                            if (memo.working_cd > 0)
+                            {
+                                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.working_cd);
+                                working_msg = memo.working_date.ToString("yyyy年M月d日 H時m分  ") + working?.staf_name;
+                            }
+                            var finish_msg = "";
+                            if (memo.finish_cd > 0)
+                            {
+                                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.finish_cd);
+                                finish_msg = memo.finish_date.ToString("yyyy年M月d日 H時m分  ") + working?.staf_name;
+                            }
 
-                        model.memoList.Add(new MemoModel
-                        {
-                            memo_no = memo.memo_no,
-                            create_date = memo.create_date.ToString("yyyy年M月d日 H時m分"),
-                            state = memo.state,
-                            receiver_type = memo.receiver_type,
-                            receiver_cd = memo.receiver_cd,
-                            receiver_name = receiver_name,
-                            applicant_type = memo.applicant_type,
-                            applicant_cd = memo.applicant_cd,
-                            applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == memo.applicant_cd)?.staf_name,
-                            comment_no = memo.comment_no,
-                            phone = memo.phone,
-                            content = memo.content,
-                            sender_name = sender_name,
-                            is_editable = memo.sender_cd == user_id,
-                            readers = readerNames,
-                            working_msg = working_msg,
-                            finish_msg = finish_msg
-                        });
+                            model.memoList.Add(new MemoModel
+                            {
+                                memo_no = memo.memo_no,
+                                create_date = memo.create_date.ToString("yyyy年M月d日 H時m分"),
+                                state = memo.state,
+                                receiver_type = memo.receiver_type,
+                                receiver_cd = memo.receiver_cd,
+                                receiver_name = receiver_name,
+                                applicant_type = memo.applicant_type,
+                                applicant_cd = memo.applicant_cd,
+                                applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == memo.applicant_cd)?.staf_name,
+                                comment_no = memo.comment_no,
+                                phone = memo.phone,
+                                content = memo.content,
+                                sender_name = sender_name,
+                                is_editable = memo.sender_cd == user_id,
+                                readers = readerNames,
+                                working_msg = working_msg,
+                                finish_msg = finish_msg
+                            });
+                        }
                     }
                 }
+                return model;
             }
-            return model;
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         [HttpGet]
@@ -282,6 +312,7 @@ namespace web_groupware.Controllers
                         sender_cd = Convert.ToInt32(user_id),
                         working_cd = 0,
                         finish_cd = 0,
+                        create_user = user_id,
                         create_date = DateTime.Now,
                         update_user = user_id,
                         update_date = DateTime.Now
@@ -290,15 +321,24 @@ namespace web_groupware.Controllers
 
                     if (request.receiver_type == 0)
                     {
-                        var memo_read = new T_MEMO_READ
+                        var memo_read = new T_INFO_PERSONAL
                         {
-                            memo_no = tracked.Entity.memo_no,
-                            staff_cd = request.receiver_cd,
-                            read_flag = false,
+                            parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
+                            first_no = tracked.Entity.memo_no,
+                            second_no = 0,
+                            third_no = 0,
+                            staf_cd = request.receiver_cd,
+                            already_checked = false,
+                            title = "",
+                            content = "",
+                            url = "",
+                            added = false,
+                            create_user = user_id,
+                            create_date = DateTime.Now,
                             update_user = user_id,
                             update_date = DateTime.Now
                         };
-                        _context.T_MEMO_READ.Add(memo_read);
+                        _context.T_INFO_PERSONAL.Add(memo_read);
                     }
                     else
                     {
@@ -308,15 +348,24 @@ namespace web_groupware.Controllers
                             .ToList();
                         foreach (var staf_cd in staf_cds)
                         {
-                            var memo_read = new T_MEMO_READ
+                            var memo_read = new T_INFO_PERSONAL
                             {
-                                memo_no = tracked.Entity.memo_no,
-                                staff_cd = staf_cd,
-                                read_flag = false,
+                                parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
+                                first_no = tracked.Entity.memo_no,
+                                second_no = 0,
+                                third_no = 0,
+                                staf_cd = staf_cd,
+                                already_checked = false,
+                                title = "",
+                                content = "",
+                                url = "",
+                                added = false,
+                                create_user = user_id,
+                                create_date = DateTime.Now,
                                 update_user = user_id,
                                 update_date = DateTime.Now
                             };
-                            _context.T_MEMO_READ.Add(memo_read);
+                            _context.T_INFO_PERSONAL.Add(memo_read);
                         }
                     }
 
@@ -343,16 +392,17 @@ namespace web_groupware.Controllers
             int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
             try
             {
-                var memoRead = await _context.T_MEMO_READ
-                    .Where(m => m.memo_no == memo_no && m.staff_cd == user_id)
+                var memoRead = await _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                    .Where(m => m.first_no == memo_no && m.staf_cd == user_id)
                     .FirstOrDefaultAsync();
-                if (memoRead != null && !memoRead.read_flag)
+                if (memoRead != null && !memoRead.already_checked)
                 {
                     using (IDbContextTransaction tran = _context.Database.BeginTransaction())
                     {
-                        memoRead.read_flag = true;
+                        memoRead.already_checked = true;
 
-                        _context.T_MEMO_READ.Update(memoRead);
+                        _context.T_INFO_PERSONAL.Update(memoRead);
                         await _context.SaveChangesAsync();
 
                         var memoItem = await _context.T_MEMO.FindAsync(memo_no);
@@ -435,20 +485,33 @@ namespace web_groupware.Controllers
                     {
                         if (request.receiver_type != memoItem.receiver_type || request.receiver_cd != memoItem.receiver_cd)
                         {
-                            var itemsRemove = _context.T_MEMO_READ.Where(m => m.memo_no == request.memo_no);
-                            _context.T_MEMO_READ.RemoveRange(itemsRemove);
+                            var itemsRemove = _context.T_INFO_PERSONAL
+                                .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                                .Include(m => m.staff)
+                                .Where(m => m.first_no == request.memo_no)
+                                .ToList();
+                            _context.T_INFO_PERSONAL.RemoveRange(itemsRemove);
 
                             if (request.receiver_type == 0)
                             {
-                                var memo_read = new T_MEMO_READ
+                                var memo_read = new T_INFO_PERSONAL
                                 {
-                                    memo_no = request.memo_no,
-                                    staff_cd = request.receiver_cd,
-                                    read_flag = false,
+                                    parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
+                                    first_no = request.memo_no,
+                                    second_no = 0,
+                                    third_no = 0,
+                                    staf_cd = request.receiver_cd,
+                                    already_checked = false,
+                                    title = "",
+                                    content = "",
+                                    url = "",
+                                    added = false,
+                                    create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
+                                    create_date = DateTime.Now,
                                     update_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
                                     update_date = DateTime.Now
                                 };
-                                _context.T_MEMO_READ.Add(memo_read);
+                                _context.T_INFO_PERSONAL.Add(memo_read);
                             }
                             else
                             {
@@ -458,15 +521,24 @@ namespace web_groupware.Controllers
                                     .ToList();
                                 foreach (var staf_cd in staf_cds)
                                 {
-                                    var memo_read = new T_MEMO_READ
+                                    var memo_read = new T_INFO_PERSONAL
                                     {
-                                        memo_no = request.memo_no,
-                                        staff_cd = staf_cd,
-                                        read_flag = false,
+                                        parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
+                                        first_no = request.memo_no,
+                                        second_no = 0,
+                                        third_no = 0,
+                                        staf_cd = staf_cd,
+                                        already_checked = false,
+                                        title = "",
+                                        content = "",
+                                        url = "",
+                                        added = false,
+                                        create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
+                                        create_date = DateTime.Now,
                                         update_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
                                         update_date = DateTime.Now
                                     };
-                                    _context.T_MEMO_READ.Add(memo_read);
+                                    _context.T_INFO_PERSONAL.Add(memo_read);
                                 }
                             }
                             memoItem.receiver_type = request.receiver_type;
@@ -571,8 +643,10 @@ namespace web_groupware.Controllers
             {
                 try
                 {
-                    var itemsRemove = _context.T_MEMO_READ.Where(m => m.memo_no == request.memo_no);
-                    _context.T_MEMO_READ.RemoveRange(itemsRemove);
+                    var itemsRemove = _context.T_INFO_PERSONAL
+                        .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                        .Where(m => m.first_no == request.memo_no);
+                    _context.T_INFO_PERSONAL.RemoveRange(itemsRemove);
 
                     _context.T_MEMO.Remove(memoDetail);
                     await _context.SaveChangesAsync();
@@ -595,8 +669,9 @@ namespace web_groupware.Controllers
             if (claim != null)
             {
                 int staf_cd = int.Parse(claim.Value);
-                count = await Task.Run(() => _context.T_MEMO_READ
-                    .Where(m => m.staff_cd == staf_cd && !m.read_flag)
+                count = await Task.Run(() => _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                    .Where(m => m.staf_cd == staf_cd && !m.already_checked)
                     .Count());
             }
             else
@@ -623,7 +698,7 @@ namespace web_groupware.Controllers
                         staff_name = u.staf_name
                     })
                     .ToList();
-                model.groupList = _context.T_GROUPM
+                model.groupList = _context.M_GROUP
                     .Select(g => new MemoViewModelGroup
                     {
                         group_cd = g.group_cd,
@@ -675,7 +750,7 @@ namespace web_groupware.Controllers
                         staff_name = u.staf_name
                     })
                     .ToList(),
-                groupList = _context.T_GROUPM
+                groupList = _context.M_GROUP
                     .Select(g => new MemoViewModelGroup
                     {
                         group_cd = g.group_cd,
@@ -684,10 +759,11 @@ namespace web_groupware.Controllers
                     .ToList()
             };
 
-            var memoReaders = _context.T_MEMO_READ
-                            .Include(m => m.staff)
-                            .Where(m => m.memo_no == memo_no && m.read_flag)
-                            .ToList();
+            var memoReaders = _context.T_INFO_PERSONAL
+                .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                .Include(m => m.staff)
+                .Where(m => m.first_no == memo_no && m.already_checked)
+                .ToList();
             var readerNames = "";
             foreach (var memoReader in memoReaders)
             {
@@ -697,12 +773,12 @@ namespace web_groupware.Controllers
             model.readers = readerNames;
             if (memo.working_cd > 0)
             {
-                var working = model.staffList.FirstOrDefault(u => u.staff_cd == memo.working_cd).staff_name;
+                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.working_cd)?.staf_name;
                 model.working_msg = memo.working_date.ToString("yyyy年MM月dd日 HH時mm分  ") + working;
             }
             if (memo.finish_cd > 0)
             {
-                var working = model.staffList.FirstOrDefault(u => u.staff_cd == memo.finish_cd).staff_name;
+                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.finish_cd)?.staf_name;
                 model.finish_msg = memo.finish_date.ToString("yyyy年MM月dd日 HH時mm分  ") + working;
             }
 
@@ -776,8 +852,9 @@ namespace web_groupware.Controllers
 
             if (memoItem.receiver_type == 0)
             {
-                var memoRead = _context.T_MEMO_READ
-                    .Where(m => m.memo_no == memoItem.memo_no && m.staff_cd == memoItem.receiver_cd && m.read_flag)
+                var memoRead = _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                    .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == memoItem.receiver_cd && m.already_checked)
                     .FirstOrDefault();
                 return (memoRead != null);
             }
@@ -789,8 +866,9 @@ namespace web_groupware.Controllers
                     .ToList();
                 foreach(var staff in staff_cds)
                 {
-                    var memoRead = _context.T_MEMO_READ
-                        .Where(m => m.memo_no == memoItem.memo_no && m.staff_cd == staff && m.read_flag)
+                    var memoRead = _context.T_INFO_PERSONAL
+                        .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                        .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == staff && m.already_checked)
                         .FirstOrDefault();
                     if (memoRead == null)
                     {

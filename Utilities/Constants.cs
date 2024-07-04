@@ -1,4 +1,9 @@
-﻿namespace web_groupware.Utilities
+﻿using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Threading;
+
+namespace web_groupware.Utilities
 {
     public class ClaimTypes
     {
@@ -22,7 +27,6 @@
         public const int FILE_NO = 16;
         public const int BUKKENCOMMENT_FILE_NO = 17;
         public const int TODO_NO = 18;
-        public const int TODO_COMMENT_NO = 19;
     }
     public class DIC_KB
     {
@@ -31,6 +35,7 @@
         public const int TEMPLETE_FILE = 701;
         public const int MEMO_STATUS = 710;
         public const int ATTENDANCE_STATUS = 711;
+        public const int BOARD_CATEGORY = 720;
     }
 
     public class DIC_KB_700_DIRECTORY
@@ -43,7 +48,6 @@
         public const string BUKKENCOMMENT_FILE = "6";
         public const string TODO = "8";
         public const string WORKFLOW = "9";
-        public const string TODO_COMMENT = "10";
     }
     public class DIC_KB_701_TEMPLETE_FILE
     {
@@ -57,9 +61,8 @@
         public const string Read = "既読";
         public const string Working = "対応中";
         public const string Finish = "済";
-
         public static string[] AllTypes = { All, Unread, Read, Working, Finish };
-    }
+    }       
 
     public class BoardStatus
     {
@@ -67,7 +70,9 @@
         public const int REQUESTING = 1; // 依頼中
         public const int IN_PROGRESS = 2; // 対応中
         public const int COMPLETED = 3; // 完了
+        public static string[] All = { "未対応", "依頼中", "対応中", "完了" };
     }
+
     public class SCHEDULE_REPETITION
     {
         public const int NONE = 0;
@@ -76,4 +81,13 @@
         public const int WEEKLY = 3;
         public const int MONTHLY = 4;
     }
+    public class INFO_PERSONAL_PARENT_ID
+    {
+        public const int T_REPORT = 1;
+        public const int T_REPORTCOMMENT = 2;
+        public const int T_MEMO = 3;
+        public const int T_BUKKENCOMMENT = 4;
+        public const int T_BOARD = 5;
+    }
+
 }

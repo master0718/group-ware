@@ -66,7 +66,7 @@ namespace web_groupware.Controllers
             {
                 if (!TempData.ContainsKey("view_mode") || TempData["view_mode"].ToString().Contains("group"))
                 {
-                    var groupList = _context.T_GROUPM.Select(x => new
+                    var groupList = _context.M_GROUP.Select(x => new
                     {
                         x.group_cd,
                         x.group_name
@@ -206,7 +206,7 @@ namespace web_groupware.Controllers
 
                 if (!TempData.ContainsKey("view_mode") || TempData["view_mode"].ToString().Contains("group"))
                 {
-                    var groupList = _context.T_GROUPM.Select(x => new EmployeeGroupModel
+                    var groupList = _context.M_GROUP.Select(x => new EmployeeGroupModel
                     {
                         group_cd = x.group_cd,
                         group_name = x.group_name

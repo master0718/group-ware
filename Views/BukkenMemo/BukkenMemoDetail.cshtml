@@ -24,7 +24,7 @@
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div class="card">
     <form id="frm" asp-controller="BukkenMemo" asp-action="Create" method="post">
-        <input type="hidden" asp-for="@Model.bukken_cd" />
+        <input type="hidden" asp-for="@Model.bukn_cd" />
         @*         <input type="hidden" asp-for="@Model.list_staff" />
         *@
         <input type="hidden" asp-for="@Model.cond_bukken_name" />
@@ -276,7 +276,7 @@
     </form>
     <form id="form_Read_comment" asp-controller="BukkenMemo" asp-action="Read_comment" method="post">
         <input type="hidden" asp-for="@Model.already_read_comment_no" />
-        <input type="hidden" asp-for="@Model.bukken_cd" />
+        <input type="hidden" asp-for="@Model.bukn_cd" />
         @*         <input type="hidden" asp-for="@Model.list_staff" />
         *@
         <input type="hidden" asp-for="@Model.cond_bukken_name" />

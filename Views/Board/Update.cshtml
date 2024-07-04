@@ -33,6 +33,18 @@
                         <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> キャンセル
                         </button>
+                        @if (Model.already_checked)
+                        {
+                            <a type="button" class="btn btn-secondary" style="margin-right: 10px">
+                                <i class="bi bi-check-circle"></i> 確認済
+                            </a>
+                        }
+                        else
+                        {
+                            <a type="button" asp-controller="Board" asp-action="Confirm" asp-route-board_no="@Model.board_no" class="btn btn-success back" style="margin-right: 10px">
+                                <i class="bi bi-check-circle"></i> 確認
+                            </a>
+                        }
                         <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                             <i class="bi bi-trash3"></i> 削除
                         </button>
@@ -43,11 +55,13 @@
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    
+
                     <input hidden asp-for="@Model.board_no" />
                     <input hidden asp-for="@Model.registrant_name" />
-                    @*<input hidden asp-for="@Model.applicant_type" />*@
                     <input hidden asp-for="@Model.applicant_cd" />
+                    <input hidden asp-for="@Model.status" />
+                    <input hidden asp-for="@Model.category_cd" />
+                    <input hidden asp-for="@Model.already_checked" />
                     <input hidden asp-for="@Model.file_nos_remove" value="@Model.file_nos_remove" />
                     <input hidden asp-for="@Model.Delete_files" />
                     @{
@@ -61,33 +75,61 @@
                     </div>
 
                     <div class="form-group mb-3">
+                        <div class="col-sm-4">
+                            <label asp-for="@Model.category_cd" class="form-label"></label>
+                            <select class="form-select bg-white" id="board_category">
+                                <option value=""></option>
+                                @if (Model.CategoryList != null)
+                                {
+                                    @foreach (var item in Model.CategoryList)
+                                    {
+                                        if (item.category_cd == Model.category_cd)
+                                        {
+                                            <option value=@item.category_cd selected>@item.category_name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value=@item.category_cd>@item.category_name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
                         <label asp-for="@Model.content" class="form-label"></label>
                         <textarea asp-for="@Model.content" class="form-control bg-white"
                                   rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
                         <span asp-validation-for="@Model.content" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group mb-3 row">
+                    <div class="form-group mb-3">
                         <label asp-for="@Model.applicant_cd" class="form-label"></label>
-                        <div class="col-12 col-md-3">
-                            <select class="form-select bg-white" id="applicant">
-                                <option value=""></option>
-                                @if (Model.staffList != null)
+                        <select class="form-select bg-white" id="applicant">
+                            <option value=""></option>
+                            @if (Model.StaffList != null)
+                            {
+                                @foreach (var item in Model.StaffList)
                                 {
-                                    @foreach (var item in Model.staffList)
+                                    if (item.staff_cd == Model.applicant_cd)
                                     {
-                                        if (item.staff_cd == Model.applicant_cd)
-                                        {
-                                            <option value=@item.staff_cd selected>@item.staff_name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value=@item.staff_cd>@item.staff_name</option>
-                                        }
+                                        <option value=@item.staff_cd selected>@item.staff_name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value=@item.staff_cd>@item.staff_name</option>
                                     }
                                 }
-                            </select>
-                        </div>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group form-check mb-3 ms-1">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="@Model.show_on_top" />
+                            @Html.DisplayNameFor(model => model.show_on_top)
+                        </label>
                     </div>
 
                     <div class="form-group">
@@ -115,13 +157,32 @@
                             *@
                         </div>
                     </div>
-
+                    <div class="mb-3">
+                        <a href="#">確認しました</a>
+                    </div>
+                    <div>
+                        <span class=" alert alert-primary p-1">
+                            <a href="#" class="">100名</a>
+                        </span>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> キャンセル
                         </button>
+                        @if (Model.already_checked)
+                        {
+                            <a type="button" class="btn btn-secondary" style="margin-right: 10px">
+                                <i class="bi bi-check-circle"></i> 確認済
+                            </a>
+                        }
+                        else
+                        {
+                            <a type="button" asp-controller="Board" asp-action="Confirm" asp-route-board_no="@Model.board_no" class="btn btn-success back" style="margin-right: 10px">
+                                <i class="bi bi-check-circle"></i> 確認
+                            </a>
+                        }
                         <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                             <i class="bi bi-trash3"></i> 削除
                         </button>

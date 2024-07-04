@@ -36,6 +36,8 @@ $(function () {
 
         var applicant_cd = $('#applicant').val()
         $('#applicant_cd').val(applicant_cd)
+        var category = $('#board_category').val()
+        $('#category_cd').val(category)
 
         if (!$(this).valid()) {
             $('.loading').hide()

@@ -6,6 +6,10 @@ using web_groupware.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore;
 using Format = web_groupware.Utilities.Format;
+using Azure.Core;
+using DocumentFormat.OpenXml.Office2016.Excel;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 
 #pragma warning disable CS8600, CS8601, CS8602, CS8604, CS8618
 
@@ -28,17 +32,34 @@ namespace web_groupware.Controllers
                 _uploadPath = t_dic.content;
             }
         }
-        
-        public IActionResult Index()
+
+        [HttpGet]
+        public IActionResult Index(string? cond_already_read = null, string? cond_applicant = null, string? cond_category = null)
         {
             try
             {
-                var model = CreateViewModel();
+                var model = CreateViewModel(cond_already_read, cond_applicant, cond_category);
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Index(BoardViewModel model)
+        {
+            try
+            {
+                model = CreateViewModel(model.cond_already_read, model.cond_applicant, model.cond_category);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -134,13 +155,17 @@ namespace web_groupware.Controllers
                     var model = new T_BOARD
                     {
                         board_no = board_no,
-                        status = BoardStatus.UPCOMING,
+                        status = request.status,
                         title = request.title,
                         content = request.content,
+                        create_user = user_id,
+                        create_date = now,
                         update_user = user_id,
                         update_date = now,
+                        category_cd = request.category_cd,
                         applicant_cd = request.applicant_cd
                     };
+                    _context.Add(model);
 
                     var comment_no = GetNextNo(DataTypes.BOARD_COMMENT_NO);
                     var comment = new T_BOARDCOMMENT
@@ -148,12 +173,45 @@ namespace web_groupware.Controllers
                         board_no = board_no,
                         comment_no = comment_no,
                         message = Board_comment.CREATE,
+                        create_user = user_id,
+                        create_date = now,
                         update_user = user_id,
                         update_date = now
                     };
-
-                    _context.Add(model);
                     _context.Add(comment);
+
+                    var item_read = new T_INFO_PERSONAL
+                    {
+                        parent_id = INFO_PERSONAL_PARENT_ID.T_BOARD,
+                        first_no = board_no,
+                        second_no = 0,
+                        third_no = 0,
+                        staf_cd = Convert.ToInt32(user_id),
+                        already_checked = false,
+                        title = "",
+                        content = "",
+                        url = "",
+                        added = false,
+                        create_user = user_id,
+                        create_date = DateTime.Now,
+                        update_user = user_id,
+                        update_date = DateTime.Now
+                    };
+                    _context.T_INFO_PERSONAL.Add(item_read);
+
+                    if (request.show_on_top == true)
+                    {
+                        var boardTop = new T_BOARD_TOP
+                        {
+                            board_no = board_no,
+                            staf_cd = Convert.ToInt32(user_id),
+                            create_user = user_id,
+                            create_date = now,
+                            update_user = user_id,
+                            update_date = now
+                        };
+                        _context.Add(boardTop);
+                    }
 
                     AddFiles(request.work_dir, board_no);
 
@@ -257,8 +315,11 @@ namespace web_groupware.Controllers
                 var model = _context.T_BOARD.FirstOrDefault(x => x.board_no == request.board_no);
                 model.title = request.title;
                 model.content = request.content;
+                model.update_user = user_id;
                 model.update_date = now;
                 model.applicant_cd = request.applicant_cd;
+                model.status = request.status;
+                model.category_cd = request.category_cd;
 
                 _context.T_BOARD.Update(model);
 
@@ -268,10 +329,43 @@ namespace web_groupware.Controllers
                     board_no = request.board_no,
                     comment_no = comment_no,
                     message = Board_comment.UPDATE,
+                    create_user = user_id,
+                    create_date = now,                    
                     update_user = user_id,
                     update_date = now
                 };
                 _context.T_BOARDCOMMENT.Add(comment);
+
+                var boardTop = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == request.board_no && x.staf_cd == Convert.ToInt32(user_id));
+                if (boardTop != null)
+                {
+                    if (request.show_on_top != true)
+                    {
+                        _context.Remove(boardTop);
+                    }
+                    else
+                    {
+                        boardTop.update_user = user_id;
+                        boardTop.update_date = now;
+                        _context.Update(boardTop);
+                    }
+                }
+                else
+                {
+                    if (request.show_on_top == true)
+                    {
+                        boardTop = new T_BOARD_TOP
+                        {
+                            board_no = request.board_no,
+                            staf_cd = Convert.ToInt32(user_id),
+                            create_user = user_id,
+                            create_date = now,
+                            update_user = user_id,
+                            update_date = now
+                        };
+                        _context.Add(boardTop);
+                    }
+                }
 
                 //レコード登録前にmainからファイル削除
                 if (request.Delete_files != null)
@@ -287,7 +381,7 @@ namespace web_groupware.Controllers
 
                             var filepath = Path.Combine(dir_main, arr_delete_files[i]);
                             System.IO.File.Delete(filepath);
-                            System.IO.File.Delete(Path.ChangeExtension(filepath, "jpeg"));
+                            // System.IO.File.Delete(Path.ChangeExtension(filepath, "jpeg"));
                         }
                     }
                 }
@@ -331,6 +425,8 @@ namespace web_groupware.Controllers
                     board_no = board_no,
                     comment_no = comment_no,
                     message = Board_comment.UPDATE,
+                    create_user = user_id,
+                    create_date = now,
                     update_user = user_id,
                     update_date = now
                 };
@@ -352,6 +448,37 @@ namespace web_groupware.Controllers
             }
         }
 
+        public async Task<IActionResult> Confirm(int board_no)
+        {
+            int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
+            try
+            {
+                var memoRead = await _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
+                    .Where(m => m.first_no == board_no && m.staf_cd == user_id)
+                    .FirstOrDefaultAsync();
+                if (memoRead != null && !memoRead.already_checked)
+                {
+                    using (IDbContextTransaction tran = _context.Database.BeginTransaction())
+                    {
+                        memoRead.already_checked = true;
+
+                        _context.T_INFO_PERSONAL.Update(memoRead);
+                        await _context.SaveChangesAsync();
+                        tran.Commit();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+
+            return RedirectToAction("Index");
+        }
+
         [HttpPost]
         public IActionResult AddComment(int board_no, string message)
         {
@@ -366,6 +493,8 @@ namespace web_groupware.Controllers
                     board_no = board_no,
                     comment_no = no,
                     message = message,
+                    create_user = user_id,
+                    create_date = DateTime.Now,
                     update_user = user_id,
                     update_date = DateTime.Now
                 };
@@ -426,6 +555,20 @@ namespace web_groupware.Controllers
                 if (model != null)
                     _context.T_BOARD.Remove(model);
 
+                var comment = _context.T_BOARDCOMMENT.Where(x => x.board_no == board_no).ToList();
+                if (comment != null)
+                    _context.T_BOARDCOMMENT.RemoveRange(comment);
+
+                var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
+                var personal = _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
+                    .Where(m => m.first_no == board_no && m.staf_cd == user_id).ToList();
+                _context.T_INFO_PERSONAL.RemoveRange(personal);
+
+                var boardTop = _context.T_BOARD_TOP.Where(x => x.board_no == board_no).ToList();
+                if (boardTop != null)
+                    _context.T_BOARD_TOP.RemoveRange(boardTop);
+
                 var model_files = _context.T_BOARD_FILE.Where(x => x.board_no == board_no).ToList();
                 if (model_files != null && model_files.Count > 0)
                 {
@@ -450,61 +593,77 @@ namespace web_groupware.Controllers
             }
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> DownloadFile(int file_no)
-        //{
-        //    try
-        //    {
-        //        var model_file = await _context.T_BOARD_FILE.FirstOrDefaultAsync(x => x.file_no == file_no);
-        //        if (model_file != null)
-        //        {
-        //            model_file.filepath = Path.ChangeExtension(model_file.filepath, ".jpeg");
-        //            var model = new HomeShowImageViewModel
-        //            {
-        //                Path = model_file.filepath
-        //            };
-        //            return RedirectToAction("ShowImage", "Home", model);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
-        //        _logger.LogError(ex.StackTrace);
-        //    }
-        //    return BadRequest();
-        //}
-
-        private BoardViewModel CreateViewModel()
+        private BoardViewModel CreateViewModel(string cond_already_read, string? cond_applicant, string? cond_category)
         {
             try
             {
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var boardList = (from b in _context.T_BOARD
-                                 let v = Convert.ToInt32(b.update_user)
-                                 let v1 = b.applicant_cd
+                                 join p in _context.T_INFO_PERSONAL on b.board_no equals p.first_no
+                                 let t = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == b.board_no && x.staf_cd == Convert.ToInt32(user_id))
+                                 where p.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD
                                  select new BoardModel
                                  {
                                      board_no = b.board_no,
                                      status = b.status,
+                                     category_cd = b.category_cd.ToString(),
                                      title = b.title,
                                      content = b.content,
-                                     registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v).staf_name,
+                                     registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(b.update_user)).staf_name,
                                      register_date = b.update_date.ToString("yyyy年M月d日"),
-                                     applicant_cd = b.applicant_cd,
-                                     applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v1).staf_name
-                                 }).ToList();
+                                     applicant_cd = b.applicant_cd.ToString(),
+                                     applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == b.applicant_cd).staf_name,
+                                     already_read = p.already_checked ? 1 : 0,
+                                     show_on_top = t != null,
+                                 }).OrderByDescending(x => x.show_on_top).ToList();
+                if (cond_already_read == "1") // "未確認"
+                {
+                    boardList = boardList.Where(x => x.already_read == 0).ToList();
+                }
+                else if (cond_already_read == "2") // "確認済"
+                {
+                    boardList = boardList.Where(x => x.already_read == 1).ToList();
+                }
+                if (!cond_applicant.IsNullOrEmpty() && cond_applicant != "0")
+                {
+                    boardList = boardList.Where(x => x.applicant_cd == cond_applicant).ToList();
+                }
+                if (!cond_category.IsNullOrEmpty() && cond_category != "0")
+                {
+                    boardList = boardList.Where(x => x.category_cd == cond_category).ToList();
+                }
                 var model = new BoardViewModel
                 {
                     BoardList = boardList,
-                    staffList = _context.M_STAFF
+                    list_applicant = _context.M_STAFF
                         .Where(x => x.retired != 1)
-                        .Select(u => new BoardViewModelStaff
+                        .Select(u => new SelectListItem
                         {
-                            staff_cd = u.staf_cd,
-                            staff_name = u.staf_name
+                            Value = u.staf_cd.ToString(),
+                            Text = u.staf_name
+                        })
+                        .ToList(),
+                    list_category = _context.M_DIC
+                        .Where(x => x.dic_kb == DIC_KB.BOARD_CATEGORY)
+                        .Select(u => new SelectListItem
+                        {
+                            Value = u.dic_cd,
+                            Text = u.content
                         })
                         .ToList()
                 };
+                model.list_applicant.Insert(0, new SelectListItem { Value = "0", Text = "全て" });
+                model.list_category.Insert(0, new SelectListItem { Value = "0", Text = "全て" });
+                model.cond_already_read = cond_already_read;
+                model.cond_applicant = cond_applicant;
+                model.cond_category = cond_category;
 
+                for (var i = 0; i < BoardStatus.All.Length; i++)
+                {
+                    var count = model.BoardList.Count(x => x.status == i);
+                    model.CountList.Add(count);
+                }
+                
                 return model;
             }
             catch (Exception ex)
@@ -521,11 +680,13 @@ namespace web_groupware.Controllers
             {
                 var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
                 var model = (from b in _context.T_BOARD
+                             let t = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == board_no && x.staf_cd == Convert.ToInt32(user_id))
                              where b.board_no == board_no
                              select new BoardDetailViewModel
                              {
                                  board_no = b.board_no,
                                  status = b.status,
+                                 category_cd = b.category_cd,
                                  title = b.title,
                                  content = b.content,
                                  registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == user_id).staf_name,
@@ -533,17 +694,34 @@ namespace web_groupware.Controllers
                                  notifier_cd = b.notifier_cd,
                                  notifier_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == b.notifier_cd).staf_name,
                                  applicant_cd = b.applicant_cd ?? 0,
-                                 staffList = _context.M_STAFF
+                                 show_on_top = t != null,
+                                 StaffList = _context.M_STAFF
                                      .Where(x => x.retired != 1)
                                      .Select(u => new BoardViewModelStaff
                                      {
                                          staff_cd = u.staf_cd,
                                          staff_name = u.staf_name
                                      })
+                                    .ToList(),
+                                 CategoryList = _context.M_DIC
+                                    .Where(x => x.dic_kb == DIC_KB.BOARD_CATEGORY)
+                                    .Select(u => new BoardViewModelCategory
+                                    {
+                                        category_cd = Convert.ToInt32(u.dic_cd),
+                                        category_name = u.content
+                                    })
                                     .ToList()
                              }).FirstOrDefault();
 
                 model.fileModel.fileList = _context.T_BOARD_FILE.Where(x => x.board_no == board_no).ToList();
+                var memoRead = _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
+                    .Where(m => m.first_no == board_no && m.staf_cd == user_id)
+                    .FirstOrDefault();
+                if (memoRead != null)
+                {
+                    model.already_checked = memoRead.already_checked;
+                }
 
                 var commentList = (from c in _context.T_BOARDCOMMENT
                                    where c.board_no == board_no
@@ -586,7 +764,7 @@ namespace web_groupware.Controllers
                     // 編集のみ
                     model.fileModel.fileList = _context.T_BOARD_FILE.Where(x => x.board_no == model.board_no).ToList();
                 }
-                model.staffList = _context.M_STAFF
+                model.StaffList = _context.M_STAFF
                     .Where(x => x.retired != 1)
                     .Select(u => new BoardViewModelStaff
                     {
@@ -594,6 +772,15 @@ namespace web_groupware.Controllers
                         staff_name = u.staf_name
                     })
                     .ToList();
+                model.CategoryList = _context.M_DIC
+                    .Where(x => x.dic_kb == DIC_KB.BOARD_CATEGORY)
+                    .Select(u => new BoardViewModelCategory
+                    {
+                        category_cd = Convert.ToInt32(u.dic_cd),
+                        category_name = u.content
+                    })
+                    .ToList();
+                model.status = BoardStatus.UPCOMING;
             }
             catch (Exception ex)
             {
@@ -650,6 +837,7 @@ namespace web_groupware.Controllers
                     }
 
                     var file_name = Path.GetFileName(renamed_file);
+                    var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
 
                     T_BOARD_FILE record_file = new()
                     {
@@ -657,7 +845,11 @@ namespace web_groupware.Controllers
                         file_no = GetNextNo(DataTypes.FILE_NO),
                         //filepath = Path.Combine(dir_main, file_name),
                         filepath = Path.Combine(board_no.ToString(), file_name),
-                        filename = file_name
+                        filename = file_name,
+                        create_user = user_id,
+                        create_date = DateTime.Now,
+                        update_user = user_id,
+                        update_date = DateTime.Now
                     };
                     await _context.T_BOARD_FILE.AddAsync(record_file);
 

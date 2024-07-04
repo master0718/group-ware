@@ -585,7 +585,7 @@ namespace web_groupware.Controllers
                         staf_name = x.staf_name
                     }).ToList();
 
-                    model.GroupList = _context.T_GROUPM.Select(x => new EmployeeGroupModel
+                    model.GroupList = _context.M_GROUP.Select(x => new EmployeeGroupModel
                     {
                         group_cd = x.group_cd,
                         group_name = x.group_name,
@@ -664,7 +664,7 @@ namespace web_groupware.Controllers
                     staf_cd = x.staf_cd,
                     staf_name = x.staf_name
                 }).ToList();
-                model.GroupList = _context.T_GROUPM.Select(x => new EmployeeGroupModel
+                model.GroupList = _context.M_GROUP.Select(x => new EmployeeGroupModel
                 {
                     group_cd = x.group_cd,
                     group_name = x.group_name,

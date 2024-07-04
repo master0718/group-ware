@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Office.Interop.Excel;
 using web_groupware.Data;
 using web_groupware.Models;
 using web_groupware.Utilities;
+using DataTable = System.Data.DataTable;
 #pragma warning disable CS8600,CS8601,CS8602,CS8604,CS8618
 namespace web_groupware.Controllers
 {
@@ -57,10 +59,10 @@ namespace web_groupware.Controllers
                 sql.AppendLine("  	,B.bukn_name ");
                 sql.AppendLine("  	,S2.staf_name ");
                 sql.AppendLine("  	,S1.update_date  ");
-                sql.AppendLine(" FROM T_BUKKEN B ");
+                sql.AppendLine(" FROM M_BUKKEN B ");
                 sql.AppendLine(" LEFT JOIN ");
-                sql.AppendLine(" ( select bukken_cd,update_user,update_date,row_number() over(PARTITION BY bukken_cd ORDER BY update_date DESC) as num from T_BUKKENCOMMENT ) S1 ");
-                sql.AppendLine(" ON B.bukn_cd = S1.bukken_cd ");
+                sql.AppendLine(" ( select bukn_cd,update_user,update_date,row_number() over(PARTITION BY bukn_cd ORDER BY update_date DESC) as num from T_BUKKENCOMMENT ) S1 ");
+                sql.AppendLine(" ON B.bukn_cd = S1.bukn_cd ");
                 sql.AppendLine(" LEFT JOIN M_STAFF S2 ");
                 sql.AppendLine(" ON S1.update_user = S2.staf_cd ");
 
@@ -104,12 +106,12 @@ namespace web_groupware.Controllers
                     {
                         message = GetWhenFromNow((DateTime)dr["update_date"]);
                     }
-                    var records = _context.T_BUKKENCOMMENT_READ.Where(x => x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value && x.alreadyread_flg == false && x.bukken_cd == dr.Field<decimal>("bukn_cd"));
+                    var records = _context.T_INFO_PERSONAL.Where(x =>x.parent_id== INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no== dr.Field<decimal>("bukn_cd")&& x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value && x.already_checked == false);
                     string count = records.Count() == 0 ? "" : records.Count().ToString();
 
                     model.list_bukken.Add(new BukkenMemo
                     {
-                        bukken_cd = dr.Field<decimal>("bukn_cd"),
+                        bukn_cd = dr.Field<decimal>("bukn_cd"),
                         bukken_name = dr.Field<string>("bukn_name"),
                         update_user = dr.Field<string>("staf_name") ?? "コメント未作成",
                         update_date = message,
@@ -138,11 +140,11 @@ namespace web_groupware.Controllers
             try
             {
                 ModelState.Clear();
-                model = createDetailViewModel(model.bukken_cd, model.cond_bukken_name);
+                model = createDetailViewModel(model.bukn_cd, model.cond_bukken_name);
 
                 //workディレクトリ設定
                 var dir_root = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BUKKENCOMMENT_FILE)?.content;
-                string dir_work = Path.Combine("work", model.bukken_cd.ToString(), HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string dir_work = Path.Combine("work", model.bukn_cd.ToString(), HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
                 //workディレクトリの作成
                 var dir_work_full = Path.Combine(dir_root, dir_work);
                 Directory.CreateDirectory(dir_work_full);
@@ -160,17 +162,17 @@ namespace web_groupware.Controllers
         }
         public List<T_BUKKENCOMMENT_FILE> GetRecoard_file(string comment_no)
         {
-            List<T_BUKKENCOMMENT_FILE> recoard_file = _context.T_BUKKENCOMMENT_FILE.Where(x => x.comment_no.ToString() == comment_no).OrderBy(o => o.file_no).ToList();
-            return recoard_file;
+            List<T_BUKKENCOMMENT_FILE> record_file = _context.T_BUKKENCOMMENT_FILE.Where(x => x.comment_no.ToString() == comment_no).OrderBy(o => o.file_no).ToList();
+            return record_file;
         }
 
         /// <summary>
         /// 詳細画面ViewModel作成
         /// </summary>
-        /// <param name="bukken_cd">物件コード</param>
+        /// <param name="bukn_cd">物件コード</param>
         /// <param name="cond_bukken_name">一覧画面検索条件（物件名）</param>
         /// <returns></returns
-        public BukkenMemoDetailViewModel createDetailViewModel(int bukken_cd, string cond_bukken_name)
+        public BukkenMemoDetailViewModel createDetailViewModel(int bukn_cd, string cond_bukken_name)
         {
             try
             {
@@ -183,9 +185,9 @@ namespace web_groupware.Controllers
                 sql.AppendLine("  	,B.zip ");
                 sql.AppendLine("  	,B.adr1 ");
                 sql.AppendLine("  	,B.adr2 ");
-                sql.AppendLine(" FROM T_BUKKEN B ");
+                sql.AppendLine(" FROM M_BUKKEN B ");
                 sql.AppendLine(" WHERE 1=1 ");
-                sql.AppendFormat(" AND B.bukn_cd = {0} ", bukken_cd);
+                sql.AppendFormat(" AND B.bukn_cd = {0} ", bukn_cd);
 
                 using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
                 {
@@ -197,14 +199,14 @@ namespace web_groupware.Controllers
                         dataAdapter.Fill(dt);
                     }
                 }
-                model.bukken_cd = bukken_cd;
+                model.bukn_cd = bukn_cd;
                 model.bukken_name = dt.Rows[0].Field<string>("bukn_name");
                 model.bukken_nameWithCode = dt.Rows[0].Field<string>("bukn_name") + "(" + dt.Rows[0].Field<decimal>("bukn_cd") + ")";
                 model.zip = dt.Rows[0].Field<string>("zip") ?? "";
                 model.address1 = dt.Rows[0].Field<string>("adr1") ?? "";
                 model.address2 = dt.Rows[0].Field<string>("adr2") ?? "";
 
-                model.dir_no = bukken_cd.ToString();
+                model.dir_no = bukn_cd.ToString();
                 createList(model);
                 model.cond_bukken_name = cond_bukken_name;
                 return model;
@@ -237,7 +239,7 @@ namespace web_groupware.Controllers
                 sql.AppendLine(" LEFT JOIN M_STAFF S1 ");
                 sql.AppendLine(" ON B.update_user = S1.staf_cd ");
                 sql.AppendLine(" WHERE 1=1 ");
-                sql.AppendFormat(" AND B.bukken_cd = {0} ", model.bukken_cd);
+                sql.AppendFormat(" AND B.bukn_cd = {0} ", model.bukn_cd);
                 sql.AppendLine(" ORDER BY B.update_date DESC ");
 
                 using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
@@ -253,7 +255,7 @@ namespace web_groupware.Controllers
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    var t_bukkencomment_read = _context.T_BUKKENCOMMENT_READ.FirstOrDefault(x => x.comment_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                    var T_INFO_PERSONAL = _context.T_INFO_PERSONAL.FirstOrDefault(x =>x.parent_id==INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT&&x.first_no== model.bukn_cd&& x.second_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                     var list_file = GetRecoard_file(dt.Rows[i].Field<int>("comment_no").ToString());
                     model.list_detail.Add(new BukkenMemoDetail()
                     {
@@ -261,7 +263,7 @@ namespace web_groupware.Controllers
                         update_user = dt.Rows[i].Field<string>("staf_name"),
                         update_date = dt.Rows[i].Field<DateTime>("update_date").ToString("yyyy/M/d HH:mm"),
                         message = dt.Rows[i].Field<string>("message"),
-                        already_read_comment = t_bukkencomment_read == null ? true : t_bukkencomment_read.alreadyread_flg,
+                        already_read_comment = T_INFO_PERSONAL == null ? true : T_INFO_PERSONAL.already_checked,
                         List_T_BUKKENCOMMENT_FILE_ADDED =list_file
 
                 }
@@ -295,46 +297,57 @@ namespace web_groupware.Controllers
                 {
                     try
                     {
-                        var comment_no = GetNextNo(Utilities.DataTypes.BUKKEN_COMMENT_NO);
-                        var now = DateTime.Now;
+                        var comment_no = GetNextNo(Utilities.DataTypes.BUKKEN_COMMENT_NO); var now = DateTime.Now;
                         var user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-                        var recoard_new = new T_BUKKENCOMMENT();
-                        recoard_new.bukken_cd = model.bukken_cd;
-                        recoard_new.comment_no = comment_no;
-                        recoard_new.message = model.message_new;
-                        recoard_new.update_user = user;
-                        recoard_new.update_date = now;
-                        _context.T_BUKKENCOMMENT.Add(recoard_new);
+                        var record_new = new T_BUKKENCOMMENT();
+                        record_new.bukn_cd = model.bukn_cd;
+                        record_new.comment_no = comment_no;
+                        record_new.message = model.message_new;
+                        record_new.create_user = user;
+                        record_new.create_date = now;
+                        record_new.update_user = user;
+                        record_new.update_date = now;
+                        _context.T_BUKKENCOMMENT.Add(record_new);
                         _context.SaveChanges();
 
                         var t_staffm = await _context.M_STAFF.Where(x => x.retired != 1 && x.staf_cd.ToString() != HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value).ToListAsync();
                         for (int i = 0; i < t_staffm.Count; i++)
                         {
-                            var recoard_comment_new = new T_BUKKENCOMMENT_READ();
-                            recoard_comment_new.comment_no = comment_no;
-                            recoard_comment_new.staf_cd = t_staffm[i].staf_cd;
-                            recoard_comment_new.bukken_cd = model.bukken_cd;
-                            recoard_comment_new.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
-                            recoard_comment_new.update_date = now;
-                            _context.T_BUKKENCOMMENT_READ.Add(recoard_comment_new);
+                            var record_comment_new = new T_INFO_PERSONAL();
+                            record_comment_new.parent_id = INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT;
+                            record_comment_new.first_no = model.bukn_cd;
+                            record_comment_new.second_no = comment_no;
+                            record_comment_new.staf_cd = t_staffm[i].staf_cd;
+                            record_comment_new.title = "物件コメント";
+                            record_comment_new.content = model.message_new;
+                            record_comment_new.url = string.Format("{0}://{1}{2}{3}/BukkenMemoDetail?bukn_cd={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, model.bukn_cd);
+                            record_comment_new.create_user= user;
+                            record_comment_new.create_date = now;
+                            record_comment_new.update_user = user;
+                            record_comment_new.update_date = now;
+                            _context.T_INFO_PERSONAL.Add(record_comment_new);
                         }
                         _context.SaveChanges();
 
                         //ディレクトリ設定
                         var t_dic = await _context.M_DIC.FirstOrDefaultAsync(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BUKKENCOMMENT_FILE);
                         var dir_root = t_dic.content;
-                        string dir_main = Path.Combine(dir_root, model.bukken_cd.ToString(),comment_no.ToString());
+                        string dir_main = Path.Combine(dir_root, model.bukn_cd.ToString(),comment_no.ToString());
                         if (!Directory.Exists(dir_main))
                         {
                             Directory.CreateDirectory(dir_main);
                         }
 
                         //対象T_BUKKENCOMMENT_FILEのレコード全削除
-                        Dictionary<string, DateTime?> dic_name_and_date = new Dictionary<string, DateTime?>();
+                        Dictionary<string, DateTime> dic_name_and_date_create = new Dictionary<string, DateTime>();
+                        Dictionary<string, string> dic_name_and_user_create = new Dictionary<string, string>();
+                        Dictionary<string, DateTime> dic_name_and_date = new Dictionary<string, DateTime>();
                         Dictionary<string, string> dic_name_and_user = new Dictionary<string, string>();
-                        List<T_BUKKENCOMMENT_FILE> list_recoard_file = await _context.T_BUKKENCOMMENT_FILE.Where(x => x.comment_no == comment_no).ToListAsync();
-                        foreach (T_BUKKENCOMMENT_FILE record_file in list_recoard_file)
+                        List<T_BUKKENCOMMENT_FILE> list_record_file = await _context.T_BUKKENCOMMENT_FILE.Where(x => x.comment_no == comment_no).ToListAsync();
+                        foreach (T_BUKKENCOMMENT_FILE record_file in list_record_file)
                         {
+                            dic_name_and_date_create.Add(record_file.fileName, record_file.create_date);
+                            dic_name_and_user_create.Add(record_file.fileName, record_file.create_user);
                             dic_name_and_date.Add(record_file.fileName, record_file.update_date);
                             dic_name_and_user.Add(record_file.fileName, record_file.update_user);
                             _context.T_BUKKENCOMMENT_FILE.RemoveRange(record_file);
@@ -358,15 +371,18 @@ namespace web_groupware.Controllers
                         foreach (string path_file in Directory.EnumerateFiles(dir_main))
                         {
                             var file_name = Path.GetFileName(path_file);
-                            T_BUKKENCOMMENT_FILE recoard_file = null;
-                            recoard_file = new T_BUKKENCOMMENT_FILE();
-                            recoard_file.file_no = GetNextNo(Utilities.DataTypes.INFO_FILE_NO);
-                            recoard_file.comment_no = comment_no;
-                            recoard_file.fileName = file_name;
-                            recoard_file.fullPath = path_file;
-                            recoard_file.update_user = dic_name_and_user[file_name];
-                            recoard_file.update_date = dic_name_and_date[file_name];
-                            await _context.T_BUKKENCOMMENT_FILE.AddAsync(recoard_file);
+                            T_BUKKENCOMMENT_FILE record_file = null;
+                            record_file = new T_BUKKENCOMMENT_FILE();
+                            record_file.bukn_cd = model.bukn_cd;
+                            record_file.comment_no = comment_no;
+                            record_file.file_no = GetNextNo(DataTypes.BUKKENCOMMENT_FILE_NO); ;
+                            record_file.fileName = file_name;
+                            record_file.fullPath = path_file;
+                            record_file.create_user = dic_name_and_user_create[file_name];
+                            record_file.create_date = dic_name_and_date_create[file_name];
+                            record_file.update_user = dic_name_and_user[file_name];
+                            record_file.update_date = dic_name_and_date[file_name];
+                            await _context.T_BUKKENCOMMENT_FILE.AddAsync(record_file);
                             await _context.SaveChangesAsync();
                         }
                         //レコード登録　workディレクトリ
@@ -403,18 +419,20 @@ namespace web_groupware.Controllers
                             {
                                 renamed_file = work_dir_files[i];
                             }
-
                             var file_name = Path.GetFileName(renamed_file);
 
-                            T_BUKKENCOMMENT_FILE recoard_file = null;
-                            recoard_file = new T_BUKKENCOMMENT_FILE();
-                            recoard_file.file_no = GetNextNo(Utilities.DataTypes.INFO_FILE_NO);
-                            recoard_file.comment_no = comment_no;
-                            recoard_file.fileName = file_name;
-                            recoard_file.fullPath = Path.Combine(dir_main, file_name);
-                            recoard_file.update_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-                            recoard_file.update_date = DateTime.Now;
-                            await _context.T_BUKKENCOMMENT_FILE.AddAsync(recoard_file);
+                            T_BUKKENCOMMENT_FILE record_file = null;
+                            record_file = new T_BUKKENCOMMENT_FILE();
+                            record_file.bukn_cd = model.bukn_cd;
+                            record_file.comment_no = comment_no;
+                            record_file.file_no = GetNextNo(DataTypes.BUKKENCOMMENT_FILE_NO);
+                            record_file.fileName = file_name;
+                            record_file.fullPath = Path.Combine(dir_main, file_name);
+                            record_file.create_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
+                            record_file.create_date = now;
+                            record_file.update_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
+                            record_file.update_date = now;
+                            await _context.T_BUKKENCOMMENT_FILE.AddAsync(record_file);
                             await _context.SaveChangesAsync();
 
                             //ファイルをworkからmainにコピー
@@ -449,7 +467,7 @@ namespace web_groupware.Controllers
             }
         }
         /// <summary>
-        /// alreadyread_flg更新
+        /// already_checked更新
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns
@@ -464,12 +482,14 @@ namespace web_groupware.Controllers
                     {
                         StringBuilder sql = new StringBuilder();
                         sql.AppendLine(" UPDATE ");
-                        sql.AppendLine(" T_BUKKENCOMMENT_READ ");
-                        sql.AppendLine(" SET alreadyread_flg=1");
+                        sql.AppendLine(" T_INFO_PERSONAL ");
+                        sql.AppendLine(" SET already_checked=1");
                         sql.AppendFormat(" ,update_user = '{0}' ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                         sql.AppendFormat(" ,update_date = '{0}' ", DateTime.Now);
                         sql.AppendLine(" WHERE 1=1 ");
-                        sql.AppendFormat(" AND comment_no = {0} ", model.already_read_comment_no);
+                        sql.AppendFormat(" AND parent_id = {0} ", INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT);
+                        sql.AppendFormat(" AND first_no = {0} ", model.bukn_cd);
+                        sql.AppendFormat(" AND second_no = {0} ", model.already_read_comment_no);
                         sql.AppendFormat(" AND staf_cd = {0} ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                         using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
                         {

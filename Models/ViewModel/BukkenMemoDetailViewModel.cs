@@ -12,7 +12,7 @@ namespace web_groupware.Models
         public string? cond_bukken_name {  get; set; }
         public int? already_read_comment_no { get; set; }
 
-        public int bukken_cd { get; set; }
+        public int bukn_cd { get; set; }
         public string? bukken_name { get; set; }
         public string? bukken_nameWithCode { get; set; }
         public string? zip { get; set; }

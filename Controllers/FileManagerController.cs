@@ -34,8 +34,7 @@ namespace web_groupware.Controllers
         {
             _environment = hostingEnvironment;
 
-            var t_dic = _context.M_DIC
-                .FirstOrDefault(m => m.dic_kb == 700 && m.dic_cd == "3");
+            var t_dic = _context.M_DIC.FirstOrDefault(m => m.dic_kb == DIC_KB.SAVE_PATH_FILE && m.dic_cd == DIC_KB_700_DIRECTORY.FILEINFO);
             if (t_dic == null || t_dic.content == null)
             {
                 _uploadPath = _environment.WebRootPath;
@@ -148,7 +147,9 @@ namespace web_groupware.Controllers
                                 size = (int) file.Length,
                                 type = FILE_TYPE_FILE,
                                 path = currentDirectory,
-                                update_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value,
+                                create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
+                                create_date = DateTime.Now,
+                                update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
                                 update_date = DateTime.Now
                             };
 
@@ -201,7 +202,9 @@ namespace web_groupware.Controllers
                         size = 0,
                         type = FILE_TYPE_FOLDER,
                         path = currentDirectory,
-                        update_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value,
+                        create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
+                        create_date = DateTime.Now,
+                        update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
                         update_date = DateTime.Now
                     };
 
@@ -265,6 +268,8 @@ namespace web_groupware.Controllers
                                 int oldFolderlastIndex = subPath.LastIndexOf(fileDetail.name);
                                 int newFolderIndex = fileInfo.path.IndexOf(subPath);
                                 fileInfo.path = fileInfo.path.Remove(newFolderIndex, subPath.Length).Insert(newFolderIndex, subPath.Remove(oldFolderlastIndex, fileDetail.name.Length).Insert(oldFolderlastIndex, newName));
+                                fileInfo.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                                fileInfo.update_date = DateTime.Now;
                                 _context.T_FILEINFO.Update(fileInfo);
                             }
                         }
@@ -379,6 +384,8 @@ namespace web_groupware.Controllers
                                     var folderPathIndex = fileInfo.path.IndexOf(file.path);
                                     fileInfo.path = fileInfo.path.Remove(folderPathIndex, file.path.Length).Insert(folderPathIndex, destinationFolder).Replace("共有フォルダ/", "");
                                 }
+                                fileInfo.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                                fileInfo.update_date = DateTime.Now;
                                 _context.T_FILEINFO.Update(fileInfo);
                             }
                         }
@@ -428,11 +435,24 @@ namespace web_groupware.Controllers
                         if (fileDetail.type == FILE_TYPE_FILE)
                         {
                             var fileDel = new FileInfo(path);
-                            fileDel.Delete();
+                            try
+                            {
+                                fileDel.Delete();
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex.Message);
+                            }
                         }
                         else
                         {
-                            Directory.Delete(path, true);
+                            try
+                            {
+                                Directory.Delete(path, true);
+                            } catch (Exception ex)
+                            {
+                                _logger.LogError(ex.Message);
+                            }
                             var fileInfoList = _context.T_FILEINFO.AsEnumerable().Where(item => $"{ item.path }/".StartsWith($"{ subPath }/")).ToList();
                             _context.T_FILEINFO.RemoveRange(fileInfoList);
                         }
@@ -514,7 +534,7 @@ namespace web_groupware.Controllers
             {
                 _logger.LogError(ex.Message);
             }
-            return BadRequest();            
+            return BadRequest();
         }
     }
 }

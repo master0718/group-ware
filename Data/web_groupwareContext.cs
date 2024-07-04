@@ -16,13 +16,12 @@ namespace web_groupware.Data
         public DbSet<M_STAFF_AUTH> M_STAFF_AUTH { get; set; }
         public DbSet<M_STAFF_SYSTEMAUTH> M_STAFF_SYSTEMAUTH { get; set; }
         public DbSet<T_HOLIDAY> T_HOLIDAY { get; set; }
-        public DbSet<T_GROUPM> T_GROUPM { get; set; }
+        public DbSet<M_GROUP> M_GROUP { get; set; }
         public DbSet<T_GROUPSTAFF> T_GROUPSTAFF { get; set; }
-        public DbSet<M_BUKKEN> T_BUKKEN { get; set; }
+        public DbSet<M_BUKKEN> M_BUKKEN { get; set; }
         public DbSet<T_BUKKENCOMMENT> T_BUKKENCOMMENT { get; set; }
         public DbSet<T_BUKKENCOMMENT_FILE> T_BUKKENCOMMENT_FILE { get; set; }
 
-        public DbSet<T_BUKKENCOMMENT_READ> T_BUKKENCOMMENT_READ { get; set; }
         public DbSet<T_NO> T_NO { get; set; }
         public DbSet<T_REPORT> T_REPORT { get; set; }
         public DbSet<T_INFO_PERSONAL> T_INFO_PERSONAL { get; set; }
@@ -38,14 +37,11 @@ namespace web_groupware.Data
         public DbSet<M_SYSTEM> M_SYSTEM { get; set; }
 
         public DbSet<T_MEMO> T_MEMO { get; set; }
-        public DbSet<T_MEMO_READ> T_MEMO_READ { get; set; }
         public DbSet<T_TODO> T_TODO { get; set; }
         public DbSet<T_TODO_FILE>? T_TODO_FILE { get; set; }
         public DbSet<T_TODOTARGET>? T_TODOTARGET { get; set; }
-        public DbSet<T_TODOTARGET_GROUP>? T_TODOTARGET_GROUP { get; set; }
-        public DbSet<T_TODOCOMMENT>? T_TODOCOMMENT { get; set; }
-        public DbSet<T_TODOCOMMENT_FILE>? T_TODOCOMMENT_FILE { get; set; }
-        public DbSet<T_TODOCOMMENT_READ> T_TODOCOMMENT_READ { get; set; }
+        public DbSet<T_TODOTARGET_GROUP>? T_TODOTARGET_GROUP { get; set; } 
+
         public DbSet<T_SCHEDULE>? T_SCHEDULE { get; set; }
         public DbSet<T_SCHEDULE_FILE>? T_SCHEDULE_FILE { get; set; }
         public DbSet<T_SCHEDULEPEOPLE> T_SCHEDULEPEOPLE { get; set; }
@@ -54,6 +50,7 @@ namespace web_groupware.Data
         public DbSet<T_SCHEDULE_REPETITION> T_SCHEDULE_REPETITION { get; set; }
 
         public DbSet<T_BOARD>? T_BOARD { get; set; }
+        public DbSet<T_BOARD_TOP>? T_BOARD_TOP { get; set; }
         public DbSet<T_BOARD_FILE>? T_BOARD_FILE { get; set; }
         public DbSet<T_BOARDCOMMENT>? T_BOARDCOMMENT { get; set; }
 
@@ -66,9 +63,7 @@ namespace web_groupware.Data
                 .HasKey(c => new { c.bukken_cd });
 
             modelBuilder.Entity<T_BUKKENCOMMENT>()
-                .HasKey(c => new { c.comment_no });
-            modelBuilder.Entity<T_BUKKENCOMMENT_READ>()
-                .HasKey(c => new { c.comment_no, c.staf_cd });
+                .HasKey(c => new { c.bukn_cd,c.comment_no });
             modelBuilder.Entity<M_DIC>()
                 .HasKey(c => new { c.dic_kb, c.dic_cd });
 
@@ -82,8 +77,6 @@ namespace web_groupware.Data
 
             modelBuilder.Entity<T_MEMO>()
                 .HasKey(c => new { c.memo_no });
-            modelBuilder.Entity<T_MEMO_READ>()
-                .HasKey(c => new { c.memo_no, c.staff_cd });
             modelBuilder.Entity<T_GROUPSTAFF>()
                 .HasKey(c => new { c.staf_cd, c.group_cd });
             modelBuilder.Entity<T_TODO>()
@@ -99,7 +92,11 @@ namespace web_groupware.Data
             modelBuilder.Entity<M_SYSTEM>()
                 .HasNoKey();
             modelBuilder.Entity<T_INFO_PERSONAL>()
-                .HasKey(c => new { c.parent_id,c.first_no,c.second_no,c.third_no,c.staf_cd });
+                .HasKey(c => new { c.parent_id, c.first_no, c.second_no, c.third_no, c.staf_cd });
+            modelBuilder.Entity<T_BUKKENCOMMENT_FILE>()
+                .HasKey(c => new { c.bukn_cd, c.comment_no, c.file_no });
+
+
 
             modelBuilder.Entity<T_SCHEDULE>()
                 .HasKey(c => new { c.schedule_no });
@@ -116,10 +113,12 @@ namespace web_groupware.Data
 
             modelBuilder.Entity<T_BOARD>()
                 .HasKey(c => new { c.board_no });
+            modelBuilder.Entity<T_BOARD_TOP>()
+                .HasKey(c => new { c.board_no, c.staf_cd });
             modelBuilder.Entity<T_BOARD_FILE>()
                 .HasKey(c => new { c.board_no, c.file_no });
             modelBuilder.Entity<T_BOARDCOMMENT>()
-                .HasKey(c => new { c.board_no, c.comment_no});
+                .HasKey(c => new { c.board_no, c.comment_no });
         }
     }
 }

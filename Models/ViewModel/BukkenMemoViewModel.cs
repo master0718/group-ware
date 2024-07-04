@@ -21,7 +21,7 @@ namespace web_groupware.Models
     }
     public class BukkenMemo
     {
-        public decimal bukken_cd { get; set; }
+        public decimal bukn_cd { get; set; }
         public string? bukken_name { get; set; }
         public string update_user { get; set; }
         public string update_date { get; set; }

@@ -2,6 +2,7 @@
 using System.Text;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -38,34 +39,17 @@ namespace web_groupware.Controllers
         }
         #region "日報"
 
-        [HttpGet]
-        public IActionResult Index(DateTime? date, string cond_already_read, bool isCancel)
-        {
-            try
-            {
-                //キャンセルボタン以外から遷移の場合は初期値設定
-                if (!isCancel)
-                {
-                    date = date ?? DateTime.Now.Date;
-                    cond_already_read = "1";
-                }
-                ReportViewModel model = createViewModel(date, cond_already_read);
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-
-        }
-
-        [HttpPost]
+        //[HttpPost]
         public IActionResult Index(ReportViewModel model)
         {
             try
             {
+                //初期表示と判断
+                if (model.cond_already_read==null)
+                {
+                    model.cond_date = DateTime.Now;
+                    model.cond_already_read = "1";
+                }
                 model = createViewModel(model.cond_date, model.cond_already_read);
                 return View(model);
             }
@@ -99,8 +83,6 @@ namespace web_groupware.Controllers
                 sql.AppendLine(" ( select report_no,comment_no,update_user,update_date,row_number() over(PARTITION BY report_no ORDER BY update_date DESC) as num from T_REPORTCOMMENT ) S1 ");
                 sql.AppendLine(" ON B.report_no = S1.report_no ");
 
-                //sql.AppendLine(" LEFT JOIN T_CHECKED S4 ");
-                //sql.AppendFormat(" ON S4.parent_id=2 and S4.first_no= B.report_no and  S4.second_no = S1.comment_no and S4.staf_cd = {0} ", HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value);
                 sql.AppendLine(" LEFT JOIN ");
                 sql.AppendFormat(" ( select first_no as report_no from T_INFO_PERSONAL where parent_id=2 and staf_cd={0} and already_checked=0 group by first_no ) S4 ", HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value);
                 sql.AppendLine(" ON B.report_no = S4.report_no ");
@@ -109,8 +91,6 @@ namespace web_groupware.Controllers
                 sql.AppendLine(" ON B.update_user = S2.staf_cd ");
                 sql.AppendLine(" WHERE 1=1 ");
                 sql.AppendLine(" AND (num =1 OR num IS NULL ) ");
-                //sql.AppendFormat(" AND (S3.staf_cd = {0} or S4.staf_cd = {1}) ", HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value, HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value);
-
 
                 if (date != null)
                 {
@@ -121,6 +101,7 @@ namespace web_groupware.Controllers
                 {
                     sql.AppendFormat(" AND (S3.already_checked = 0 or S4.report_no is not null) ");
                 }
+                sql.AppendLine(" ORDER BY report_date DESC, update_date_1 DESC ");
 
                 DataTable dt = new DataTable();
                 using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
@@ -166,7 +147,7 @@ namespace web_groupware.Controllers
                     {
                         report_no = dr.Field<int>("report_no"),
                         name = dr.Field<string>("staf_name"),
-                        report_date = dr.Field<DateTime>("report_date").ToString("D"),
+                        report_date = dr.Field<DateTime>("report_date").ToString("M/d"),
                         update_date = update_date,
                         message = dr.Field<string>("message"),
                         count = count,
@@ -249,8 +230,9 @@ namespace web_groupware.Controllers
                 model.message = dt.Rows[0].Field<string>("message") ?? "";
                 model.create_user = dt.Rows[0].Field<string>("create_user");
                 model.update_user = dt.Rows[0].Field<string>("update_user");
-                model.update_date = dt.Rows[0].Field<DateTime>("update_date").ToString("yyyy/M/d");
-                model.create_date = dt.Rows[0].Field<DateTime>("create_date").ToString("yyyy/M/d");
+                model.update_date = dt.Rows[0].Field<DateTime>("update_date").ToString("yyyy/MM/dd HH:mm");
+                model.create_user = dt.Rows[0].Field<string>("create_user");
+                model.create_date = dt.Rows[0].Field<DateTime>("create_date").ToString("yyyy/MM/dd HH:mm");
                 //model.list_selected_staf_cd_report = _context.T_REPORT_READ.Where(x => x.report_no == dt.Rows[0].Field<int>("report_no")).Select(x => x.staf_cd.ToString()).ToList();
                 //SetSelectListItem(model);
                 var t_report_read = _context.T_INFO_PERSONAL.FirstOrDefault(x => x.parent_id == 1 && x.first_no == dt.Rows[0].Field<int>("report_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
@@ -289,7 +271,7 @@ namespace web_groupware.Controllers
                     model.list_report = new List<ReportDetail>();
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        var t_reportcomment_read = _context.T_INFO_PERSONAL.FirstOrDefault(x =>x.parent_id == 2 && x.first_no== dt.Rows[i].Field<int>("report_no") && x.second_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                        var t_reportcomment_read = _context.T_INFO_PERSONAL.FirstOrDefault(x => x.parent_id == 2 && x.first_no == dt.Rows[i].Field<int>("report_no") && x.second_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                         model.list_report.Add(new ReportDetail()
                         {
                             comment_no = dt.Rows[i].Field<int>("comment_no"),
@@ -326,12 +308,6 @@ namespace web_groupware.Controllers
                 //SetSelectListItem(model);
                 return View("ReportDetail", model);
             }
-            //if (model.list_selected_staf_cd_report.Count == 0)
-            //{
-            //    ModelState.AddModelError("", "周知範囲は必須項目です。");
-            //    SetSelectListItem(model);
-            //    return View("ReportDetail", model);
-            //}
             using (IDbContextTransaction tran = _context.Database.BeginTransaction())
             {
                 try
@@ -342,7 +318,7 @@ namespace web_groupware.Controllers
                     recoard_new.report_no = next_no;
                     recoard_new.report_date = model.report_date;
                     recoard_new.message = model.message;
-                    recoard_new.create_user= HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                    recoard_new.create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                     recoard_new.create_date = now;
                     recoard_new.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                     recoard_new.update_date = now;
@@ -356,9 +332,9 @@ namespace web_groupware.Controllers
                         recoard_comment_new.parent_id = 1;
                         recoard_comment_new.first_no = next_no;
                         recoard_comment_new.staf_cd = t_staffm[i].staf_cd;
-                        recoard_comment_new.title = "";
-                        recoard_comment_new.content = "";
-                        recoard_comment_new.url = "";
+                        recoard_comment_new.title = "日報";
+                        recoard_comment_new.content = model.message;
+                        recoard_comment_new.url = string.Format("{0}://{1}{2}{3}/ReportDetail?mode=4&report_no={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, next_no);
                         recoard_comment_new.create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                         recoard_comment_new.create_date = now;
                         recoard_comment_new.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
@@ -381,11 +357,11 @@ namespace web_groupware.Controllers
                     return View("ReportDetail", model);
                 }
             }
-            return RedirectToAction("Index", "Report", model.cond_date, model.cond_already_read);
+            return RedirectToAction("Index", "Report", model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async  Task<IActionResult> Update(ReportDetailViewModel model)
+        public async Task<IActionResult> Update(ReportDetailViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -393,12 +369,6 @@ namespace web_groupware.Controllers
                 //SetSelectListItem(model);
                 return View("ReportDetail", model);
             }
-            //if (model.list_selected_staf_cd_report.Count == 0)
-            //{
-            //    ModelState.AddModelError("", "周知範囲は必須項目です。");
-            //    SetSelectListItem(model);
-            //    return View("ReportDetail", model);
-            //}
             var recoard = _context.T_REPORT.FirstOrDefault(x => x.report_no == model.report_no);
             if (recoard.update_user != HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value)
             {
@@ -421,16 +391,18 @@ namespace web_groupware.Controllers
                     _context.RemoveRange(t_report_read);
                     _context.SaveChanges();
 
-                    var t_staffm = await _context.M_STAFF.Where(x => x.retired != 1 && x.staf_cd.ToString()!= HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value).ToListAsync();
+                    var t_staffm = await _context.M_STAFF.Where(x => x.retired != 1 && x.staf_cd.ToString() != HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value).ToListAsync();
                     for (int i = 0; i < t_staffm.Count; i++)
                     {
                         var recoard_comment_new = new T_INFO_PERSONAL();
                         recoard_comment_new.parent_id = 1;
-                        recoard_comment_new.first_no = int.Parse(model.report_no.ToString());
+                        recoard_comment_new.first_no = (int)model.report_no;
                         recoard_comment_new.staf_cd = t_staffm[i].staf_cd;
-                        recoard_comment_new.title = "";
-                        recoard_comment_new.content = "";
-                        recoard_comment_new.url = "";
+                        recoard_comment_new.title = "日報";
+                        recoard_comment_new.content = model.message;
+                        recoard_comment_new.url = string.Format("{0}://{1}{2}{3}/ReportDetail?mode=4&report_no={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, model.report_no);
+                        recoard_comment_new.create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                        recoard_comment_new.create_date = now;
                         recoard_comment_new.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                         recoard_comment_new.update_date = now;
                         _context.T_INFO_PERSONAL.Add(recoard_comment_new);
@@ -451,7 +423,7 @@ namespace web_groupware.Controllers
                     return View("ReportDetail", model);
                 }
             }
-            return RedirectToAction("Index", "Report", model.cond_date, model.cond_already_read);
+            return RedirectToAction("Index", "Report", model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -470,7 +442,7 @@ namespace web_groupware.Controllers
                     var recoard = _context.T_REPORT.FirstOrDefault(x => x.report_no == model.report_no);
                     _context.T_REPORT.Remove(recoard);
                     _context.SaveChanges();
-                    var recoard_read = _context.T_INFO_PERSONAL.Where(x =>x.parent_id == 1 && x.first_no == model.report_no);
+                    var recoard_read = _context.T_INFO_PERSONAL.Where(x => x.parent_id == 1 && x.first_no == model.report_no);
                     if (recoard_read.Count() > 0)
                     {
                         _context.T_INFO_PERSONAL.RemoveRange(recoard_read);
@@ -483,7 +455,7 @@ namespace web_groupware.Controllers
                         _context.T_REPORTCOMMENT.RemoveRange(recoard_comment);
                         _context.SaveChanges();
                     }
-                    var recoard_comment_read = _context.T_INFO_PERSONAL.Where(x =>x.parent_id == 1 && x.first_no == model.report_no);
+                    var recoard_comment_read = _context.T_INFO_PERSONAL.Where(x => x.parent_id == 1 && x.first_no == model.report_no);
                     if (recoard_comment_read.Count() > 0)
                     {
                         _context.T_INFO_PERSONAL.RemoveRange(recoard_comment_read);
@@ -504,7 +476,7 @@ namespace web_groupware.Controllers
                     return View("ReportDetail", model);
                 }
             }
-            return RedirectToAction("Index", "Report", model.cond_date, model.cond_already_read);
+            return RedirectToAction("Index", "Report", model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -542,9 +514,9 @@ namespace web_groupware.Controllers
                         record_read.first_no = (int)model.report_no;
                         record_read.second_no = nextComment_no;
                         record_read.staf_cd = int.Parse(t_report.update_user);
-                        record_read.title = "";
-                        record_read.content = "";
-                        record_read.url = "";
+                        record_read.title = "日報コメント";
+                        record_read.content = model.message;
+                        record_read.url = string.Format("{0}://{1}{2}{3}/ReportDetail?mode=4&report_no={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, model.report_no);
                         record_read.create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                         record_read.create_date = now;
                         record_read.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
@@ -552,7 +524,7 @@ namespace web_groupware.Controllers
                         _context.T_INFO_PERSONAL.Add(record_read);
                     }
 
-                    var t_report_read = _context.T_INFO_PERSONAL.Where(x =>x.parent_id == 1 && x.first_no == (int)model.report_no).ToList();
+                    var t_report_read = _context.T_INFO_PERSONAL.Where(x => x.parent_id == 1 && x.first_no == (int)model.report_no).ToList();
                     for (int i = 0; i < t_report_read.Count(); i++)
                     {
                         if (t_report_read[i].staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value) continue;
@@ -561,9 +533,9 @@ namespace web_groupware.Controllers
                         record_read.first_no = (int)model.report_no;
                         record_read.second_no = nextComment_no;
                         record_read.staf_cd = t_report_read[i].staf_cd;
-                        record_read.title = "";
-                        record_read.content = "";
-                        record_read.url = "";
+                        record_read.title = "日報コメント";
+                        record_read.content = model.message;
+                        record_read.url = string.Format("{0}://{1}{2}{3}/ReportDetail?mode=4&report_no={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, model.report_no);
                         record_read.create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                         record_read.create_date = now;
                         record_read.update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
@@ -587,7 +559,7 @@ namespace web_groupware.Controllers
                     return View("ReportDetail", model);
                 }
             }
-            return RedirectToAction("Index", "Report", model.cond_date, model.cond_already_read);
+            return RedirectToAction("Index", "Report", model);
         }
         /// <summary>
         /// already_checked更新
@@ -602,27 +574,29 @@ namespace web_groupware.Controllers
                 {
                     try
                     {
+                        var now = DateTime.Now;
+                        var user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
                         StringBuilder sql = new StringBuilder();
                         if (model.already_read_commment_no == null)
                         {
                             sql.AppendLine(" UPDATE ");
-                            sql.AppendLine(" T_CHECKED ");
-                            sql.AppendLine(" SET already_checked=1");
+                            sql.AppendLine(" T_INFO_PERSONAL ");
+                            sql.AppendFormat(" SET already_checked=1,update_user='{0}',update_date='{1}'", user, now);
                             sql.AppendLine(" WHERE 1=1 ");
-                            sql.AppendFormat(" AND parent_id = {0} ", 1);
+                            sql.AppendFormat(" AND parent_id = {0} ", INFO_PERSONAL_PARENT_ID.T_REPORT);
                             sql.AppendFormat(" AND first_no = {0} ", model.report_no);
-                            sql.AppendFormat(" AND staf_cd = {0} ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                            sql.AppendFormat(" AND staf_cd = {0} ", user);
                         }
                         else
                         {
                             sql.AppendLine(" UPDATE ");
-                            sql.AppendLine(" T_CHECKED ");
-                            sql.AppendLine(" SET already_checked=1");
+                            sql.AppendLine(" T_INFO_PERSONAL ");
+                            sql.AppendFormat(" SET already_checked=1,update_user='{0}',update_date='{1}'", user, now);
                             sql.AppendLine(" WHERE 1=1 ");
-                            sql.AppendFormat(" AND parent_id = {0} ", 2);
+                            sql.AppendFormat(" AND parent_id = {0} ", INFO_PERSONAL_PARENT_ID.T_REPORTCOMMENT);
                             sql.AppendFormat(" AND first_no = {0} ", model.report_no);
                             sql.AppendFormat(" AND second_no = {0} ", model.already_read_commment_no);
-                            sql.AppendFormat(" AND staf_cd = {0} ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                            sql.AppendFormat(" AND staf_cd = {0} ", user);
                         }
                         using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
                         {
@@ -646,7 +620,7 @@ namespace web_groupware.Controllers
                         return View("ReportDetail", model);
                     }
                 }
-                return RedirectToAction("Index", "Report", model.cond_date, model.cond_already_read);
+                return RedirectToAction("Index", "Report", model);
             }
             catch (Exception ex)
             {
@@ -657,20 +631,6 @@ namespace web_groupware.Controllers
                 return View("ReportDetail", model);
             }
         }
-        //public ReportDetailViewModel SetSelectListItem(ReportDetailViewModel model)
-        //{
-        //    try
-        //    {
-        //        model.list_staf_cd_report = _context.M_STAFF.Select(x => new SelectListItem { Value = x.staf_cd.ToString(), Text = x.staf_name }).ToList();
-        //        return model;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex.Message);
-        //        _logger.LogError(ex.StackTrace);
-        //        throw;
-        //    }
-        //}
         #endregion
 
 

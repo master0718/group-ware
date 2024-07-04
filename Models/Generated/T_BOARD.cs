@@ -12,6 +12,9 @@ namespace web_groupware.Models
 
         [Required(ErrorMessage = Messages.REQUIRED)]
         public int status { get; set; }
+        
+        [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
+        public int? category_cd { get; set; }
 
         [Required(ErrorMessage = Messages.REQUIRED)]
         [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
@@ -27,6 +30,11 @@ namespace web_groupware.Models
 
         public int? applicant_cd { get; set; }
 
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime create_date { get; set; }
         [Column(TypeName = "varchar(10)")]
         public string update_user { get; set; }
 

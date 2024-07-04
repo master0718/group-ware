@@ -39,11 +39,14 @@ namespace web_groupware.Models
         public DateTime working_date { get; set; }
         public int finish_cd { get; set; }
         public DateTime finish_date { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; }
+        [DataType(DataType.DateTime)]
         public DateTime create_date { get; set; }
 
         [Column(TypeName = "varchar(10)")]
         public string update_user { get; set; }
-
         [DataType(DataType.DateTime)]
         public DateTime update_date { get; set; }
     }

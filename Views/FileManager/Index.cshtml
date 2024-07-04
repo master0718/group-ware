@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "ファイル管理";
+    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
 }
 
 @model web_groupware.Models.FileDetailViewModel
@@ -24,72 +25,32 @@
             min-width: 80px;
             max-width: 80px;
         }
+
+        .underline {
+            text-decoration: underline !important;
+        }
     </style>
 </head>
 
-<div class="card">
-    <div class="card-header justify-content-between">
-        <span>
-            <h4 class="mb-3 mb-md-0">ファイル管理</h4>
-        </span>
-    </div>
-    <div class="card-body">
-        @using (Html.BeginForm("Create", "FileManager", FormMethod.Post, new { enctype = "multipart/form-data", id="fileForm" }))
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="justify-content-between d-flex align-items-center mb-3">
+            <span>
+                <h4 class="mb-0" id="pageTitle">ファイル管理</h4>
+            </span>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-outline-secondary rounded-pill new-folder" style="margin-right: 10px">
+                    <i class="bi bi-folder-plus"></i> 新しいフオルダ
+                </button>
+                <button type="button" class="btn btn-outline-secondary rounded-pill new-file">
+                    <i class="bi bi-file-plus"></i> 新しいファイル
+                </button>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Create", "FileManager", FormMethod.Post, new { enctype = "multipart/form-data", id = "fileForm" }))
         {
-            <div class="row" id="div_icon">
-                @if (Model.fileList.Count != 0)
-                {
-                    @for (int i = 0; i < Model.fileList.Count; i++)
-                    {
-                        <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeitWidth">
-                            <input type="hidden" asp-for="@Model.fileList[i].name">
-                            <input type="hidden" asp-for="@Model.fileList[i].file_no">
-                            <button class="bg-white border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.fileList[i].name">
-
-                                    <div class="div_img_file bg-light p-2">
-                                        @{
-                                            var fileext = System.IO.Path.GetExtension(Model.fileList[i].name);
-                                            var icon = "file.svg";
-                                            if (fileext != null && fileext.Length > 1) {
-                                                icon = fileext.Remove(0, 1) + ".svg";
-                                            }
-                                        }
-
-                                        <img src="~/images/file-icons/@icon" alt="icon" class="">
-                                    </div>
-                                    <div class="text-wrap main_files">@Model.fileList[i].name</div>
-                                </div>
-                            </button>
-                            <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                                <button class="dropdown-item delete_file" type="button" role="button" id="@Model.fileList[i].file_no" onclick="deleteSelectedFile(@Model.fileList[i].file_no)" data-dir_kind="1" data-file_name="@Model.fileList[i].name">削除</button>
-                                <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.fileList[i].name" onclick="downloadSelectedFile(@Model.fileList[i].file_no)">ﾀﾞｳﾝﾛｰﾄﾞ</button>
-                            </ul>
-                        </div>
-
-                    }
-                }
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <a class="fileupload btn btn-secondary waves-effect waves-light m" style="float:right; margin-left: 5px;" onclick="createFile()">
-                        <i class="mdi mdi-folder-outline me-1"></i>新規ファイル
-                    </a>
-                    <a class="fileupload btn btn-secondary waves-effect waves-light" style="float:right" onclick="createFolder()">
-                        <i class="mdi mdi-folder-outline me-1"></i>新規フォルダ
-                    </a>
-                </div>
-            </div>
-            <!-- onclick="createFolder()" -->
-            
-            <div class="bg-white p-3 mt-3 mb-3 border border-dark" id="folderArea">
-                <label>新規フォルダ</label>
-                <input class="ml-5" />
-                <button type="button" class="btn btn-success" onclick="saveFolder()">移動</button>保存
-                <button type="button" class="btn btn-light me-1" onclick="cancelFolder()">キャンセル</button>
-            </div>
-
-            <div class="row" id="fileArea">
+            <div class="row mx-0 mb-3 d-none" id="fileArea">
                 <input type="hidden">
                 <div class="col-12 card dropArea border-0 p-2">
                     <div class="text-center px-3 py-3 border-primary" style="border:dashed!important;">
@@ -104,186 +65,198 @@
                         <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
                         <div id="message_file1" class="text-right"></div>
                     </div>
-                    @*                         <div id="message_file1" class="text-right"></div>
-                *@
                 </div>
             </div>
-            
-            <!-- <div class="row">
-                <div class="col-12 card dropArea border-0 p-2">
-                    <div class="text-center px-3 py-3 border-primary" style="border:3px #adadad dashed!important;" id="fileArea">
-                        <a class="fileupload btn btn-secondary waves-effect waves-light" onclick="handleSelectFile()">
-                            選択
-                            <input type="file" class="upload" name="fileList" multiple onchange="handleSubmit(this)" >
-                        </a>
-                        <input type="hidden" name="currentDirectory">
-                        <span>ファイルをドラッグ＆ドロップしてください</span>
-                    </div>
-                    <div id="message_file1" class="text-right"></div>
-                </div>
-            </div> -->
-
         }
-        <span>currentDirectory:</span>
-        <span id="currentDirectory"></span>
-        <table class="table table-centered  table-nowrap mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col"><input type="checkbox" id="selectAllFile"/></th>
-                    <th scope="col">ファイル/フォルダ名</th>
-                    <th scope="col">最終更新者</th>
-                    <th scope="col">最終更新日時</th>
-                    <th scope="col">
-                        <ul class="list-inline table-action m-0">
-                            <li class="list-inline-item">
-                                <a href="javascript:void(0)" class="action-button px-1 disabled" title="名前変更" id="rename-file" onclick="rename()">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="javascript:void(0);" class="action-button px-1 disabled" title="移動" id="move-file" onclick="move()">
-                                    <i class="mdi mdi-file-move-outline disable"></i>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="javascript:void(0);" class="action-button px-1 disabled"  title="削除" id="delete-file" onclick="deleteFile()">
-                                    <i class="mdi mdi-delete"></i>
-                                </a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="javascript:void(0);" class="action-button px-1 disabled" title="ダウンロード" id="download-file" onclick="downloadFile()">
-                                    <i class="bi bi-download"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                    @if(Model.fileList != null)
-                    @foreach(var item in Model.fileList)
-                    {
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="selectFile" value="@item.file_no">
-                            </td>
-                            <td>
-                                @if (@item.icon != "")
-                                {
-                                    <img src="~/images/file-icons/@item.icon" height="30" alt="icon" class="me-2">
-                                }
-                                @if (@item.type == 1)
-                                {
-                                    <a href="javascript:void(0);" class="text-dark folder" >@item.name</a>
-                                }
-                                else
-                                {
-                                    <a href="javascript:void(0);" class="text-dark">@item.name</a>
-                                }
-                            </td>
-                            <td class="font-13">@item.update_user</td>
-                            <td class="font-13">@item.update_date</td>
-                            <td></td>
-                        </tr>
-                    }
-            </tbody>
-        </table>
-        <!-- Modal to create, rename folder -->
-        <div class="modal fade" id="folder-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
-                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <h5 class="modal-title"></h5>
-                    </div>
-                    <div class="modal-body px-4 pb-4 pt-0">
-                        <form class="needs-validation" name="folder-form" id="form-folder" novalidate>
-                            <input type="text" name="id" id="folder-id" hidden />                            
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="mb-2">
-                                        <label class="control-label form-label"></label>
-                                        <input class="form-control" type="text" name="title" id="folder-name" required />
-                                        <div class="invalid-feedback">ファイルやフォルダ名をご入力ください。</div> 
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <button type="submit" class="btn btn-success">保存</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div> <!-- end modal-content-->
-            </div> <!-- end modal dialog-->
-        </div>
-        <!-- end modal-->   
-        
-        <!-- Modal to move file or folder -->
-        <div class="modal fade" id="move-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
-                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <h5 class="modal-title"></h5>
-                    </div>
-                    <div class="modal-body px-4 pb-4 pt-0">
-                        <form class="needs-validation" name="move-form" id="form-move" novalidate>
-                            <div class="mt-2">
-                                <label class="control-label form-label"></label>
-                                <select class="col-12" style="padding: 8px" required>
-                                </select>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <button type="submit" class="btn btn-success">移動</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div> <!-- end modal-content-->
-            </div> <!-- end modal dialog-->
-        </div>
-        <!-- end modal-->
 
-        <!-- Modal to delete file or folder -->
-        <div class="modal fade" id="delete-modal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header py-3 px-4 border-bottom-0 d-block">
-                        <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
-                        <h5 class="modal-title"></h5>
-                    </div>
-                    <div class="modal-body px-4 pb-4 pt-0">
-                        <div class="row mt-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+        <form class="needs-validation" name="folder-form" id="form-create" novalidate>
+            <div class="card mb-3 d-none" id="createArea">
+                <div class="card-body">
+                    <div class="col-xl-8 col-12">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">新しいフオルダ</span>
+                            <div class="me-2">
+                                <input class="form-control" type="text" name="title" id="input-name" required />
                             </div>
-                            <div class="col-6 text-end">
-                                <button type="button" class="btn btn-danger" id="deleteFile">削除</button>
+                            <button type="submit" class="btn btn-success me-2">追加</button>
+                            <button type="button" class="btn btn-light" id="cancel-create">キャンセル</button>
+                        </div>
+                        @*<div class="invalid-feedback">ファイルやフォルダ名をご入力ください。</div>*@
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="card">
+            <div class="card-header justify-content-between d-flex align-items-center">
+                <span>
+                    <input type="checkbox" class="selectAllFile" />　すべて選択
+                </span>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary rename action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-input-cursor-text"></i> 名前を変更
+                    </button>
+                    <button type="button" class="btn btn-primary move action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-folder-symlink"></i> 移動
+                    </button>
+                    <button type="button" class="btn btn-danger delete action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-trash3"></i> 削除
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <span id="currentDirectory"></span>
+                <table class="table table-centered table-hover table-nowrap mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th></th>
+                            <th scope="col">名前</th>
+                            <th scope="col">最終更新者</th>
+                            <th scope="col">最終更新日時</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            @if(Model.fileList != null)
+                            @foreach(var item in Model.fileList)
+                            {
+                                <tr>
+                                    <td class="align-middle">
+                                        <input type="checkbox" class="selectFile" value="@item.file_no">
+                                    </td>
+                                    <td class="align-middle">
+                                        @if (@item.icon != "")
+                                        {
+                                            <img src="~/images/file-icons/@item.icon" height="30" alt="icon" class="me-2">
+                                        }
+                                        @if (@item.type == 1)
+                                        {
+                                            <a href="javascript:void(0);" class="text-dark folder" >@item.name</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:void(0);" class="text-dark">@item.name</a>
+                                        }
+                                    </td>
+                                    <td class="font-13 align-middle">@item.update_user</td>
+                                    <td class="font-13 align-middle">@item.update_date</td>
+                                    <td></td>
+                                </tr>
+                            }
+                    </tbody>
+                </table>
+                <!-- Modal to rename folder -->
+                <div class="modal fade" id="rename-modal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title"></h5>
+                            </div>
+                            <div class="modal-body px-4 pb-4 pt-0">
+                                <form class="needs-validation" name="folder-form" id="form-rename" novalidate>
+                                    <input type="text" name="id" id="rename-id" hidden />                            
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="mb-2">
+                                                <label class="control-label form-label"></label>
+                                                <input class="form-control" type="text" name="title" id="input-rename" required />
+                                                <div class="invalid-feedback">ファイルやフォルダ名をご入力ください。</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <button type="submit" class="btn btn-success">保存</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div> <!-- end modal-content-->
+                    </div> <!-- end modal dialog-->
+                </div>
+                <!-- end modal-->   
+        
+                <!-- Modal to move file or folder -->
+                <div class="modal fade" id="move-modal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title"></h5>
+                            </div>
+                            <div class="modal-body px-4 pb-4 pt-0">
+                                <form class="needs-validation" name="move-form" id="form-move" novalidate>
+                                    <div class="mt-2">
+                                        <label class="control-label form-label"></label>
+                                        <select class="col-12 form-select" style="padding: 8px" required>
+                                        </select>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <button type="submit" class="btn btn-success">移動</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div> <!-- end modal-content-->
+                    </div> <!-- end modal dialog-->
+                </div>
+                <!-- end modal-->
+
+                <!-- Modal to delete file or folder -->
+                <div class="modal fade" id="delete-modal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="title">確認</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="bodyContent">@ViewData["ConfirmText"]</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="bi bi-x"></i> いいえ
+                                </button>
+                                <button type="button" class="btn btn-danger" id="confirm-delete">
+                                    <i class="bi bi-check"></i> はい
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div> <!-- end modal-content-->
-            </div> <!-- end modal dialog-->
+                </div>
+                <!-- end modal-->
+            </div>
+            <div class="card-header justify-content-between d-flex align-items-center">
+                <span>
+                    <input type="checkbox" class="selectAllFile" />　すべて選択
+                </span>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary rename action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-input-cursor-text"></i> 名前を変更
+                    </button>
+                    <button type="button" class="btn btn-primary move action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-folder-symlink"></i> 移動
+                    </button>
+                    <button type="button" class="btn btn-danger delete action-button disabled" style="margin-right: 10px">
+                        <i class="bi bi-trash3"></i> 削除
+                    </button>
+                </div>
+            </div>
         </div>
-        <!-- end modal-->
+
     </div>
 </div>
 
 @section Scripts {
     <script>
-        $(document).ready(function(){
-            $("#fileArea").css('display', 'none');
-            $("#folderArea").css('display', 'none');
-        })
+
         var selectedFileList = [];
         var url = decodeURIComponent(window.location.href);
         var currentDirectory = url.split('groupware/FileManager')[1];
@@ -319,75 +292,211 @@
             );
         }
 
-        function createFile() {
-            $("#fileArea").css('display', 'block');
-            $("#folderArea").css('display', 'none');
-        }
-
-        function createFolder() {
-            $("#folderArea").css('display', 'block');
-            $("#fileArea").css('display', 'none');
-        }
-
-        function saveFolder() {
-            $("#folderArea").css('display', 'none');
-        }
-
-        function cancelFolder() {
-            $("#folderArea").css('display', 'none');
-        }
-
         function handleSubmit(file) {
             if (file.files.length > 0) {
                 $('#fileForm').submit();
             }
         }
-        function deleteSelectedFile(id) {
-            selectedFileList.push(id);
-            deleteFile();
+
+        function promptCreateFolder() {
+            hideCreateFile();
+            if ($('#createArea').hasClass('d-none')) {
+                $('#createArea').removeClass('d-none')
+                $('.new-folder').removeClass('btn-outline-secondary')
+                $('.new-folder').addClass('btn-secondary')
+                $('#input-name').focus()
+            }
         }
-        function downloadSelectedFile(id) {
-            selectedFileList.push(id);
-            downloadFile();
+
+        function hideCreateFolder() {
+            if (!$('#createArea').hasClass('d-none')) {
+                $('#createArea').addClass('d-none')
+                $('.new-folder').addClass('btn-outline-secondary')
+                $('.new-folder').removeClass('btn-secondary')
+            }
         }
-        function downloadFile()
-        {
+
+        function toggleCreateFile() {
+            if ($('#fileArea').hasClass('d-none')) {
+                hideCreateFolder();
+                $('#fileArea').removeClass('d-none')
+                $('.new-file').removeClass('btn-outline-secondary')
+                $('.new-file').addClass('btn-secondary')
+            } else {
+                $('#fileArea').addClass('d-none')
+                $('.new-file').addClass('btn-outline-secondary')
+                $('.new-file').removeClass('btn-secondary')
+            }
+        }
+
+        function promptCreateFile() {
+            hideCreateFolder();
+            if ($('#fileArea').hasClass('d-none')) {
+                $('#fileArea').removeClass('d-none')
+                $('.new-file').removeClass('btn-outline-secondary')
+                $('.new-file').addClass('btn-secondary')
+            }
+        }
+
+        function hideCreateFile() {
+            if (!$('#fileArea').hasClass('d-none')) {
+                $('#fileArea').addClass('d-none')
+                $('.new-file').addClass('btn-outline-secondary')
+                $('.new-file').removeClass('btn-secondary')
+            }
+        }
+
+        function promptRename() {
+            $('#rename-modal .modal-title').text("名の変更");
+            $('#rename-id').val(selectedFileList[0]);
+            var name = $(`input[value="${selectedFileList[0]}"]`).parent().parent().find('td:eq(1)').find('a').text();
+            $('#input-rename').val(name);
+
+            var myModal = new bootstrap.Modal(document.getElementById('rename-modal'), {});
+            myModal.toggle();
+        }
+
+        function promptDelete() {
+            var myModal = new bootstrap.Modal(document.getElementById('delete-modal'), {});
+            myModal.toggle();
+        }
+
+        function deleteFile() {
             $.ajax({
                 method: "post",
-                url: '@Url.Action("DownloadFile", "FileManager")',
+                url: '@Url.Action("Delete", "FileManager")',
                 data: {
                     fileNoList: selectedFileList
                 },
                 success: function (result) {
-                    window.location.href = url.split('groupware/FileManager')[0] + 'groupware/downloads/Groupware.zip';
+                    window.location.reload();
                 },
                 error: function (xhr) {
                     alert("Error:" + xhr.responseText);
                 }
             });
         }
-        // function createFolder()
-        // {
-        //     $('#folder-modal .modal-title').text("フォルダを作成する");
-        //     $('#folder-id').val(0);
-        //     $('#folder-name').val("");
-        //     $('#folder-modal .control-label').text("フォルダ");
 
-        //     var myModal = new bootstrap.Modal(document.getElementById('folder-modal'), {});
-        //     myModal.toggle();
-        // }
-        function rename()
+        function checkActionValidity(selectedFileList)
         {
-            $('#folder-modal .modal-title').text("名の変更");
-            $('#folder-id').val(selectedFileList[0]);
-            var name = $(`input[value="${selectedFileList[0]}"]`).parent().parent().find('td:eq(1)').find('a').text();
-            $('#folder-name').val(name);
+            if(selectedFileList.length == 0) {
+                $('.action-button').addClass('disabled');
+            }
+            else {
+                $('.action-button').removeClass('disabled');
+                if(selectedFileList.length > 1) {
+                    $('.action-button.rename').addClass('disabled');
+                }
+            }
 
-            var myModal = new bootstrap.Modal(document.getElementById('folder-modal'), {});
-            myModal.toggle();
+            if (selectedFileList.length == $('.selectFile').length) {
+                $('.selectAllFile').prop('checked', true);
+            } else {
+                $('.selectAllFile').prop('checked', false);
+            }
         }
-        function move()
-        {
+        
+        function handleSelectFile() 
+        { 
+            $('input[type="file"]').click();
+        }
+
+        $('#form-create').on('submit', function (e) {
+            e.preventDefault();
+            var newname = $('#input-name').val();
+
+            var form = $(this)[0];
+            if (form.checkValidity()) {
+                $.ajax({
+                    method: "post",
+                    url: '@Url.Action("CreateFolder", "FileManager")',
+                    data: {
+                        newName: newname,
+                        currentDirectory: currentDirectory
+                    },
+                    success: function (result) {
+                        window.location.reload();
+                    },
+                    error: function (xhr) {
+                        alert("Error: " + xhr.responseText);
+                    }
+                });
+            } else {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+            }
+            //hideCreateFolder();
+        });
+
+        $("#form-rename").on('submit', function(e) {
+            e.preventDefault();
+            var id = $('#rename-id').val();
+            var newname = $('#input-rename').val();
+
+            var form = $(this)[0];
+            if (form.checkValidity()) {
+                $.ajax({
+                    method: "post",
+                    url: '@Url.Action("Update", "FileManager")',
+                    data: {
+                        id: id,
+                        newName: newname,
+                        currentDirectory: currentDirectory
+                    },
+                    success: function(result) {
+                        window.location.reload();
+                    },
+                    error: function(xhr) {
+                        alert("Error: " + xhr.responseText);
+                    }
+                });     
+                $('#rename-modal').modal('hide');
+            } else {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+            }
+        });
+
+        $('#form-move').on('submit', function (e) {
+            e.preventDefault();
+            var form = $('#form-move')[0];
+            if (form.checkValidity()) {
+                var destinationFolder = $('#form-move select').val();
+                $.ajax({
+                    method: "post",
+                    url: '@Url.Action("MoveToFolder", "FileManager")',
+                    data: {
+                        destinationFolder: destinationFolder,
+                        fileNoList: selectedFileList
+                    },
+                    success: function (result) {
+                        window.location.reload();
+                    },
+                    error: function (xhr) {
+                        alert("Error:" + xhr.responseText);
+                    }
+                });
+            }
+        });
+
+        $('.new-folder').on('click', function () {
+            promptCreateFolder();
+        });
+
+        $('#cancel-create').on('click', function () {
+            hideCreateFolder();
+        });
+
+        $('.new-file').on('click', function () {
+            toggleCreateFile();
+            //promptCreateFile();
+        });
+
+        $('.rename').on('click', function () {
+            promptRename();
+        });
+
+        $('.move').on('click', function () {
             $('#move-modal .modal-title').text("移動先フォルダを選択し「移動」をクリックしてください");
             $('#move-modal .control-label').text("フォルダ");
             $.ajax({
@@ -412,95 +521,16 @@
                     alert("Error: " + xhr.responseText);
                 }
             });
-
-        }
-        function deleteFile() 
-        {
-            $('#delete-modal .modal-title').text("削除してもよろしいですか？");
-
-            var myModal = new bootstrap.Modal(document.getElementById('delete-modal'), {});
-            myModal.toggle();
-        }
-        function checkActionValidity(selectedFileList)
-        {
-            if(selectedFileList.length == 0) {
-                $('a.action-button').addClass('disabled');
-            }
-            else {
-                $('a.action-button').removeClass('disabled');
-                if(selectedFileList.length > 1) {
-                    $('a#rename-file').addClass('disabled');
-                }
-            }
-        }
-        function handleSelectFile() 
-        { 
-            $('input[type="file"]').click();
-        }
-        $("#form-folder").on('submit', function(e) {
-            e.preventDefault();
-            var id = $('#folder-id').val();
-            var newname = $('#folder-name').val();
-
-            var form = $("#form-folder")[0];
-            if (form.checkValidity()) {
-                $.ajax({
-                    method: "post",
-                    url: id == 0 ? '@Url.Action("CreateFolder", "FileManager")' : '@Url.Action("Update", "FileManager")',
-                    data: {
-                        id: id,
-                        newName: newname,
-                        currentDirectory: currentDirectory
-                    },
-                    success: function(result) {
-                        window.location.reload();
-                    },
-                    error: function(xhr) {
-                        alert("Error: " + xhr.responseText);
-                    }
-                });     
-                $('#folder-modal').modal('hide');
-            } else {
-                e.stopPropagation();
-                form.classList.add('was-validated');
-            }
         });
-        $('#form-move').on('submit', function (e) {
-            e.preventDefault();
-            var form = $('#form-move')[0];
-            if (form.checkValidity()) {
-                var destinationFolder = $('#form-move select').val();
-                $.ajax({
-                    method: "post",
-                    url: '@Url.Action("MoveToFolder", "FileManager")',
-                    data: {
-                        destinationFolder: destinationFolder,
-                        fileNoList: selectedFileList
-                    },
-                    success: function (result) {
-                        window.location.reload();
-                    },
-                    error: function (xhr) {
-                        alert("Error:" + xhr.responseText);
-                    }
-                });
-            }
+
+        $('.delete').on('click', function () {
+            promptDelete();
         });
-        $('#deleteFile').on('click', function () {
-            $.ajax({
-                method: "post",
-                url: '@Url.Action("Delete", "FileManager")',
-                data: {
-                    fileNoList: selectedFileList
-                },
-                success: function (result) {
-                    window.location.reload();
-                },
-                error: function (xhr) {
-                    alert("Error:" + xhr.responseText);
-                }
-            });
+
+        $('#confirm-delete').on('click', function () {
+            deleteFile();
         });
+
         $('a.folder').on({
             click: function () {
                 if (url.endsWith('/')) {
@@ -509,7 +539,45 @@
                 window.location.href = `${url}/${$(this).text()}`;
             }
         });
-        $('input.selectFile').on({
+
+        $('.table-hover a').on('mouseenter', function() {
+            $('.table-hover a').removeClass('underline');
+            if (!$(this).hasClass('folder')) {
+                $(this).addClass('underline');
+            }
+        })
+
+        $('.table-hover a').on('mouseleave', function () {
+            $(this).removeClass('underline');
+        })
+
+        $('.table-hover a').on('click', function () {
+            if (!$(this).hasClass('folder')) {
+                var id = $($(this).parent().siblings()[0]).find('input').val()
+                var fileList = [id];
+                downloadFile(fileList)
+            }
+        })
+
+        function downloadFile(fileList)
+        {
+            $.ajax({
+                method: "post",
+                url: '@Url.Action("DownloadFile", "FileManager")',
+                data: {
+                    //fileNoList: selectedFileList
+                    fileNoList: fileList
+                },
+                success: function (result) {
+                    window.location.href = url.split('groupware/FileManager')[0] + 'groupware/downloads/Groupware.zip';
+                },
+                error: function (xhr) {
+                    alert("Error:" + xhr.responseText);
+                }
+            });
+        }
+
+        $('.selectFile').on({
             change: function () {
                 var id = parseInt($(this).val());
                 if ($(this).is(':checked')) {
@@ -521,18 +589,21 @@
                 checkActionValidity(selectedFileList);
             }
         });
-        $('input#selectAllFile').on({
+        $('.selectAllFile').on({
             change: function () {
                 if ($(this).is(':checked')) {
-                    $('input.selectFile').prop('checked', true);
+                    $('.selectFile').prop('checked', true);
                     selectedFileList = [];
-                    @foreach (var item in Model.fileList)
+                    @if (Model.fileList != null)
                     {
-                        @:selectedFileList.push(@item.file_no);
+                        @foreach (var item in Model.fileList)
+                        {
+                            @:selectedFileList.push(@item.file_no);
+                        }
                     }
                 }
                 else {
-                    $('input.selectFile').prop('checked', false);
+                    $('.selectFile').prop('checked', false);
                     selectedFileList = [];
                 }
                 checkActionValidity(selectedFileList);
@@ -541,6 +612,7 @@
         $('#move-modal').on('hidden.bs.modal', function () {
             $('#form-move select').text('');
         });
+
         $(document).on({
             dragover: function (e) {
                 e.stopPropagation();
@@ -555,6 +627,7 @@
                 e.preventDefault();
             }
         });
+
         $('div#fileArea').on({
             dragover: function (e) {
                 e.stopPropagation();

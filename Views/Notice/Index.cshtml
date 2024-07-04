@@ -47,12 +47,12 @@
             </div>
             @***********************************************************************************@
 
-            <div class="row" id="div_icon">
+            <div class="d-flex" id="div_icon">
                 @if (Model.List_T_INFO_FILE.Count != 0)
                 {
                     @for (int i = 0; i < Model.List_T_INFO_FILE.Count; i++)
                     {
-                        <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeitWidth">
+                        <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeigttWidth">
                             <input type="hidden" asp-for="@Model.List_T_INFO_FILE[i].fileName">
                             <input type="hidden" asp-for="@Model.List_T_INFO_FILE[i].file_no">
                             <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">

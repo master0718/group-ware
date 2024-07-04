@@ -289,12 +289,10 @@ function add_div_icon(filename, drag) {
     var svg = filename.split('.').pop() + ".svg";
 
     var html = '<div id="div_icon_' + count + '" class="div_icon_child dropdown fileAreaHeightWidth">' +
-        '<input type="hidden" value="' + filename + '">' +
-        '<input type="hidden" value="">' +
-        '<button class="bg-white border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
+        '<button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">' +
         '<div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="' + filename + '">' +
         '<div class="div_img_file bg-light p-2">' +
-        '<img src="' + baseUrl + 'images/file-icons/' + svg + '" alt="icon" width="64px" height="64px">' +
+        '<img src="' + baseUrl + 'images/file-icons/' + svg + '" alt="icon">' +
         '</div>' +
         '<div class="text-wrap main_files">' + filename + '</div>' +
         '<div class="">';
@@ -312,6 +310,15 @@ function add_div_icon(filename, drag) {
         '</ul>' +
         '</div>');
     $('#div_icon').append(html);
+    $('.btn_file').on('mouseenter', function (e) {
+        $(this).find('.div_img_file').addClass('border');
+        $(this).find('.div_img_file').addClass('border-info');
+    });
+    $('.btn_file').on('mouseleave', function (e) {
+        $(this).find('.div_img_file').removeClass('border');
+        $(this).find('.div_img_file').removeClass('border-info');
+    });
+
 }
 
 function div_icon_empty(btn_delete) {

@@ -6,11 +6,16 @@ namespace web_groupware.Models
     public class T_BUKKENCOMMENT_FILE
     {
         [Key]
-        public int? file_no { get; set; }
-        public int? comment_no { get; set; }
+        public decimal bukn_cd { get; set; }
+        [Key]
+        public int comment_no { get; set; }
+        [Key]
+        public int file_no { get; set; }
         public string? fileName { get; set; } 
         public string? fullPath { get; set; }
-        public string? update_user { get; set; }
-        public DateTime? update_date { get; set; }
+        public string create_user { get; set; }
+        public DateTime create_date { get; set; }
+        public string update_user { get; set; }
+        public DateTime update_date { get; set; }
     }
 }

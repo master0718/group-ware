@@ -117,7 +117,7 @@ namespace web_groupware.Controllers
         [Authorize]
         public async Task<IActionResult> GetGroupItems()
         {
-            var groups = await _context.T_GROUPM.ToListAsync();
+            var groups = await _context.M_GROUP.ToListAsync();
             var result = new List<object>();
 
             foreach (var group in groups)
@@ -151,8 +151,8 @@ namespace web_groupware.Controllers
             //first_no==2 日報コメント
             //second_no== 日報番号
             var staf_cd = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-            var t_report = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id ==1&&x.staf_cd.ToString()== staf_cd&&x.already_checked==false).Count());
-            var t_reportcomment = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == 2&& x.staf_cd.ToString() == staf_cd && x.already_checked == false).Count());
+            var t_report = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id ==INFO_PERSONAL_PARENT_ID.T_REPORT&&x.staf_cd.ToString()== staf_cd&&x.already_checked==false).Count());
+            var t_reportcomment = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_REPORTCOMMENT&& x.staf_cd.ToString() == staf_cd && x.already_checked == false).Count());
             //_context.T_REPORTCOMMENT_READ.Where(x => x.staf_cd == staf_cd && x.alreadyread_flg ==false && x.update_user!=staf_cd.ToString());
             string count = t_report + t_reportcomment == 0 ? "" : (t_report + t_reportcomment).ToString();
             var arrMessage = new string[1]
@@ -171,7 +171,7 @@ namespace web_groupware.Controllers
         {
             //var staf_cd= int.Parse(HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value);
             var staf_cd = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-            var records = await Task.Run(() => _context.T_BUKKENCOMMENT_READ.Where(x => x.staf_cd == int.Parse(staf_cd) && x.alreadyread_flg == false && x.update_user != staf_cd.ToString()));
+            var records = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x =>x.parent_id==INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT&& x.staf_cd == int.Parse(staf_cd) && x.already_checked == false && x.update_user != staf_cd.ToString()));
             //_context.T_REPORTCOMMENT_READ.Where(x => x.staf_cd == staf_cd && x.alreadyread_flg ==false && x.update_user!=staf_cd.ToString());
             string count = records.Count() == 0 ? "" : records.Count().ToString();
             var ret = new
@@ -189,7 +189,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var t_group=await _context.T_GROUPM.ToListAsync();
+                var t_group=await _context.M_GROUP.ToListAsync();
                 for(int g = 0; g < t_group.Count; g++)
                 {
                     var group = new SelectListItem()

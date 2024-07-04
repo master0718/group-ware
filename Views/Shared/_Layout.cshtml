@@ -305,8 +305,8 @@
         <div class="content-page" style="background: #f1f4f6">
             <div id="card">
                 <div class="card-header alert alert-primary py-2 mt-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="col-8">
+                    <div class="row align-items-center">
+                        <div class="col-12 col-sm-8">
                             <div class="row">
                                 <div class="col-11">
                                     <i class="bi bi-bell" style="vertical-align: top;"></i>
@@ -315,11 +315,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-4 d-flex align-items-center justify-content-end">
-                            @for (var i = 0; i < list_top_info_file.Count(); i++)
-                            {
-                                <div class="px-1"><a class="layout_download_file btn btn-outline-primary" data-dic_cd="@list_top_info_file[i][0]" data-dir_no="@list_top_info_file[i][1]" data-file_name="@list_top_info_file[i][2]">@list_top_info_file[i][2]</a></div>
-                            }
+                        <div class="col-12 col-sm-4 align-items-center justify-content-end">
+                            <div class="row">
+                                @for (var i = 0; i < list_top_info_file.Count(); i++)
+                                {
+                                    <div class="col-6 px-1">
+                                        <div class="py-1">
+                                            <a class="layout_download_file btn btn-outline-primary" data-dic_cd="@list_top_info_file[i][0]" data-dir_no="@list_top_info_file[i][1]" data-file_name="@list_top_info_file[i][2]">@list_top_info_file[i][2]</a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

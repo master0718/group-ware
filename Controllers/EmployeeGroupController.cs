@@ -32,7 +32,7 @@ namespace web_groupware.Controllers
                         .FirstOrDefaultAsync(m => m.staf_cd.ToString() == item.update_user);
                     var t_GROUPSTAFF = await _context.M_STAFF
                         .FirstOrDefaultAsync(m => m.staf_cd == item.staf_cd);
-                    var t_GROUPM = await _context.T_GROUPM.FirstOrDefaultAsync(m => m.group_cd == item.group_cd);
+                    var t_GROUPM = await _context.M_GROUP.FirstOrDefaultAsync(m => m.group_cd == item.group_cd);
 
                     model.empGroupList.Add(new EmployeeGroupDetail
                     {
@@ -67,7 +67,7 @@ namespace web_groupware.Controllers
 
                 var viewModel = new CreateViewModel
                 {
-                    GroupStaff = _context.T_GROUPM.FirstOrDefault(gs => gs.group_cd == id),
+                    GroupStaff = _context.M_GROUP.FirstOrDefault(gs => gs.group_cd == id),
                     StaffList = _context.M_STAFF
                         .Where(s => !existingStaffIds.Contains(s.staf_cd))
                         .ToList()
@@ -128,7 +128,7 @@ namespace web_groupware.Controllers
                         .FirstOrDefaultAsync(m => m.staf_cd.ToString() == item.update_user);
                     var t_GROUPSTAFF = await _context.M_STAFF
                         .FirstOrDefaultAsync(m => m.staf_cd == item.staf_cd);
-                    var t_GROUPM = await _context.T_GROUPM.FirstOrDefaultAsync(m => m.group_cd == item.group_cd);
+                    var t_GROUPM = await _context.M_GROUP.FirstOrDefaultAsync(m => m.group_cd == item.group_cd);
 
                     model.empGroupList.Add(new EmployeeGroupDetail
                     {
@@ -161,7 +161,7 @@ namespace web_groupware.Controllers
                     .FirstOrDefaultAsync(m => m.staf_cd.ToString() == record.update_user);
                 var t_GROUPSTAFF = await _context.M_STAFF
                     .FirstOrDefaultAsync(m => m.staf_cd == record.staf_cd);
-                var t_GROUPM = await _context.T_GROUPM.FirstOrDefaultAsync(m => m.group_cd == record.group_cd);
+                var t_GROUPM = await _context.M_GROUP.FirstOrDefaultAsync(m => m.group_cd == record.group_cd);
                 model.group_cd = record.group_cd;
                 model.staf_cd = record.staf_cd;
                 model.staf_name = t_GROUPSTAFF != null ? t_GROUPSTAFF.staf_name : "";

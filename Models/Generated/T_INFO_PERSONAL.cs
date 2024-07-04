@@ -16,7 +16,8 @@ namespace web_groupware.Models
         public int third_no { get; set; }
         [Key]
         public int staf_cd { get; set; }
-
+        [ForeignKey(nameof(staf_cd))]
+        public virtual M_STAFF? staff { get; set; }
         public bool already_checked { get; set; }
         public string title { get; set; }
         public string content { get; set; }

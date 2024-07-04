@@ -21,7 +21,7 @@ namespace web_groupware.Controllers
         public async Task<IActionResult> Index()
         {
             GroupMasterViewModel model = new GroupMasterViewModel();
-            var items = await _context.T_GROUPM.ToListAsync();
+            var items = await _context.M_GROUP.ToListAsync();
             foreach (var item in items)
             {
                 var t_STAFFM = await _context.M_STAFF
@@ -58,7 +58,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                if (_context.T_GROUPM.Any(d => d.group_cd == model.group_cd))
+                if (_context.M_GROUP.Any(d => d.group_cd == model.group_cd))
                 {
                     ModelState.AddModelError("", "このグループコードは既に存在します。");
                     return View(model);
@@ -69,7 +69,7 @@ namespace web_groupware.Controllers
                     return View(model);
                 }
 
-                var model_new = new T_GROUPM();
+                var model_new = new M_GROUP();
                 model_new.group_cd = model.group_cd;
                 model_new.group_name = model.group_name;
                 model_new.update_user = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
@@ -93,7 +93,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var record = await _context.T_GROUPM.FirstOrDefaultAsync(m => m.group_cd == id);
+                var record = await _context.M_GROUP.FirstOrDefaultAsync(m => m.group_cd == id);
                 if (record == null)
                 {
                     return RedirectToAction("Index");
@@ -124,7 +124,7 @@ namespace web_groupware.Controllers
                     ModelState.AddModelError("", Message_change.FAILURE_001);
                     return View(model);
                 }
-                var record = await _context.T_GROUPM.FirstOrDefaultAsync(x => x.group_cd == model.group_cd);
+                var record = await _context.M_GROUP.FirstOrDefaultAsync(x => x.group_cd == model.group_cd);
                 if (record == null)
                 {
                     ModelState.AddModelError("", "存在しないグループコードです。");
@@ -150,7 +150,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var record = await _context.T_GROUPM.FirstOrDefaultAsync(m => m.group_cd == id);
+                var record = await _context.M_GROUP.FirstOrDefaultAsync(m => m.group_cd == id);
                 if (record == null)
                 {
                     return RedirectToAction("Index");
@@ -184,13 +184,13 @@ namespace web_groupware.Controllers
                     ModelState.AddModelError("", Message_delete.FAILURE_001);
                     return View(model);
                 }
-                var record = await _context.T_GROUPM.FirstOrDefaultAsync(x => x.group_cd == model.group_cd);
+                var record = await _context.M_GROUP.FirstOrDefaultAsync(x => x.group_cd == model.group_cd);
                 if (record == null)
                 {
                     ModelState.AddModelError("", "存在しないグループコードです。");
                     return View(model);
                 }
-                _context.T_GROUPM.Remove(record);
+                _context.M_GROUP.Remove(record);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
 

@@ -17,11 +17,6 @@ $(function () {
         window.location = baseUrl + "Todo/Index"
     })
 
-    $(".btnComment").on('click', function(){
-        var id = $('#id').val();
-        window.location.href = baseUrl + `Todo/CommentList?id=${id}`
-    })
-
     $('.btnCreate').on('click', function (e) {
         $('.loading').show()
 
