@@ -386,9 +386,9 @@ namespace web_groupware.Controllers
                 response_status = item.response_status,
                 deadline_date = item.deadline_date,
                 has_file = item.has_file,
-                update_date = item.update_date.ToString("yyyy年M月d日 H時m分"),
+                update_date = item.update_date.ToString("yyyy-MM-dd H:m"),
                 update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.update_user)).staf_name,
-                create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
+                create_date = item.create_date.ToString("yyyy-MM-dd H:m"),
                 create_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.create_user)).staf_name
             };
 
