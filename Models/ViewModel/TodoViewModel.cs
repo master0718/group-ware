@@ -53,16 +53,18 @@ namespace web_groupware.Models
         public string? description { get; set; }
         [Column(TypeName = "nvarchar(1000)")]
         public string? sendUrl { get; set; }
+        [DisplayName("公開・非公開")]
         public int public_set { get; set; }
+        [DisplayName("対象者")] 
         public int group_set { get; set; }
         public int deadline_set { get; set; }
         public int response_status { get; set; }
         [Column(TypeName = "nvarchar(64)")]
         public string? staf_cd { get; set; }
-        [DisplayName("添付ファイル")]
         public string? Delete_files { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime? deadline_date { get; set; }
+        [DisplayName("添付ファイル")]
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();
         public string? work_dir { get; set; }
