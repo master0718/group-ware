@@ -54,10 +54,9 @@ namespace web_groupware.Controllers
         public async Task<IActionResult> Index()
         {
             var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-            var user_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
             TodoViewModel model = new TodoViewModel();
 
-            var items = await _context.T_TODO.Where(x => x.staf_name == user_name).ToListAsync();
+            var items = await _context.T_TODO.Where(x => x.staf_cd == user_id).ToListAsync();
             var userInfoList = await _context.M_STAFF.ToListAsync();
                         
             foreach (var item in items)
@@ -72,7 +71,7 @@ namespace web_groupware.Controllers
                     group_set = item.group_set,
                     deadline_set = item.deadline_set,
                     response_status = item.response_status,
-                    staf_name = item.staf_name,
+                    staf_cd = item.staf_cd,
                     deadline_date = item.deadline_date,
                     has_file = item.has_file,
                 });
@@ -96,8 +95,7 @@ namespace web_groupware.Controllers
             try
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-                var user_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
-                var todoList = _context.T_TODO.Where(x => x.staf_name == user_name).ToList();
+                var todoList = _context.T_TODO.Where(x => x.staf_cd == user_id).ToList();
                 if (response_status != -1)
                 {
                     todoList = todoList.Where(x => x.response_status == response_status).ToList();
@@ -123,7 +121,7 @@ namespace web_groupware.Controllers
                     deadline_set = todo.deadline_set,
                     group_set = todo.group_set,
                     public_set = todo.public_set,
-                    staf_name = todo.staf_name,
+                    staf_cd = todo.staf_cd,
                     deadline_date = todo.deadline_date,
                     has_file = todo.has_file
                 }));
@@ -221,7 +219,6 @@ namespace web_groupware.Controllers
                 try
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-                    var userName = _context.M_STAFF.FirstOrDefault(x => x.staf_cd.ToString() == user_id).staf_name;
                     var now = DateTime.Now;
                     var has_file = 0;
                     if(request.File.Count > 0)
@@ -240,7 +237,7 @@ namespace web_groupware.Controllers
                         group_set = request.group_set,
                         deadline_set = request.deadline_set,
                         response_status = request.response_status,
-                        staf_name = userName,
+                        staf_cd = user_id,
                         deadline_date = request.deadline_date,
                         update_user = user_id,
                         update_date = now,

@@ -18,7 +18,7 @@ namespace web_groupware.Models
         public int deadline_set {get; set;}
         public int response_status {get; set;}
         [Column(TypeName = "nvarchar(64)")]
-        public string? staf_name {get; set;}
+        public string? staf_cd {get; set;}
         [DataType(DataType.DateTime)]
         public DateTime? deadline_date { get; set; }
         public int? has_file { get; set; }
@@ -58,7 +58,7 @@ namespace web_groupware.Models
         public int deadline_set { get; set; }
         public int response_status { get; set; }
         [Column(TypeName = "nvarchar(64)")]
-        public string? staf_name { get; set; }
+        public string? staf_cd { get; set; }
         [DisplayName("添付ファイル")]
         public string? Delete_files { get; set; }
         [DataType(DataType.DateTime)]

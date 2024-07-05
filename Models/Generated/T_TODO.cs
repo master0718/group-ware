@@ -19,7 +19,7 @@ namespace web_groupware.Models
         public int deadline_set {get; set;}
         public int response_status {get; set;}
         [Column(TypeName = "nvarchar(64)")]
-        public string? staf_name {get; set;}
+        public string? staf_cd {get; set;}
         [Column(TypeName = "varchar(10)")]
         public string update_user { get; set; }
 

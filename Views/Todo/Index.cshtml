@@ -58,7 +58,7 @@
         @foreach (var item in Model.fileList)
         {
             <div class="d-flex gap-2 border border-dark border-1 rounded-1 m-auto my-3 justify-content-between w-50 todo"
-                role="button" tabindex="0" data-id="@item.id" data-status="@item.response_status" data-deadline="@item.deadline_set" data-user="@item.staf_name">
+                role="button" tabindex="0" data-id="@item.id" data-status="@item.response_status" data-deadline="@item.deadline_set" data-user="@item.staf_cd">
                 <div class="m-auto" style="width: 90%;" >
                     <div class="d-flex justify-content-between fs-4 fw-bold my-1">
                         <div>
@@ -75,7 +75,7 @@
                         <div class="d-flex text-end gap-5">
                             <span>@((item.group_set == 0) ? "複数人" : "グループ")</span>
 
-                            <span>@item.staf_name</span>
+                            <span>@item.staf_cd</span>
 
                             <span>@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
                         </div>
