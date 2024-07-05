@@ -41,7 +41,7 @@
 
             <div class="card-body">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input hidden asp-for="@Model.id" />
+                <input hidden asp-for="@Model.todo_no" />
                 <input hidden asp-for="@Model.Delete_files" />
                 <input hidden asp-for="@Model.has_file" />
 
@@ -95,7 +95,7 @@
                 <div class="row mb-3" id="fileArea">
                     <input type="hidden" asp-for="@Model.work_dir">
                     <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.TODO">
-                    <input type="hidden" id="dir_no" value="@Model.id">
+                    <input type="hidden" id="dir_no" value="@Model.todo_no">
 
                     <div class="col-12 dropArea border-0 p-2">
                         <div id="drag_area" class="text-center px-3 py-3 bg-white">
@@ -201,7 +201,7 @@
 
     <script>
         var deleteAction = "Delete"
-        var deleteKey = "id"
-        var deleteId = $('#id').val()
+        var deleteKey = "todo_no"
+        var deleteId = $('#todo_no').val()
     </script>
 }

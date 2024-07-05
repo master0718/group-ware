@@ -1,7 +1,7 @@
 $(function () {
     $('.card-body').on('click', '.todo', function() {
         let itemId = $(this).data('id');
-        window.location.href = baseUrl + `Todo/Update?id=${itemId}`
+        window.location.href = baseUrl + `Todo/Update?todo_no=${itemId}`
     })
     
     $('#keyword').on('keydown', function(event) {

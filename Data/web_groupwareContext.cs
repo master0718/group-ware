@@ -80,7 +80,7 @@ namespace web_groupware.Data
             modelBuilder.Entity<T_GROUPSTAFF>()
                 .HasKey(c => new { c.staf_cd, c.group_cd });
             modelBuilder.Entity<T_TODO>()
-                .HasKey(k => new { k.id });
+                .HasKey(k => new { k.todo_no });
             modelBuilder.Entity<T_TODO_FILE>()
                 .HasKey(c => new { c.todo_no, c.file_no });
             modelBuilder.Entity<T_ATTENDANCE_DATE>()

@@ -8,7 +8,7 @@ namespace web_groupware.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 
-        public int id {get; set;}
+        public int todo_no {get; set;}
         [Column(TypeName ="nvarchar(64)")]
         public string? title { get; set; }
         public string? description { get; set; }

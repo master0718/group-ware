@@ -7,7 +7,7 @@ namespace web_groupware.Models
 {
     public class TodoDetail
     {
-        public int id {get; set;}
+        public int todo_no { get; set;}
         [Column(TypeName ="nvarchar(64)")]
         public string? title { get; set; }
         public string? description { get; set; }
@@ -46,7 +46,7 @@ namespace web_groupware.Models
         public List<TodoDetail>? fileList = new List<TodoDetail>();
         public List<UserInfo>? userList = new List<UserInfo>();
         public List<T_TODO>? todoList = new List<T_TODO>();
-        public int id { get; set; }
+        public int todo_no { get; set; }
 
         public string? title { get; set; }
         [Column(TypeName = "nvarchar(64)")]
@@ -84,7 +84,7 @@ namespace web_groupware.Models
     {
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int id { get; set; }
+        public int todo_no { get; set; }
         public int public_set { get; set; }
         public string description { get; set; }
         public string title { get; set; }

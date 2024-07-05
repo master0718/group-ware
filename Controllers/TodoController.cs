@@ -63,7 +63,7 @@ namespace web_groupware.Controllers
             {
                 model.fileList.Add(new TodoDetail
                 {
-                    id = item.id,
+                    todo_no = item.todo_no,
                     sendUrl = item.sendUrl,
                     title = item.title,
                     description = item.description == null ? "" : item.description,
@@ -113,7 +113,7 @@ namespace web_groupware.Controllers
 
                 model.fileList.AddRange(todoList.Select(todo => new TodoDetail
                 {
-                    id = todo.id,
+                    todo_no = todo.todo_no,
                     sendUrl = todo.sendUrl,
                     title = todo.title,
                     description = todo.description,
@@ -229,7 +229,7 @@ namespace web_groupware.Controllers
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
                     var model = new T_TODO
                     {
-                        id = todo_no,
+                        todo_no = todo_no,
                         title = request.title,
                         description = request.description,
                         sendUrl = request.sendUrl,
@@ -335,11 +335,11 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public IActionResult Update(int todo_no)
         {
             try
             {
-                var viewModel = getTodoDetail(id);
+                var viewModel = getTodoDetail(todo_no);
                 PrepareViewModel(viewModel);
                 if (viewModel == null)
                 {
@@ -363,21 +363,21 @@ namespace web_groupware.Controllers
         }
 
 
-        public async Task<T_TODO> itemGet(int id)
+        public async Task<T_TODO> itemGet(int todo_no)
         {
 
-            var item = await _context.T_TODO.FirstOrDefaultAsync(m => m.id == id);
+            var item = await _context.T_TODO.FirstOrDefaultAsync(m => m.todo_no == todo_no);
 
             return item;
         }
 
-        public TodoViewModel? getTodoDetail(int id)
+        public TodoViewModel? getTodoDetail(int todo_no)
         {
-            var item = _context.T_TODO.FirstOrDefault(m => m.id == id);
+            var item = _context.T_TODO.FirstOrDefault(m => m.todo_no == todo_no);
 
             var model = new TodoViewModel
             {
-                id = item.id,
+                todo_no = item.todo_no,
                 title = item.title,
                 description = item.description,
                 public_set = item.public_set,
@@ -392,10 +392,10 @@ namespace web_groupware.Controllers
                 create_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.create_user)).staf_name
             };
 
-            model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
+            model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == todo_no).ToList();
 
-            var myStaffList = _context.T_TODOTARGET.Where(x => x.todo_no == id).ToList();
-            var myGroupList = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == id).ToList();
+            var myStaffList = _context.T_TODOTARGET.Where(x => x.todo_no == todo_no).ToList();
+            var myGroupList = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == todo_no).ToList();
             if (myStaffList != null && myStaffList.Count > 0)
             {
                 int n = 0;
@@ -430,10 +430,10 @@ namespace web_groupware.Controllers
         {
             try
             {
-                if (model.id > 0)
+                if (model.todo_no > 0)
                 {
                     // 編集のみ
-                    model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == model.id).ToList();
+                    model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == model.todo_no).ToList();
                 }
                 model.StaffList = _context.M_STAFF
                     .Where(x => x.retired != 1)
@@ -509,7 +509,7 @@ namespace web_groupware.Controllers
                 var now = DateTime.Now;
                 
 
-                var model = _context.T_TODO.FirstOrDefault(x => x.id == request.id);
+                var model = _context.T_TODO.FirstOrDefault(x => x.todo_no == request.todo_no);
                 model.title = request.title;
                 model.description = request.description;
                 model.public_set = request.public_set;
@@ -539,13 +539,13 @@ namespace web_groupware.Controllers
 
                 _context.T_TODO.Update(model);
 
-                var targetModel = _context.T_TODOTARGET.Where(x => x.todo_no == request.id).ToList();
+                var targetModel = _context.T_TODOTARGET.Where(x => x.todo_no == request.todo_no).ToList();
                 if (targetModel.Count > 0 && targetModel != null)
                 {
                     _context.T_TODOTARGET.RemoveRange(targetModel);
                 }
 
-                var targetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.id).ToList();
+                var targetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.todo_no).ToList();
                 if (targetGroup.Count > 0 && targetGroup != null)
                 {
                     _context.T_TODOTARGET_GROUP.RemoveRange(targetGroup);
@@ -557,12 +557,12 @@ namespace web_groupware.Controllers
                     var type = item[..1];
                     if (type == "S")
                     {
-                        var target = new T_TODOTARGET(request.id, cd);
+                        var target = new T_TODOTARGET(request.todo_no, cd);
                         _context.Add(target);
                     }
                     else
                     {
-                        var group = new T_TODOTARGET_GROUP(request.id, cd);
+                        var group = new T_TODOTARGET_GROUP(request.todo_no, cd);
                         _context.Add(group);
                     }
                 }
@@ -571,12 +571,12 @@ namespace web_groupware.Controllers
                 if (request.Delete_files != null)
                 {
                     var arr_delete_files = request.Delete_files.Split(':');
-                    string dir_main = Path.Combine(_uploadPath, request.id.ToString());
+                    string dir_main = Path.Combine(_uploadPath, request.todo_no.ToString());
                     for (int i = 0; i < arr_delete_files.Length; i++)
                     {
                         if (arr_delete_files[i] != "")
                         {
-                            var model_file = _context.T_TODO_FILE.First(x => x.todo_no == request.id && x.filename == arr_delete_files[i]);
+                            var model_file = _context.T_TODO_FILE.First(x => x.todo_no == request.todo_no && x.filename == arr_delete_files[i]);
                             _context.T_TODO_FILE.Remove(model_file);
 
                             var filepath = Path.Combine(dir_main, arr_delete_files[i]);
@@ -586,7 +586,7 @@ namespace web_groupware.Controllers
                     }
                 }
 
-                AddFiles(request.work_dir, request.id);
+                AddFiles(request.work_dir, request.todo_no);
 
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -677,29 +677,29 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int todo_no)
         {
             try
             {
-                var todoTarget = _context.T_TODOTARGET.Where(x => x.todo_no == id).ToList();
+                var todoTarget = _context.T_TODOTARGET.Where(x => x.todo_no == todo_no).ToList();
                 if (todoTarget.Count > 0 && todoTarget != null)
                 {
                     _context.T_TODOTARGET.RemoveRange(todoTarget);
                 }
 
-                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == id).ToList();
+                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == todo_no).ToList();
                 if (todoTargetGroup.Count > 0 && todoTargetGroup != null)
                 {
                     _context.T_TODOTARGET_GROUP.RemoveRange(todoTargetGroup);
                 }
 
-                var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == id).ToList();
+                var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == todo_no).ToList();
                 if (todoFile.Count > 0 && todoFile != null)
                 {
                     _context.T_TODO_FILE.RemoveRange(todoFile);
                 }
 
-                var todo = _context.T_TODO.FirstOrDefault(x => x.id == id);
+                var todo = _context.T_TODO.FirstOrDefault(x => x.todo_no == todo_no);
                 if (todo != null)
                 {
                     _context.T_TODO.Remove(todo);
