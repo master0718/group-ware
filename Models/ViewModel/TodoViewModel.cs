@@ -76,10 +76,17 @@ namespace web_groupware.Models
         public string[] MyStaffList { get; set; } = Array.Empty<string>();
         public List<StaffModel> StaffList { get; set; } = new List<StaffModel>();
         public List<EmployeeGroupModel> GroupList { get; set; } = new List<EmployeeGroupModel>();
-        public string update_user { get; set; }
-        public String update_date { get; set; }
-        public string create_user { get; set; }
-        public String create_date { get; set; }
+        [DisplayName("登録者")]
+        public string? create_user { get; set; }
+
+        [DisplayName("登録日時")]
+        public string? create_date { get; set; }
+
+        [DisplayName("更新者")]
+        public string? update_user { get; set; }
+
+        [DisplayName("更新日時")]
+        public string? update_date { get; set; }
     }
 
     public class TodoUpdateModel
