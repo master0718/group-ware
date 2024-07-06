@@ -1,21 +1,17 @@
 $(function () {
-    // $('.card-body').on('click', '.todo', function() {
-    //     let itemId = $(this).data('id');
-    //     window.location.href = baseUrl + `Todo/Update?todo_no=${itemId}`
-    // })
 
-    $('.btnUpdate').on('click', function(){
+    $(document).on('click', '.btnUpdate', function() {
         var todo_no = $(this).closest('.todo').data('id')
         window.location.href = baseUrl + `Todo/Update?todo_no=${todo_no}`
     });
 
-    $('.btnDelete').on('click', function(){
+    $(document).on('click', '.btnDelete', function() {
         var todo_no = $(this).closest('.todo').data('id')
         window.location.href = baseUrl + `Todo/Delete?todo_no=${todo_no}`
     });
 
     $('#keyword').on('keydown', function(event) {
-        if (event.which == 13) {
+        if (event.which == 13) {    
             event.preventDefault();
             filterResponse();
         }
@@ -35,9 +31,15 @@ function filterResponse() {
 
     $.ajax({
         method: "get",
-        url: 'Todo/TodoList' + '?response_status=' + responseStatus + '&deadline_set=' + deadlineSet + '&keyword=' + keyword,
+        url: `${baseUrl}Todo/TodoList`,
+        data: {
+            response_status: responseStatus,
+            deadline_set: deadlineSet,
+            keyword: keyword
+        },
         success: function (result) {
             $('.card-body').html(result);
+            checkDeadlineDate();
         },
         error: function (xhr) {
             console.log("Error:" + xhr.responseText);

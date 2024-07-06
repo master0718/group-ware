@@ -38,8 +38,6 @@ $(function () {
     $("#MyStaffList").selectize({
         plugins: ["remove_button"]
     })
-
-    // checkHasFile();
 })
 
 function showEndDate() {
@@ -51,12 +49,3 @@ function showEndDate() {
         $("#deadline_date_area").css('display', 'block')
     }
 }
-
-// function checkHasFile() {
-//     var $divIcon = $('#div_icon');
-//     if ($divIcon.children().length === 0) {
-//         console.log('The div does not contain any tags.');
-//     } else {
-//         console.log('The div contains tags.');
-//     }
-// }
