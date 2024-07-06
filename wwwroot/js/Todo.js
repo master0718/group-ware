@@ -1,9 +1,19 @@
 $(function () {
-    $('.card-body').on('click', '.todo', function() {
-        let itemId = $(this).data('id');
-        window.location.href = baseUrl + `Todo/Update?todo_no=${itemId}`
-    })
-    
+    // $('.card-body').on('click', '.todo', function() {
+    //     let itemId = $(this).data('id');
+    //     window.location.href = baseUrl + `Todo/Update?todo_no=${itemId}`
+    // })
+
+    $('.btnUpdate').on('click', function(){
+        var todo_no = $(this).closest('.todo').data('id')
+        window.location.href = baseUrl + `Todo/Update?todo_no=${todo_no}`
+    });
+
+    $('.btnDelete').on('click', function(){
+        var todo_no = $(this).closest('.todo').data('id')
+        window.location.href = baseUrl + `Todo/Delete?todo_no=${todo_no}`
+    });
+
     $('#keyword').on('keydown', function(event) {
         if (event.which == 13) {
             event.preventDefault();

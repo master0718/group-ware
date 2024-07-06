@@ -74,6 +74,7 @@ namespace web_groupware.Controllers
                     staf_cd = item.staf_cd,
                     deadline_date = item.deadline_date,
                     has_file = item.has_file,
+                    create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
                 });
             }
 
@@ -123,7 +124,8 @@ namespace web_groupware.Controllers
                     public_set = todo.public_set,
                     staf_cd = todo.staf_cd,
                     deadline_date = todo.deadline_date,
-                    has_file = todo.has_file
+                    has_file = todo.has_file,
+                    create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                 }));
                 return PartialView("_TodoListPartial", model);
             }
@@ -677,29 +679,57 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int todo_no)
+        public IActionResult Delete(int todo_no)
         {
             try
             {
-                var todoTarget = _context.T_TODOTARGET.Where(x => x.todo_no == todo_no).ToList();
+                var viewModel = getTodoDetail(todo_no);
+                PrepareViewModel(viewModel);
+                if (viewModel == null)
+                {
+                    return (IActionResult)Index();
+                }
+
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string dir = Path.Combine(_uploadPath, dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(dir);
+                viewModel.work_dir = dir_work;
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(TodoViewModel request)
+        {
+            try
+            {
+                var todoTarget = _context.T_TODOTARGET.Where(x => x.todo_no == request.todo_no).ToList();
                 if (todoTarget.Count > 0 && todoTarget != null)
                 {
                     _context.T_TODOTARGET.RemoveRange(todoTarget);
                 }
 
-                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == todo_no).ToList();
+                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.todo_no).ToList();
                 if (todoTargetGroup.Count > 0 && todoTargetGroup != null)
                 {
                     _context.T_TODOTARGET_GROUP.RemoveRange(todoTargetGroup);
                 }
 
-                var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == todo_no).ToList();
+                var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == request.todo_no).ToList();
                 if (todoFile.Count > 0 && todoFile != null)
                 {
                     _context.T_TODO_FILE.RemoveRange(todoFile);
                 }
 
-                var todo = _context.T_TODO.FirstOrDefault(x => x.todo_no == todo_no);
+                var todo = _context.T_TODO.FirstOrDefault(x => x.todo_no == request.todo_no);
                 if (todo != null)
                 {
                     _context.T_TODO.Remove(todo);

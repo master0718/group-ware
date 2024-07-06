@@ -22,6 +22,7 @@ namespace web_groupware.Models
         [DataType(DataType.DateTime)]
         public DateTime? deadline_date { get; set; }
         public int? has_file { get; set; }
+        public string? create_date { get; set; }
     }
 
     public class UserInfo
