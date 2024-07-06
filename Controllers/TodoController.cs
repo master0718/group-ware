@@ -73,8 +73,8 @@ namespace web_groupware.Controllers
                     response_status = item.response_status,
                     staf_cd = item.staf_cd,
                     deadline_date = item.deadline_date,
-                    has_file = item.has_file,
                     create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
+                    has_file = _context.T_TODO_FILE.Where(x => x.todo_no == item.todo_no).ToList().Count()
                 });
             }
 
@@ -124,8 +124,8 @@ namespace web_groupware.Controllers
                     public_set = todo.public_set,
                     staf_cd = todo.staf_cd,
                     deadline_date = todo.deadline_date,
-                    has_file = todo.has_file,
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
+                    has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
                 return PartialView("_TodoListPartial", model);
             }
@@ -222,12 +222,7 @@ namespace web_groupware.Controllers
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
-                    var has_file = 0;
-                    if(request.File.Count > 0)
-                    {
-                        has_file = 1;
-                    }
-
+                    
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
                     var model = new T_TODO
                     {
@@ -243,7 +238,6 @@ namespace web_groupware.Controllers
                         deadline_date = request.deadline_date,
                         update_user = user_id,
                         update_date = now,
-                        has_file = has_file,
                         create_date = now,
                         create_user = user_id,
                     };
@@ -387,7 +381,6 @@ namespace web_groupware.Controllers
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
                 deadline_date = item.deadline_date,
-                has_file = item.has_file,
                 update_date = item.update_date.ToString("yyyy-MM-dd H:m"),
                 update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.update_user)).staf_name,
                 create_date = item.create_date.ToString("yyyy-MM-dd H:m"),
@@ -520,7 +513,6 @@ namespace web_groupware.Controllers
                 model.update_date = now;
                 model.response_status = request.response_status;
                 model.update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_name == request.update_user).staf_cd.ToString();
-                model.has_file = request.has_file;
                 if (request.deadline_set == 0)
                 {
                     model.deadline_date = null;
@@ -530,15 +522,6 @@ namespace web_groupware.Controllers
                     model.deadline_date = request.deadline_date;
                 }
                 
-                /*if(request.File.Count > 0)
-                {
-                    model.has_file = 1;
-                }
-                else
-                {
-                    model.has_file = 0;
-                }*/
-
                 _context.T_TODO.Update(model);
 
                 var targetModel = _context.T_TODOTARGET.Where(x => x.todo_no == request.todo_no).ToList();

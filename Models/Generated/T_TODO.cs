@@ -27,7 +27,6 @@ namespace web_groupware.Models
         public DateTime update_date { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime? deadline_date { get; set; }
-        public int? has_file { get; set; }
         [Column(TypeName = "varchar(10)")]
         public string create_user { get; set; }
 

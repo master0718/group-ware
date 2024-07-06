@@ -69,7 +69,6 @@ namespace web_groupware.Models
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();
         public string? work_dir { get; set; }
         public List<TodoViewModelStaff>? staffList = new();
-        public int? has_file { get; set; }
         [DisplayName("宛先")]
         //[Required(ErrorMessage = Messages.REQUIRED)]
         [MinLength(1, ErrorMessage = Messages.REQUIRED)]
