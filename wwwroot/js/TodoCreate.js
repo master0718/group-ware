@@ -38,6 +38,12 @@ $(function () {
     $("#MyStaffList").selectize({
         plugins: ["remove_button"]
     })
+
+    toggleDatePicker();
+
+    $("input[name='deadline_set']").on('change', function () {
+        toggleDatePicker();
+    });
 })
 
 function showEndDate() {
@@ -47,5 +53,14 @@ function showEndDate() {
     }
     if(deadline_set == 1) {
         $("#deadline_date_area").css('display', 'block')
+    }
+}
+
+function toggleDatePicker() {
+    var deadline_set = $("input[name='deadline_set']:checked").val();
+    if (deadline_set == 0) {
+        $("#deadline_date").prop('disabled', true);
+    } else if (deadline_set == 1) {
+        $("#deadline_date").prop('disabled', false);
     }
 }

@@ -60,17 +60,23 @@
 
                 <div class="form-group mb-3">
                     <label asp-for="@Model.deadline_set" class="form-label">期限</label>
-                    <select asp-for="@Model.deadline_set" class="form-select w-50 bg-white" aria-label="期限" id="s_deadline" onchange=showEndDate()>
-                        <option value="0">期限なし</option>
-                        <option value=1>期限あり</option>
-                    </select>
-                </div>
-
-                <div class="form-group mb-3" id="deadline_date_area">
-                    <label asp-for="@Model.deadline_set" class="form-label">期限あり</label>
-                    <div class="input-group position-relative me-3 w-50" id="input-repeatdate-from-wrapper">
-                        <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.deadline_date" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-from-wrapper" readonly>
-                        <span class="input-group-text" id="repeatdate-from-icon"><i class="bi bi-calendar-event"></i></span>
+                    <div class="form-group row mt-3 px-3">
+                        <div class="col-2 mb-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input me-1" type="radio" value="0" asp-for="@Model.deadline_set" checked /> 無し
+                            </label>
+                        </div>
+                        <div class="col mb-4 d-flex">
+                            <label class="form-check-label" style="width:80px">
+                                <input class="form-check-input me-1" type="radio" value="1" asp-for="@Model.deadline_set" /> 期日
+                            </label>
+                            <div class="d-flex" style="margin-top:-8px">
+                                <div class="input-group position-relative me-3" id="input-repeatdate-from-wrapper">
+                                    <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.deadline_date" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-repeatdate-from-wrapper" disabled>
+                                    <span class="input-group-text" id="repeatdate-from-icon"><i class="bi bi-calendar-event"></i></span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -109,7 +115,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="@Model.response_status" class="form-label">期限</label>
+                    <label asp-for="@Model.response_status" class="form-label">状態</label>
                     <select asp-for="@Model.response_status" class="form-select w-50 bg-white" aria-label="状態" id="s_response">
                         <option value="0">未対応</option>
                         <option value=1>対応中</option>
