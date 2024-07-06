@@ -51,7 +51,7 @@ namespace web_groupware.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? response_status = null, string? deadline_set = null, string? keyword = null)
         {
             var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
             TodoViewModel model = new TodoViewModel();
@@ -90,24 +90,24 @@ namespace web_groupware.Controllers
 
         }
 
-        [HttpGet]
-        public IActionResult TodoList(int response_status, int deadline_set, string keyword)
+        [HttpPost]
+        public IActionResult Index(TodoViewModel request)
         {
             try
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var todoList = _context.T_TODO.Where(x => x.staf_cd == user_id).ToList();
-                if (response_status != -1)
+                if (request.search_response_status != "-1")
                 {
-                    todoList = todoList.Where(x => x.response_status == response_status).ToList();
+                    todoList = todoList.Where(x => x.response_status == Convert.ToInt32(request.search_response_status)).ToList();
                 }
-                if (deadline_set != -1)
+                if (request.search_deadline_set != "-1")
                 {
-                    todoList = todoList.Where(x => x.deadline_set == deadline_set).ToList();
+                    todoList = todoList.Where(x => x.deadline_set == Convert.ToInt32(request.search_deadline_set)).ToList();
                 }
-                if (keyword != null)
+                if (request.search_keyword != null)
                 {
-                    todoList = todoList.Where(x => x.title.Contains(keyword) || x.description.Contains(keyword)).ToList();
+                    todoList = todoList.Where(x => x.title.Contains(request.search_keyword) || x.description.Contains(request.search_keyword)).ToList();
                 }
 
                 TodoViewModel model = new TodoViewModel();
@@ -127,7 +127,7 @@ namespace web_groupware.Controllers
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
-                return PartialView("_TodoListPartial", model);
+                return View(model);
             }
             catch (Exception ex)
             {

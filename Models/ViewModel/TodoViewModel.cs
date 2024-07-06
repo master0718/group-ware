@@ -86,6 +86,9 @@ namespace web_groupware.Models
 
         [DisplayName("更新日時")]
         public string? update_date { get; set; }
+        public string? search_deadline_set { get; set; }
+        public string? search_response_status { get; set; }
+        public string? search_keyword { get; set; }
     }
 
     public class TodoUpdateModel
@@ -101,4 +104,9 @@ namespace web_groupware.Models
         public int response_status { get; set; }
     }
 
+    public class TodoSearchForm
+    {
+
+       
+    }
 }

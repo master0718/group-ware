@@ -1,5 +1,4 @@
 $(function () {
-
     $(document).on('click', '.btnUpdate', function() {
         var todo_no = $(this).closest('.todo').data('id')
         window.location.href = baseUrl + `Todo/Update?todo_no=${todo_no}`
@@ -25,26 +24,7 @@ $(function () {
 })
 
 function filterResponse() {
-    var keyword = $('#keyword').val();
-    var responseStatus = $("#select-response").val();
-    var deadlineSet = $("#select-deadline").val();
-
-    $.ajax({
-        method: "get",
-        url: `${baseUrl}Todo/TodoList`,
-        data: {
-            response_status: responseStatus,
-            deadline_set: deadlineSet,
-            keyword: keyword
-        },
-        success: function (result) {
-            $('.card-body').html(result);
-            checkDeadlineDate();
-        },
-        error: function (xhr) {
-            console.log("Error:" + xhr.responseText);
-        }
-    })
+    $('#searchForm').trigger("submit")
 };
 
 function checkDeadlineDate() {
