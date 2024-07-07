@@ -7,7 +7,7 @@ namespace web_groupware.Models
     public class ReportViewModel
     {
         [DataType(DataType.Date)]
-        public DateTime? cond_date { get; set; }
+        public string? cond_date { get; set; }
         public string cond_already_read { get; set; } 
         public List<SelectListItem> list_already_read { get; set; } = new List<SelectListItem>();
         public List<List<Report>> list_report = new List<List<Report>>();

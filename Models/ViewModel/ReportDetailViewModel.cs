@@ -10,7 +10,7 @@ namespace web_groupware.Models
     {
         public int? mode { get; set; }
         [DataType(DataType.Date)]
-        public DateTime? cond_date { get; set; }
+        public string? cond_date { get; set; }
         public string cond_already_read {  get; set; }
         public int? report_no { get; set; }
         [DisplayName("日報年月日")]

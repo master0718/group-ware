@@ -47,7 +47,7 @@ namespace web_groupware.Controllers
                 //初期表示と判断
                 if (model.cond_already_read==null)
                 {
-                    model.cond_date = DateTime.Now;
+                    model.cond_date = DateTime.Now.ToString("yyyy/MM/dd");
                     model.cond_already_read = "1";
                 }
                 model = createViewModel(model.cond_date, model.cond_already_read);
@@ -61,7 +61,7 @@ namespace web_groupware.Controllers
             }
         }
 
-        public ReportViewModel createViewModel(DateTime? date, string cont_already_read_flg)//cont_already_read_flg=1は未読
+        public ReportViewModel createViewModel(string? date, string cont_already_read_flg)//cont_already_read_flg=1は未読
         {
             try
             {
@@ -183,7 +183,7 @@ namespace web_groupware.Controllers
                     model = createDetailViewModel(mode, report_no);
                     //Update_already_checked(report_no);
                 }
-                model.cond_date = cond_date;
+                model.cond_date = cond_date?.ToString("yyyy/MM/dd");
                 model.cond_already_read = cond_already_read;
             }
             catch (Exception ex)
