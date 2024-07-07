@@ -18,6 +18,7 @@ $(function () {
     })
 
     $('.btnCreate').on('click', function (e) {
+        action = "submit";
         $('.loading').show()
 
         $('#todoForm').trigger("submit");
@@ -30,6 +31,7 @@ $(function () {
     })
 
     $('.btnUpdate').on('click', function (e) {
+        action = "submit";
         $('.loading').show()
 
         $('#todoForm').trigger("submit")
