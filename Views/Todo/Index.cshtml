@@ -59,7 +59,7 @@
                         <div class="card-body">
                             <div class="card-text">
                                 <div class="d-flex justify-content-between fs-4 fw-bold my-1">
-                                    <div class="col-4">
+                                    <div class="col-3">
                                         @if (item.title.Length <= 20)
                                         {
                                             <span>@item.title</span>
@@ -70,17 +70,6 @@
                                             <span>...</span>
                                         }
                                     </div>
-                                    <span class="col-2">@((item.group_set == 0) ? "複数人" : "グループ")</span>
-
-                                    <span class="col-1">@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
-                                    @if (item.deadline_date != null)
-                                    {
-                                        <span class="col-3 deadline-date" data-deadline-date="@item.deadline_date">@item.deadline_date</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="col-3"></span>
-                                    }
                                     @if(item.has_file > 0)
                                     {
                                         <div class="d-flex my-auto col-1">
@@ -90,6 +79,17 @@
                                     else
                                     {
                                         <div class="col-1"></div>
+                                    }
+                                    <span class="col-2">@((item.group_set == 0) ? "複数人" : "グループ")</span>
+
+                                    <span class="col-2">@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
+                                    @if (item.deadline_date != null)
+                                    {
+                                        <span class="col-3 deadline-date" data-deadline-date="@item.deadline_date">@item.deadline_date</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="col-3"></span>
                                     }
                                     @{
                                         switch (item.response_status)

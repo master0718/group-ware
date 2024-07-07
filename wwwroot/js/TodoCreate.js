@@ -35,8 +35,42 @@ $(function () {
         $('#todoForm').trigger("submit")
     })
 
+    var staffListOfGroup = {}
+    $("[data-staff_cds]").each(function () {
+        var groupCd = $(this).val()
+        var staffCds_ = String($(this).data("staff_cds"))
+        var staffCds = staffCds_.split(",")
+        staffListOfGroup[groupCd] = staffCds
+    })
+    
     $("#MyStaffList").selectize({
         plugins: ["remove_button"]
+    })
+
+    var programmaticallyChanging = false
+    $('#MyStaffList').on('change', function (e) {
+        if (!programmaticallyChanging) {
+            var selectize = $("#MyStaffList").selectize()
+            var selectize_ = selectize[0].selectize
+            var newValue = []
+            var curValue = selectize_.getValue()
+            for (var i = 0; i < curValue.length; i++) {
+                var val = curValue[i]
+                if (val.startsWith("G")) {
+                    var g = staffListOfGroup[val]
+                    for (var j = 0; j < g.length; j++) {
+                        if (!g[j]) continue;
+                        if (newValue.indexOf("S-" + g[j]) == -1)
+                            newValue.push("S-" + g[j])
+                    }
+                } else {
+                    newValue.push(val)
+                }
+            }
+            programmaticallyChanging = true
+            selectize_.setValue(newValue)
+            programmaticallyChanging = false
+        }
     })
 
     toggleDatePicker();

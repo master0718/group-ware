@@ -19,7 +19,7 @@ namespace web_groupware.Models
         public int response_status {get; set;}
         [Column(TypeName = "nvarchar(64)")]
         public string? staf_cd {get; set;}
-        public DateTime? deadline_date { get; set; }
+        public string? deadline_date { get; set; }
         public int? has_file { get; set; }
         public string? create_date { get; set; }
     }
@@ -63,7 +63,7 @@ namespace web_groupware.Models
         public string? staf_cd { get; set; }
         public string? Delete_files { get; set; }
         [DataType(DataType.DateTime)]
-        public DateTime? deadline_date { get; set; }
+        public string? deadline_date { get; set; }
         [DisplayName("添付ファイル")]
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();

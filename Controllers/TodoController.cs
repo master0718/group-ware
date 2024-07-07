@@ -16,6 +16,7 @@ using NuGet.Protocol.Plugins;
 using Microsoft.Data.SqlClient;
 using System.Text;
 using System.IO.Packaging;
+using System.Globalization;
 
 
 namespace web_groupware.Controllers
@@ -72,7 +73,7 @@ namespace web_groupware.Controllers
                     deadline_set = item.deadline_set,
                     response_status = item.response_status,
                     staf_cd = item.staf_cd,
-                    deadline_date = item.deadline_date,
+                    deadline_date = item.deadline_date?.ToString("yyyy/MM/dd"),
                     create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == item.todo_no).ToList().Count()
                 });
@@ -123,7 +124,7 @@ namespace web_groupware.Controllers
                     group_set = todo.group_set,
                     public_set = todo.public_set,
                     staf_cd = todo.staf_cd,
-                    deadline_date = todo.deadline_date,
+                    deadline_date = todo.deadline_date?.ToString("yyyy/MM/dd"),
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
@@ -224,6 +225,16 @@ namespace web_groupware.Controllers
                     var now = DateTime.Now;
                     
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
+
+                    DateTime? deadlineDate = null;
+                    if (!string.IsNullOrEmpty(request.deadline_date))
+                    {
+                        if (DateTime.TryParseExact(request.deadline_date, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                        {
+                            deadlineDate = parsedDate;
+                        }
+                    }
+
                     var model = new T_TODO
                     {
                         todo_no = todo_no,
@@ -235,7 +246,7 @@ namespace web_groupware.Controllers
                         deadline_set = request.deadline_set,
                         response_status = request.response_status,
                         staf_cd = user_id,
-                        deadline_date = request.deadline_date,
+                        deadline_date = deadlineDate,
                         update_user = user_id,
                         update_date = now,
                         create_date = now,
@@ -252,11 +263,6 @@ namespace web_groupware.Controllers
                         {
                             var target = new T_TODOTARGET(todo_no, cd);
                             _context.Add(target);
-                        }
-                        else
-                        {
-                            var group = new T_TODOTARGET_GROUP(todo_no, cd);
-                            _context.Add(group);
                         }
                     }
 
@@ -380,7 +386,7 @@ namespace web_groupware.Controllers
                 group_set = item.group_set,
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
-                deadline_date = item.deadline_date,
+                deadline_date = item.deadline_date?.ToString("yyyy/MM/dd"),
                 update_date = item.update_date.ToString("yyyy-MM-dd H:m"),
                 update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == Convert.ToInt32(item.update_user)).staf_name,
                 create_date = item.create_date.ToString("yyyy-MM-dd H:m"),
@@ -390,14 +396,11 @@ namespace web_groupware.Controllers
             model.fileModel.fileList = _context.T_TODO_FILE.Where(x => x.todo_no == todo_no).ToList();
 
             var myStaffList = _context.T_TODOTARGET.Where(x => x.todo_no == todo_no).ToList();
-            var myGroupList = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == todo_no).ToList();
             if (myStaffList != null && myStaffList.Count > 0)
             {
                 int n = 0;
                 if (myStaffList != null)
                     n += myStaffList.Count;
-                if (myGroupList != null)
-                    n += myGroupList.Count;
 
                 model.MyStaffList = new string[n];
                 int i = 0;
@@ -409,13 +412,6 @@ namespace web_groupware.Controllers
                     }
                 }
 
-                if(myGroupList != null)
-                {
-                    foreach(var group in myGroupList)
-                    {
-                        model.MyStaffList[i++] = "G-" + group.group_cd;
-                    }
-                }
             }
 
             return model;
@@ -519,7 +515,7 @@ namespace web_groupware.Controllers
                 }
                 else
                 {
-                    model.deadline_date = request.deadline_date;
+                    model.deadline_date = DateTime.ParseExact(request.deadline_date, "yyyy/MM/dd", CultureInfo.InvariantCulture);
                 }
                 
                 _context.T_TODO.Update(model);
@@ -530,12 +526,6 @@ namespace web_groupware.Controllers
                     _context.T_TODOTARGET.RemoveRange(targetModel);
                 }
 
-                var targetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.todo_no).ToList();
-                if (targetGroup.Count > 0 && targetGroup != null)
-                {
-                    _context.T_TODOTARGET_GROUP.RemoveRange(targetGroup);
-                }
-
                 foreach (var item in request.MyStaffList)
                 {
                     var cd = Convert.ToInt32(item[2..]);
@@ -544,11 +534,6 @@ namespace web_groupware.Controllers
                     {
                         var target = new T_TODOTARGET(request.todo_no, cd);
                         _context.Add(target);
-                    }
-                    else
-                    {
-                        var group = new T_TODOTARGET_GROUP(request.todo_no, cd);
-                        _context.Add(group);
                     }
                 }
 
@@ -698,12 +683,6 @@ namespace web_groupware.Controllers
                 if (todoTarget.Count > 0 && todoTarget != null)
                 {
                     _context.T_TODOTARGET.RemoveRange(todoTarget);
-                }
-
-                var todoTargetGroup = _context.T_TODOTARGET_GROUP.Where(x => x.todo_no == request.todo_no).ToList();
-                if (todoTargetGroup.Count > 0 && todoTargetGroup != null)
-                {
-                    _context.T_TODOTARGET_GROUP.RemoveRange(todoTargetGroup);
                 }
 
                 var todoFile = _context.T_TODO_FILE.Where(x => x.todo_no == request.todo_no).ToList();
