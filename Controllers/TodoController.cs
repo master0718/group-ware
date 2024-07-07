@@ -88,7 +88,6 @@ namespace web_groupware.Controllers
             }
             
             return View(model);
-
         }
 
         [HttpPost]
@@ -285,35 +284,6 @@ namespace web_groupware.Controllers
                 return RedirectToAction("Index");
             }
         }
-
-   
-        /*[HttpPost]
-        public async Task<IActionResult> FileSave()
-        {
-            try
-            {
-                var file = Request.Form.Files["file"];
-                if (file == null || file.Length == 0)
-                {
-                    return BadRequest("File is not provided or empty.");
-                }
-
-                var uploadsPath = Path.Combine(_environment.WebRootPath, "files");
-                var filePath = Path.Combine(uploadsPath, file.FileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(fileStream);
-                }
-
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error uploading file: {ex.Message}");
-                return StatusCode(500, "An error occurred while uploading the file.");
-            }
-        }*/
 
         [HttpGet]
         public IActionResult DownloadFile(string fileName)
@@ -705,7 +675,6 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
             }
             return RedirectToAction("Index");
-
         }
     }
 }
