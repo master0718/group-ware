@@ -16,7 +16,7 @@
 <div class='card'>
     <div class="card-header d-flex align-items-center">
         <form id="searchForm" method="post" asp-controller="Todo" asp-action="Index" class="col-9 d-flex">
-            <div class="d-flex gap-0 col-lg-3 col-3">
+            <div class="d-flex gap-0 col-lg-4 col-4">
                 <label class=" my-auto text-center w-25">状態</label>
                 <select class="form-select w-50" asp-for="@Model.search_response_status" aria-label="状態" id="select-response" onchange="filterResponse();">
                     <option value="-1" selected>全て</option>
@@ -25,7 +25,7 @@
                     <option value="2">完了</option>
                 </select>
             </div>
-            <div class="d-flex col-lg-3 col-3">
+            <div class="d-flex col-lg-4 col-4">
                 <label class=" my-auto text-center w-25">期限</label>
                 <select class="form-select w-50" asp-for="@Model.search_deadline_set" aria-label="期限" id="select-deadline" onchange="filterResponse();">
                     <option value="-1" selected>全て</option>
@@ -33,7 +33,7 @@
                     <option value="0">期限なし</option>
                 </select>
             </div>
-            <div class="d-flex col-lg-3 col-3">
+            <div class="d-flex col-lg-4 col-4">
                 <div class="input-group me-3">
                     <span class="input-group-text">キーワード</span>
                     <input type="text" id="keyword" asp-for="@Model.search_keyword" class="form-control" placeholder="キーワードを入力" aria-label="キーワード">
@@ -69,20 +69,19 @@
                                             <span>@item.title.Substring(0, 20)</span>
                                             <span>...</span>
                                         }
-                                    </div>
-                                    @if(item.has_file > 0)
-                                    {
-                                        <div class="d-flex my-auto col-1">
+                                        @if(item.has_file > 0)
+                                        {
                                             <i class="fa fa-file"></i>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="col-1"></div>
-                                    }
-                                    <span class="col-2">@((item.group_set == 0) ? "複数人" : "グループ")</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-1"></div>
+                                        }
+                                    </div>
+                                    
+                                    @* <span class="col-3">@((item.group_set == 0) ? "複数人" : "グループ")</span> *@
 
-                                    <span class="col-2">@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
+                                    <span class="col-3">@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
                                     @if (item.deadline_date != null)
                                     {
                                         <span class="col-3 deadline-date" data-deadline-date="@item.deadline_date">@item.deadline_date</span>

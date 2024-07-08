@@ -5,28 +5,39 @@ using web_groupware.Utilities;
 
 namespace web_groupware.Models
 {
-    public class TodoDetail
+    public class TodoModel
     {
-        public int todo_no { get; set;}
-        [Column(TypeName ="nvarchar(64)")]
-        public string? title { get; set; }
-        public string? description { get; set; }
-        [Column(TypeName = "nvarchar(1000)")]
-        public string? sendUrl { get; set; }
-        public int public_set {get; set;}
-        public int group_set {get; set;}
-        public int deadline_set {get; set;}
-        public int response_status {get; set;}
-        [Column(TypeName = "nvarchar(64)")]
-        public string? staf_cd {get; set;}
-        public string? deadline_date { get; set; }
-        public int? has_file { get; set; }
-        public string? create_date { get; set; }
-    }
+        public int todo_no { get; set; }
 
-    public class UserInfo
-    {
-        public string? userName { get; set; }
+        [DisplayName("タイトル")]
+        [Required(ErrorMessage = Messages.REQUIRED)]
+        [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
+        public string? title { get; set; }
+
+        [DisplayName("説明")]
+        public string? description { get; set; }
+
+        public string? sendUrl { get; set; }
+
+        [DisplayName("公開・非公開")]
+        public int public_set { get; set; }
+
+        public int group_set { get; set; }
+
+        [DisplayName("期限")]
+        public int deadline_set { get; set; }
+
+        [DisplayName("状態")]
+        public int response_status { get; set; }
+
+        public string? staf_cd { get; set; }
+
+        public string? deadline_date { get; set; }
+
+        public int? has_file { get; set; }
+
+        [DisplayName("登緑日時")]
+        public string? create_date { get; set; }
     }
 
     public class TodoViewModelStaff
@@ -41,40 +52,57 @@ namespace web_groupware.Models
         public int editable = 0;
     }
 
-    public class TodoViewModel
+    public class TodoDetailModel
     {
-        public List<TodoDetail>? fileList = new List<TodoDetail>();
-        public List<UserInfo>? userList = new List<UserInfo>();
-        public List<T_TODO>? todoList = new List<T_TODO>();
         public int todo_no { get; set; }
 
-        public string? title { get; set; }
-        [Column(TypeName = "nvarchar(64)")]
+        [DisplayName("タイトル")]
+        [Required(ErrorMessage = Messages.REQUIRED)]
+        [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
+        public string title { get; set; }
+
+        [DisplayName("説明")]
         public string? description { get; set; }
-        [Column(TypeName = "nvarchar(1000)")]
+
         public string? sendUrl { get; set; }
+
         [DisplayName("公開・非公開")]
         public int public_set { get; set; }
-        [DisplayName("対象者")] 
+
+        [DisplayName("対象者")]
         public int group_set { get; set; }
+
+        [DisplayName("期限")]
         public int deadline_set { get; set; }
+
+        [DisplayName("状態")]
         public int response_status { get; set; }
-        [Column(TypeName = "nvarchar(64)")]
+
         public string? staf_cd { get; set; }
+
         public string? Delete_files { get; set; }
+
         [DataType(DataType.DateTime)]
         public string? deadline_date { get; set; }
+
         [DisplayName("添付ファイル")]
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
+
         public TodoFileModel fileModel { get; set; } = new TodoFileModel();
+
         public string? work_dir { get; set; }
+
         public List<TodoViewModelStaff>? staffList = new();
+
         [DisplayName("宛先")]
-        //[Required(ErrorMessage = Messages.REQUIRED)]
+        [Required(ErrorMessage = Messages.REQUIRED)]
         [MinLength(1, ErrorMessage = Messages.REQUIRED)]
         public string[] MyStaffList { get; set; } = Array.Empty<string>();
+
         public List<StaffModel> StaffList { get; set; } = new List<StaffModel>();
+
         public List<EmployeeGroupModel> GroupList { get; set; } = new List<EmployeeGroupModel>();
+        
         [DisplayName("登録者")]
         public string? create_user { get; set; }
 
@@ -86,27 +114,44 @@ namespace web_groupware.Models
 
         [DisplayName("更新日時")]
         public string? update_date { get; set; }
-        public string? search_deadline_set { get; set; }
-        public string? search_response_status { get; set; }
-        public string? search_keyword { get; set; }
     }
 
-    public class TodoUpdateModel
+    public class TodoViewModel
     {
+        public List<TodoModel>? fileList = new List<TodoModel>();
 
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int todo_no { get; set; }
+        [DisplayName("タイトル")]
+        [Required(ErrorMessage = Messages.REQUIRED)]
+        [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
+        public string? title { get; set; }
+
+        [DisplayName("説明")]
+        public string? description { get; set; }
+
+        public string? sendUrl { get; set; }
+
+        [DisplayName("公開・非公開")]
         public int public_set { get; set; }
-        public string description { get; set; }
-        public string title { get; set; }
+
         public int group_set { get; set; }
+
+        [DisplayName("期限")]
         public int deadline_set { get; set; }
+
+        [DisplayName("状態")]
         public int response_status { get; set; }
-    }
 
-    public class TodoSearchForm
-    {
+        public string? staf_cd { get; set; }
 
-       
+        public string? deadline_date { get; set; }
+
+        [DisplayName("登録日時")]
+        public string? create_date { get; set; }
+
+        public string? search_deadline_set { get; set; }
+
+        public string? search_response_status { get; set; }
+
+        public string? search_keyword { get; set; }
     }
 }

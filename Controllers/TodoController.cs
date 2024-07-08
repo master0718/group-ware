@@ -17,6 +17,9 @@ using Microsoft.Data.SqlClient;
 using System.Text;
 using System.IO.Packaging;
 using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
+using Azure.Core;
 
 
 namespace web_groupware.Controllers
@@ -54,40 +57,18 @@ namespace web_groupware.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string? response_status = null, string? deadline_set = null, string? keyword = null)
         {
-            var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-            TodoViewModel model = new TodoViewModel();
-
-            var items = await _context.T_TODO.Where(x => x.staf_cd == user_id).ToListAsync();
-            var userInfoList = await _context.M_STAFF.ToListAsync();
-                        
-            foreach (var item in items)
+            try
             {
-                model.fileList.Add(new TodoDetail
-                {
-                    todo_no = item.todo_no,
-                    sendUrl = item.sendUrl,
-                    title = item.title,
-                    description = item.description == null ? "" : item.description,
-                    public_set = item.public_set,
-                    group_set = item.group_set,
-                    deadline_set = item.deadline_set,
-                    response_status = item.response_status,
-                    staf_cd = item.staf_cd,
-                    deadline_date = item.deadline_date?.ToString("yyyy/MM/dd"),
-                    create_date = item.create_date.ToString("yyyy年M月d日 H時m分"),
-                    has_file = _context.T_TODO_FILE.Where(x => x.todo_no == item.todo_no).ToList().Count()
-                });
+                var model = CreateViewModel(response_status, deadline_set, keyword);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
             }
 
-            foreach (var user in userInfoList)
-            {
-                model.userList.Add(new UserInfo
-                {
-                    userName = user.staf_name
-                });
-            }
-            
-            return View(model);
         }
 
         [HttpPost]
@@ -95,24 +76,41 @@ namespace web_groupware.Controllers
         {
             try
             {
+                var model = CreateViewModel(request.search_response_status, request.search_deadline_set, request.search_keyword);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        private TodoViewModel CreateViewModel(string? search_response_status, string? search_deadline_set, string? search_keyword)
+        {
+            try
+            {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+
                 var todoList = _context.T_TODO.Where(x => x.staf_cd == user_id).ToList();
-                if (request.search_response_status != "-1")
+
+                if (search_response_status != "-1" && !search_response_status.IsNullOrEmpty())
                 {
-                    todoList = todoList.Where(x => x.response_status == Convert.ToInt32(request.search_response_status)).ToList();
+                    todoList = todoList.Where(x => x.response_status == Convert.ToInt32(search_response_status)).ToList();
                 }
-                if (request.search_deadline_set != "-1")
+                if (search_deadline_set != "-1" && !search_deadline_set.IsNullOrEmpty())
                 {
-                    todoList = todoList.Where(x => x.deadline_set == Convert.ToInt32(request.search_deadline_set)).ToList();
+                    todoList = todoList.Where(x => x.deadline_set == Convert.ToInt32(search_deadline_set)).ToList();
                 }
-                if (request.search_keyword != null)
+                if (!search_keyword.IsNullOrEmpty())
                 {
-                    todoList = todoList.Where(x => x.title.Contains(request.search_keyword) || x.description.Contains(request.search_keyword)).ToList();
+                    todoList = todoList.Where(x => x.title.Contains(search_keyword) || x.description.Contains(search_keyword)).ToList();
                 }
 
                 TodoViewModel model = new TodoViewModel();
 
-                model.fileList.AddRange(todoList.Select(todo => new TodoDetail
+                model.fileList.AddRange(todoList.Select(todo => new TodoModel
                 {
                     todo_no = todo.todo_no,
                     sendUrl = todo.sendUrl,
@@ -127,7 +125,8 @@ namespace web_groupware.Controllers
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
-                return View(model);
+
+                return model;
             }
             catch (Exception ex)
             {
@@ -147,7 +146,7 @@ namespace web_groupware.Controllers
                     return BadRequest(Message_register.FAILURE_001);
                 }
 
-                var viewModel = new TodoViewModel();
+                var viewModel = new TodoDetailModel();
                 PrepareViewModel(viewModel);
 
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
@@ -171,7 +170,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(TodoViewModel request)
+        public async Task<IActionResult> Create(TodoDetailModel request)
         {
             try
             {
@@ -343,11 +342,11 @@ namespace web_groupware.Controllers
             return item;
         }
 
-        public TodoViewModel? getTodoDetail(int todo_no)
+        public TodoDetailModel? getTodoDetail(int todo_no)
         {
             var item = _context.T_TODO.FirstOrDefault(m => m.todo_no == todo_no);
 
-            var model = new TodoViewModel
+            var model = new TodoDetailModel
             {
                 todo_no = item.todo_no,
                 title = item.title,
@@ -387,7 +386,7 @@ namespace web_groupware.Controllers
             return model;
         }
 
-        private void PrepareViewModel(TodoViewModel model)
+        private void PrepareViewModel(TodoDetailModel model)
         {
             try
             {
@@ -420,7 +419,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update(TodoViewModel request)
+        public async Task<IActionResult> Update(TodoDetailModel request)
         {
             try
             {
@@ -645,7 +644,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(TodoViewModel request)
+        public async Task<IActionResult> Delete(TodoDetailModel request)
         {
             try
             {
