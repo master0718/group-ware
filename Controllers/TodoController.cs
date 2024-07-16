@@ -68,7 +68,6 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
-
         }
 
         [HttpPost]
