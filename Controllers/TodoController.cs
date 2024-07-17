@@ -219,10 +219,10 @@ namespace web_groupware.Controllers
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
-                    
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
 
                     DateTime? deadlineDate = null;
+
                     if (!string.IsNullOrEmpty(request.deadline_date))
                     {
                         if (DateTime.TryParseExact(request.deadline_date, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
