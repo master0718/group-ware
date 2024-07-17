@@ -124,7 +124,6 @@ namespace web_groupware.Controllers
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
-
                 return model;
             }
             catch (Exception ex)
