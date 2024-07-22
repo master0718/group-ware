@@ -59,9 +59,8 @@ namespace web_groupware.Models
         public int comment_no { get; set; }
 
         [DisplayName("内容")]
-        [Required(ErrorMessage = Messages.REQUIRED)]
         [MaxLength(1024, ErrorMessage = Messages.MAXLENGTH)]
-        public string message { get; set; } = string.Empty;
+        public string? message { get; set; }
 
         [DisplayName("登緑者")]
         [Required(ErrorMessage = Messages.REQUIRED)]

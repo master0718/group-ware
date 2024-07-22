@@ -13,7 +13,7 @@ namespace web_groupware.Models
         public int comment_no { get; set; }
 
         [Column(TypeName = "nvarchar(1000)")]
-        public string message { get; set; }
+        public string? message { get; set; }
 
         [Column(TypeName = "varchar(10)")]
         public string create_user { get; set; }

@@ -250,7 +250,7 @@
                                                         </div>
                                                     </button>
                                                     <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                                                        <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="@file.filename">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                                        <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="@file.filename" data-comment_no="@file.comment_no">ﾀﾞｳﾝﾛｰﾄﾞ</button>
                                                     </ul>
                                                 </div>
                                             }
@@ -286,7 +286,7 @@
                     
                     <div class="row mb-3" id="commentFileArea">
                         <input type="hidden" asp-for="@Model.comment_work_dir">
-                        <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARDCOMMENT">
+                        <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
                         
                         <div class="col-12 commentDropArea border-0 p-2">
                             <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
@@ -304,7 +304,7 @@
                         <textarea id="message" class="form-control border resize-none"
                                   rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
                         <div class="p-2 text-end">
-                            <a class="btn btn-sm btn-primary" id="btnAddComment"><i class="bi bi-send me-2"></i>登録</a>
+                            <button class="btn btn-sm btn-primary" id="btnAddComment" disabled><i class="bi bi-send me-2"></i>登録</button>
                         </div>
                     </div>
                 </div>

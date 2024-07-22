@@ -554,7 +554,6 @@ function add_div_icon(filename, drag) {
 }
 
 function add_comment_div_icon(filename, drag) {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!!");
     var count = $('#comment_div_icon').find('.comment_div_icon_child').length;
     var svg = filename.split('.').pop() + ".svg";
 
@@ -646,7 +645,8 @@ $(document).on("click", ".download_file", function () {
 
 $(document).on("click", ".comment_download_file", function () {
     var dic_cd = $('#comment_dic_cd').val();
-    var dir_no = $('#dir_no').val();
+    var comment_no = $(this).data('comment_no');
+    var dir_no = $('#dir_no').val() + '\\' + comment_no;
     var file_name = $(this).data('file_name');
     var dir_no_child = $(this).data('dir_no_child');//フォルダがネストの時に使用
     var url

@@ -83,11 +83,26 @@ $(function () {
         }
     })
 
+    
+
+    $('#comment_drag_area input[type="file"]').on('change', function () {
+        checkButtonState();
+    });
+
+    // Event listener for textarea input
+    $('#message').on('input', function () {
+        checkButtonState();
+    });
+
+    // Initial check
+    checkButtonState();
+
     $('#btnAddComment').on('click', function (e) {
         var url = baseUrl + `Board/AddComment`
         let board_no = $("#board_no").val()
         let message = $("#message").val()
         let work_dir = $("#comment_work_dir").val()
+        $(this).prop('disabled', true);
         $.ajax({
             method: "POST",
             url: url,
@@ -128,6 +143,17 @@ $(function () {
         })
     })
 
+    function checkButtonState() {
+        var filesSelected = $('#comment_drag_area input[type="file"]').get(0).files.length > 0;
+        var messageNotEmpty = $('#message').val().trim().length > 0;
+
+        if (filesSelected || messageNotEmpty) {
+            $('#btnAddComment').prop('disabled', false);
+        } else {
+            $('#btnAddComment').prop('disabled', true);
+        }
+    }
+    
     function updateOnEditableChange() {
         if (isEditable) {
             $('#pageTitle').text('編集')
@@ -210,7 +236,7 @@ $(function () {
                                 </div>
                             </button>
                             <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                                <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}">ダウンロード</button>
+                                <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ダウンロード</button>
                             </ul>
                         </div>
                     `;
@@ -273,7 +299,7 @@ $(function () {
                             </div>
                         </button>
                         <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                            <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" >ダウンロード</button>
+                            <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ダウンロード</button>
                         </ul>
                     </div>
                 `;

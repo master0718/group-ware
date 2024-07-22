@@ -48,7 +48,6 @@
         public const string BUKKENCOMMENT_FILE = "6";
         public const string TODO = "8";
         public const string WORKFLOW = "9";
-        public const string BOARDCOMMENT = "10";
     }
     public class DIC_KB_701_TEMPLETE_FILE
     {

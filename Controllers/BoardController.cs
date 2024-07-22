@@ -21,8 +21,6 @@ namespace web_groupware.Controllers
     {
         private readonly string _uploadPath;
 
-        private readonly string _commentUploadPath;
-
         public BoardController(IConfiguration configuration, ILogger<BaseController> logger, web_groupwareContext context, IWebHostEnvironment hostingEnvironment, IHttpContextAccessor httpContextAccessor) : base(configuration, logger, context, hostingEnvironment, httpContextAccessor) {
             var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BOARD);
             if (t_dic == null || t_dic.content == null)
@@ -33,17 +31,6 @@ namespace web_groupware.Controllers
             else
             {
                 _uploadPath = t_dic.content;
-            }
-
-            var t_dic_comment = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BOARDCOMMENT);
-            if (t_dic_comment == null || t_dic_comment.content == null)
-            {
-                _logger.LogError(Messages.ERROR_PREFIX + Messages.DICTIONARY_FILE_PATH_NO_EXIST, DIC_KB.SAVE_PATH_FILE, DIC_KB_700_DIRECTORY.BOARDCOMMENT);
-                throw new Exception(Messages.DICTIONARY_FILE_PATH_NO_EXIST);
-            }
-            else
-            {
-                _commentUploadPath = t_dic_comment.content;
             }
         }
 
@@ -266,7 +253,7 @@ namespace web_groupware.Controllers
                 Directory.CreateDirectory(dir);
 
                 string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
-                string comment_dir = Path.Combine(_commentUploadPath, comment_dir_work);
+                string comment_dir = Path.Combine(_uploadPath, comment_dir_work);
                 //workディレクトリの作成
                 Directory.CreateDirectory(comment_dir);
 
@@ -576,7 +563,7 @@ namespace web_groupware.Controllers
                 var commentFiles = _context.T_BOARDCOMMENT_FILE.Where(x => x.board_no == board_no && x.comment_no == no).ToList();
 
                 string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
-                string comment_dir = Path.Combine(_commentUploadPath, comment_dir_work);
+                string comment_dir = Path.Combine(_uploadPath, comment_dir_work);
                 //workディレクトリの作成
                 Directory.CreateDirectory(comment_dir);
 
@@ -667,8 +654,11 @@ namespace web_groupware.Controllers
                 if (comment_files != null && comment_files.Count > 0)
                 {
                     _context.T_BOARDCOMMENT_FILE.RemoveRange(comment_files);
-                    string dir_main = Path.Combine(_commentUploadPath, board_no.ToString());
-                    Directory.Delete(dir_main, true);
+                    if (model_files == null && model_files.Count == 0)
+                    {
+                        string dir_main = Path.Combine(_uploadPath, board_no.ToString());
+                        Directory.Delete(dir_main, true);
+                    }
                 }
 
                 _context.SaveChanges();
@@ -981,13 +971,13 @@ namespace web_groupware.Controllers
             try
             {
                 //ディレクトリ設定
-                string dir_main = Path.Combine(_commentUploadPath, board_no.ToString());
+                string dir_main = Path.Combine(_uploadPath, board_no.ToString(), comment_no.ToString());
                 if (!Directory.Exists(dir_main))
                 {
                     Directory.CreateDirectory(dir_main);
                 }
                 //レコード登録　workディレクトリ
-                string dir = Path.Combine(_commentUploadPath, work_dir);
+                string dir = Path.Combine(_uploadPath, work_dir);
                 var work_dir_files = Directory.GetFiles(dir);
                 for (int i = 0; i < work_dir_files.Length; i++)
                 {
@@ -1031,8 +1021,8 @@ namespace web_groupware.Controllers
                         board_no = board_no,
                         comment_no = comment_no,
                         file_no = GetNextNo(DataTypes.BOARDCOMMENT_FILE_NO),
-                        //filepath = Path.Combine(dir_main, file_name),
-                        filepath = Path.Combine(board_no.ToString(), file_name),
+                        /*filepath = Path.Combine(dir_main, file_name),*/
+                        filepath = Path.Combine(board_no.ToString(), comment_no.ToString(), file_name),
                         filename = file_name,
                         create_user = user_id,
                         create_date = now,
