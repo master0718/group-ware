@@ -10,24 +10,49 @@ $(function () {
 
         window.location = baseUrl + "WorkFlow/Index"
     })
+    if (!isEditable) {
+        $(".delete_file").addClass('d-none');
+    }
+
+    $('.btnSave').on('click', function (e) {
+        action = "submit";
+        $('.loading').show()
+
+        var fileNosRemove = fileRemoveList.join(',')
+
+        $('#file_nos_remove').attr('value', fileNosRemove)
+
+        $('#workFlowForm').trigger("submit")
+    })
 
     $('.btnCreate').on('click', function (e) {
-        $('.loading').show()
-        
-        $('#workFlowForm').trigger("submit");
-    })
-
-    $('#workFlowForm').on('submit', function (e) {
-        if (!$(this).valid()) {
-            $('.loading').hide()
-        }
-    })
-
-
-    $('.btnUpdate').on('click', function (e) {
+        action = "submit";
         $('.loading').show()
 
         $('#workFlowForm').trigger("submit")
     })
 
+    $('#workFlowForm').on('submit', function (e) {
+
+        var request_type = $('#sel_request_type').val()
+        $('#request_type').val(request_type)
+
+        var approver_cd = $('#sel_approver_cd').val()
+        $('#approver_cd').val(approver_cd)
+
+        if (!$(this).valid()) {
+            $('.loading').hide()
+        }
+    })
 })
+
+function onReject() {
+    $("#is_accept").val(0);
+    if ($("[name='comment']").val().trim() === "") {
+        $("#workFlowForm").submit();
+    }
+    else {
+        $('.loading').show();
+        $("#workFlowForm").submit();
+    }
+}

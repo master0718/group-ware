@@ -8,7 +8,7 @@ namespace web_groupware.Models
     {
         public List<StaffModel>? StaffList;
         public List<EmployeeGroupModel>? GroupList;
-        public List<T_PLACEM> PlaceList { get; set; } = new List<T_PLACEM>();
+        public List<M_PLACE> PlaceList { get; set; } = new List<M_PLACE>();
         public string? startDate;
         public int staf_cd;
         public bool is_people;
@@ -66,7 +66,7 @@ namespace web_groupware.Models
 
         [DisplayName("施設")]
         //[Required(ErrorMessage = Messages.REQUIRED)]
-        [MinLength(1, ErrorMessage = Messages.REQUIRED)]
+        //[MinLength(1, ErrorMessage = Messages.REQUIRED)]
         public int[] MyPlaceList { get; set; } = Array.Empty<int>();
 
         [DisplayName("全スタッフ")]

@@ -28,8 +28,16 @@
         public const string UPLOAD_FILE_DUPLICATE = "同じ名前のファイルをアップロードできません。";
         public const string MAX_FILE_COUNT_5 = "アップロードできるファイルは5ファイルまでです。";
         public const string MAX_FILE_SIZE_20MB = "ファイルの最大サイズは20MBです。";
+        public const string MAX_FOLDER_NAME_LENGTH = "フォルダ名の長さは最大64文字です。";
         public const string DICTIONARY_FILE_PATH_NO_EXIST = "辞書に{0}, {1}のレコードが登録されていません。";
         public const string BOARD_ALLOWED_FILE_EXTENSIONS = "アップロード可能なファイルの種類はpdfのみです。";
+        public const string REQUEST_WORKFLOW_EDIT_VIOLATION = "作成中の申請のみ変更できます。";
+        public const string WORKFLOW_APPROVAL_ALREADY_FINISHED = "すでに完了した掲示物です。";
+        public const string WORKFLOW_APPROVAL_ALREADY_REJECTED = "すでに否決された申請です。";
+        public const string WORKFLOW_APPROVAL_NOT_APPROVAL = "申請や承認状態の掲示物ではありません。";
+        public const string PLACE_ALREADY_RESERVED = "施設予約が重複されています。";
+        public const string TODO_DEADLINE_REQUIRED = "期日を入力してください。";
+        public const string FACILITY_REQUIRED = "施設を選択してください。";
 
         public const string ERROR_MESSAGE_001 = "ログイン時に利用しているメールアドレスを指定して下さい。";
         public const string SCOPE_MAKING_KNOWN = "周知範囲を選択して下さい。";
@@ -82,4 +90,10 @@
         public const string CREATE = "新規登録されました。";
         public const string UPDATE = "更新されました。";
     }
+    public class Check_button_text
+    {
+        public const string CHECK = "確認しました";
+        public const string CANCEL = "「確認しました」を取り消す";
+    }
+
 }

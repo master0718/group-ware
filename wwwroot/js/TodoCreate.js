@@ -16,6 +16,9 @@ $(function () {
 
         window.location = baseUrl + "Todo/Index"
     })
+    $('#deadline_date-icon').click(function () {
+        $("#deadline_date").focus();
+    })
 
     $('.btnCreate').on('click', function (e) {
         action = "submit";

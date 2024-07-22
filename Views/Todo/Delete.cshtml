@@ -29,7 +29,7 @@
                 </span>
                 <div class="d-flex justify-content-end">
                     <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                        <i class="bi bi-arrow-return-left"></i> キャンセル
+                        <i class="bi bi-arrow-return-left"></i> 戻る
                     </button>
                     <button type='button' class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()">
                         <i class="bi bi-trash3"></i> 削除
@@ -47,14 +47,6 @@
                     <select asp-for="@Model.public_set" class="form-select w-50 bg-white" aria-label="" id="s_public" disabled>
                         <option value=0>非公開</option>
                         <option value=1>公開</option>
-                    </select>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="@Model.group_set" class="form-label"></label>
-                    <select asp-for="@Model.group_set" class="form-select w-50 bg-white" aria-label="" id="s_group" disabled>
-                        <option value=0>複数人</option>
-                        <option value=1>グループ</option>
                     </select>
                 </div>
 
@@ -166,7 +158,7 @@
             <div class="card-footer">
                 <div class="d-flex justify-content-end">
                     <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                        <i class="bi bi-arrow-return-left"></i> キャンセル
+                        <i class="bi bi-arrow-return-left"></i> 戻る
                     </button>
                     <button type='button' class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()">
                         <i class="bi bi-trash3"></i> 削除

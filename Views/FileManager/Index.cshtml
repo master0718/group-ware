@@ -1,6 +1,5 @@
 ﻿@{
     ViewData["Title"] = "ファイル管理";
-    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
 }
 
 @model web_groupware.Models.FileDetailViewModel
@@ -40,17 +39,14 @@
             </span>
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-outline-secondary rounded-pill new-folder" style="margin-right: 10px">
-                    <i class="bi bi-folder-plus"></i> 新しいフオルダ
-                </button>
-                <button type="button" class="btn btn-outline-secondary rounded-pill new-file">
-                    <i class="bi bi-file-plus"></i> 新しいファイル
+                    <i class="bi bi-folder-plus"></i> 新しいフォルダ
                 </button>
             </div>
         </div>
 
         @using (Html.BeginForm("Create", "FileManager", FormMethod.Post, new { enctype = "multipart/form-data", id = "fileForm" }))
         {
-            <div class="row mx-0 mb-3 d-none" id="fileArea">
+            <div class="row mx-0 mb-3" id="fileArea">
                 <input type="hidden">
                 <div class="col-12 card dropArea border-0 p-2">
                     <div class="text-center px-3 py-3 border-primary" style="border:dashed!important;">
@@ -76,10 +72,10 @@
                         <div class="d-flex align-items-center">
                             <span class="me-2">新しいフオルダ</span>
                             <div class="me-2">
-                                <input class="form-control" type="text" name="title" id="input-name" required />
+                                <input class="form-control" type="text" name="title" id="input-name" maxlength="64" required />
                             </div>
                             <button type="submit" class="btn btn-success me-2">追加</button>
-                            <button type="button" class="btn btn-light" id="cancel-create">キャンセル</button>
+                            <button type="button" class="btn btn-light" id="cancel-create">戻る</button>
                         </div>
                         @*<div class="invalid-feedback">ファイルやフォルダ名をご入力ください。</div>*@
                     </div>
@@ -105,6 +101,7 @@
                 </div>
             </div>
             <div class="card-body">
+                <span>currentDirectory:</span>
                 <span id="currentDirectory"></span>
                 <table class="table table-centered table-hover table-nowrap mb-0">
                     <thead class="table-light">
@@ -166,7 +163,7 @@
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-6">
-                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">戻る</button>
                                         </div>
                                         <div class="col-6 text-end">
                                             <button type="submit" class="btn btn-success">保存</button>
@@ -196,7 +193,7 @@
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-6">
-                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">キャンセル</button>
+                                            <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">戻る</button>
                                         </div>
                                         <div class="col-6 text-end">
                                             <button type="submit" class="btn btn-success">移動</button>
@@ -213,23 +210,22 @@
                 <div class="modal fade" id="delete-modal" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title" id="title">確認</h4>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div class="modal-header py-3 px-4 border-bottom-0 d-block">
+                                <button type="button" class="btn-close float-end" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title"></h5>
                             </div>
-                            <div class="modal-body">
-                                <p id="bodyContent">@ViewData["ConfirmText"]</p>
+                            <div class="modal-body px-4 pb-4 pt-0">
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-light me-1" data-bs-dismiss="modal">戻る</button>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <button type="button" class="btn btn-danger" id="confirm-delete">削除</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    <i class="bi bi-x"></i> いいえ
-                                </button>
-                                <button type="button" class="btn btn-danger" id="confirm-delete">
-                                    <i class="bi bi-check"></i> はい
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        </div> <!-- end modal-content-->
+                    </div> <!-- end modal dialog-->
                 </div>
                 <!-- end modal-->
             </div>
@@ -299,7 +295,6 @@
         }
 
         function promptCreateFolder() {
-            hideCreateFile();
             if ($('#createArea').hasClass('d-none')) {
                 $('#createArea').removeClass('d-none')
                 $('.new-folder').removeClass('btn-outline-secondary')
@@ -316,36 +311,6 @@
             }
         }
 
-        function toggleCreateFile() {
-            if ($('#fileArea').hasClass('d-none')) {
-                hideCreateFolder();
-                $('#fileArea').removeClass('d-none')
-                $('.new-file').removeClass('btn-outline-secondary')
-                $('.new-file').addClass('btn-secondary')
-            } else {
-                $('#fileArea').addClass('d-none')
-                $('.new-file').addClass('btn-outline-secondary')
-                $('.new-file').removeClass('btn-secondary')
-            }
-        }
-
-        function promptCreateFile() {
-            hideCreateFolder();
-            if ($('#fileArea').hasClass('d-none')) {
-                $('#fileArea').removeClass('d-none')
-                $('.new-file').removeClass('btn-outline-secondary')
-                $('.new-file').addClass('btn-secondary')
-            }
-        }
-
-        function hideCreateFile() {
-            if (!$('#fileArea').hasClass('d-none')) {
-                $('#fileArea').addClass('d-none')
-                $('.new-file').addClass('btn-outline-secondary')
-                $('.new-file').removeClass('btn-secondary')
-            }
-        }
-
         function promptRename() {
             $('#rename-modal .modal-title').text("名の変更");
             $('#rename-id').val(selectedFileList[0]);
@@ -357,6 +322,8 @@
         }
 
         function promptDelete() {
+            $('#delete-modal .modal-title').text("削除してもよろしいですか？");
+
             var myModal = new bootstrap.Modal(document.getElementById('delete-modal'), {});
             myModal.toggle();
         }
@@ -418,7 +385,10 @@
                         window.location.reload();
                     },
                     error: function (xhr) {
-                        alert("Error: " + xhr.responseText);
+                        if (xhr.responseText)
+                            toastr["error"](xhr.responseText);
+                        else
+                            toastr["error"]("フォルダ作成に失敗しました");
                     }
                 });
             } else {
@@ -447,7 +417,7 @@
                         window.location.reload();
                     },
                     error: function(xhr) {
-                        alert("Error: " + xhr.responseText);
+                        toastr["error"]("名前変更に失敗しました");
                     }
                 });     
                 $('#rename-modal').modal('hide');
@@ -473,7 +443,7 @@
                         window.location.reload();
                     },
                     error: function (xhr) {
-                        alert("Error:" + xhr.responseText);
+                        toastr["error"]("移動に失敗しました");
                     }
                 });
             }
@@ -485,11 +455,6 @@
 
         $('#cancel-create').on('click', function () {
             hideCreateFolder();
-        });
-
-        $('.new-file').on('click', function () {
-            toggleCreateFile();
-            //promptCreateFile();
         });
 
         $('.rename').on('click', function () {
@@ -555,26 +520,14 @@
             if (!$(this).hasClass('folder')) {
                 var id = $($(this).parent().siblings()[0]).find('input').val()
                 var fileList = [id];
-                downloadFile(fileList)
+                downloadFile(id, $(this).text());
             }
         })
 
-        function downloadFile(fileList)
-        {
-            $.ajax({
-                method: "post",
-                url: '@Url.Action("DownloadFile", "FileManager")',
-                data: {
-                    //fileNoList: selectedFileList
-                    fileNoList: fileList
-                },
-                success: function (result) {
-                    window.location.href = url.split('groupware/FileManager')[0] + 'groupware/downloads/Groupware.zip';
-                },
-                error: function (xhr) {
-                    alert("Error:" + xhr.responseText);
-                }
-            });
+        function downloadFile(fileNo, fileName) {
+            var url = baseUrl + "Base/DownloadFileM?file_no=" + fileNo;
+            //指定したURLからファイルをダウンロードする
+            funcFileDownload(url, fileName);
         }
 
         $('.selectFile').on({

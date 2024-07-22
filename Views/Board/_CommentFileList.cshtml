@@ -1,0 +1,47 @@
+@model web_groupware.Models.BoardCommentFileModel
+
+@section Styles {
+    <link href="~/css/file.css" rel="stylesheet" />
+}
+
+<div class="row" id="comment_div_icon">
+    @if (Model.commentFileList.Count != 0)
+    {
+        @for (int i = 0; i < Model.commentFileList.Count; i++)
+        {
+            <div id="comment_div_icon_@i" class="comment_div_icon_child dropdown fileAreaInnerWidth">
+                <input type="hidden" class="file_no" id="@Model.commentFileList[i].file_no" value="@Model.commentFileList[i].file_no">
+                @{
+                    var downloadClazz = "";
+                    var controllerName = ViewContext.RouteData.Values["Controller"].ToString();
+                }
+
+                <button class="bg-white border-0 p-0 dropdown-toggle comment_btn_file fileAreaInnerWidth @downloadClazz" type="button" data-bs-toggle="dropdown" data-controller="@controllerName" data-file_no="@Model.commentFileList[i].file_no" data-file_name="@Model.commentFileList[i].filename" aria-expanded="false">
+                    <div class="comment_div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.commentFileList[i].filename">
+
+                        <div class="comment_div_img_file bg-light p-2">
+                            @{
+                                var icon = System.IO.Path.GetExtension(Model.commentFileList[i].filename).Remove(0, 1) + ".svg";
+                            }
+
+                            <img src="~/images/file-icons/@icon" alt="icon">
+                        </div>
+                        <div class="text-wrap main_files">@Model.commentFileList[i].filename</div>
+                    </div>
+                </button>
+
+                <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                    <button class="dropdown-item comment_delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_no="@Model.commentFileList[i].file_no" data-file_name="@Model.commentFileList[i].filename">削除</button>
+                    <button class="dropdown-item comment_download_file" target="_blank" type="button" role="button" data-controller="@controllerName" data-file_no="@Model.commentFileList[i].file_no" data-file_name="@Model.commentFileList[i].filename">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                </ul>
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/BoardFile.js" asp-append-version="true"></script>
+    }
+}

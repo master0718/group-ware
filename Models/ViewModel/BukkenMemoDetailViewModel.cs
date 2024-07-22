@@ -39,7 +39,9 @@ namespace web_groupware.Models
         public string update_user { get; set; }
         public string update_date { get; set; }
         public string? message { get; set; }
-        public bool already_read_comment {  get; set; }
+        public bool already_checked_comment {  get; set; }
+        public string check_count {  get; set; }
+        public List<string?> list_check_member { get; set; }=new List<string?>();
         public List<T_BUKKENCOMMENT_FILE> List_T_BUKKENCOMMENT_FILE_ADDED { get; set; } = new List<T_BUKKENCOMMENT_FILE>();
 
     }

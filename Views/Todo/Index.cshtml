@@ -58,8 +58,8 @@
                         </div>
                         <div class="card-body">
                             <div class="card-text">
-                                <div class="d-flex justify-content-between fs-4 fw-bold my-1">
-                                    <div class="col-3">
+                                <div class="d-flex justify-content-between fs-5 my-1">
+                                    <div class="col-3 file-title-icon">
                                         @if (item.title.Length <= 20)
                                         {
                                             <span>@item.title</span>
@@ -71,24 +71,20 @@
                                         }
                                         @if(item.has_file > 0)
                                         {
-                                            <i class="fa fa-file"></i>
+                                            <i class="fa fa-file file-icon"></i>
                                         }
                                         else
                                         {
                                             <div class="col-1"></div>
                                         }
-                                    </div>
-                                    
-                                    @* <span class="col-3">@((item.group_set == 0) ? "複数人" : "グループ")</span> *@
-
-                                    <span class="col-3">@((item.deadline_set == 0) ? "期限なし" : "期限あり")</span>
-                                    @if (item.deadline_date != null)
+                                    </div>          
+                                    @if (item.deadline_set == 0)
                                     {
-                                        <span class="col-3 deadline-date" data-deadline-date="@item.deadline_date">@item.deadline_date</span>
+                                        <span class="col-3">期限なし</span>
                                     }
                                     else
                                     {
-                                        <span class="col-3"></span>
+                                        <span class="col-3" data-deadline-date="@item.deadline_date">期限　@item.deadline_date</span>
                                     }
                                     @{
                                         switch (item.response_status)

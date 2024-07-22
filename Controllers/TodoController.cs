@@ -3,32 +3,20 @@ using Microsoft.AspNetCore.Authorization;
 using web_groupware.Models;
 using web_groupware.Data;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.IdentityModel.Tokens;
-/*using System.Security.Claims;*/
 using Microsoft.EntityFrameworkCore;
-using System.IO;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis;
 using web_groupware.Utilities;
-using NuGet.Protocol.Plugins;
-using Microsoft.Data.SqlClient;
-using System.Text;
-using System.IO.Packaging;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
-using Azure.Core;
-
+using Microsoft.IdentityModel.Tokens;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Format = web_groupware.Utilities.Format;
 
 namespace web_groupware.Controllers
 {
     public class TodoController : BaseController
     {
         private readonly IWebHostEnvironment _environment;
-        private const int FILE_TYPE_FILE = 0;
-        private const int FILE_TYPE_FOLDER = 1;
+
         private readonly string _uploadPath;
         /// <summary>
         /// コンストラクタ
@@ -68,6 +56,7 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
+
         }
 
         [HttpPost]
@@ -94,11 +83,11 @@ namespace web_groupware.Controllers
 
                 var todoList = _context.T_TODO.Where(x => x.staf_cd == user_id).ToList();
 
-                if (search_response_status != "-1" && !search_response_status.IsNullOrEmpty())
+                if (!search_response_status.IsNullOrEmpty() && search_response_status != "-1")
                 {
                     todoList = todoList.Where(x => x.response_status == Convert.ToInt32(search_response_status)).ToList();
                 }
-                if (search_deadline_set != "-1" && !search_deadline_set.IsNullOrEmpty())
+                if (!search_deadline_set.IsNullOrEmpty() && search_deadline_set != "-1")
                 {
                     todoList = todoList.Where(x => x.deadline_set == Convert.ToInt32(search_deadline_set)).ToList();
                 }
@@ -117,13 +106,13 @@ namespace web_groupware.Controllers
                     description = todo.description,
                     response_status = todo.response_status,
                     deadline_set = todo.deadline_set,
-                    group_set = todo.group_set,
                     public_set = todo.public_set,
                     staf_cd = todo.staf_cd,
                     deadline_date = todo.deadline_date?.ToString("yyyy/MM/dd"),
                     create_date = todo.create_date.ToString("yyyy年M月d日 H時m分"),
                     has_file = _context.T_TODO_FILE.Where(x => x.todo_no == todo.todo_no).ToList().Count()
                 }));
+
                 return model;
             }
             catch (Exception ex)
@@ -180,6 +169,13 @@ namespace web_groupware.Controllers
                     PrepareViewModel(request);
                     return View(request);
                 }
+                if (request.deadline_set == 1 && request.deadline_date.IsNullOrEmpty())
+                {
+                    ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.TODO, request.work_dir);
+                    PrepareViewModel(request);
+                    return View(request);
+                }
                 if (request.File.Count > 5)
                 {
                     ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
@@ -219,10 +215,10 @@ namespace web_groupware.Controllers
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
+                    
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
 
                     DateTime? deadlineDate = null;
-
                     if (!string.IsNullOrEmpty(request.deadline_date))
                     {
                         if (DateTime.TryParseExact(request.deadline_date, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
@@ -238,7 +234,6 @@ namespace web_groupware.Controllers
                         description = request.description,
                         sendUrl = request.sendUrl,
                         public_set = request.public_set,
-                        group_set = request.group_set,
                         deadline_set = request.deadline_set,
                         response_status = request.response_status,
                         staf_cd = user_id,
@@ -257,7 +252,15 @@ namespace web_groupware.Controllers
                         var type = item[..1];
                         if (type == "S")
                         {
-                            var target = new T_TODOTARGET(todo_no, cd);
+                            var target = new T_TODOTARGET
+                            {
+                                todo_no = todo_no,
+                                staf_cd = cd,
+                                create_user = user_id,
+                                create_date = now,
+                                update_user = user_id,
+                                update_date = now,
+                            };
                             _context.Add(target);
                         }
                     }
@@ -350,7 +353,6 @@ namespace web_groupware.Controllers
                 title = item.title,
                 description = item.description,
                 public_set = item.public_set,
-                group_set = item.group_set,
                 deadline_set = item.deadline_set,
                 response_status = item.response_status,
                 deadline_date = item.deadline_date?.ToString("yyyy/MM/dd"),
@@ -428,6 +430,13 @@ namespace web_groupware.Controllers
                     PrepareViewModel(request);
                     return View(request);
                 }
+                if (request.deadline_set == 1 && request.deadline_date.IsNullOrEmpty())
+                {
+                    ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.TODO, request.work_dir);
+                    PrepareViewModel(request);
+                    return View(request);
+                }
                 if (request.File.Count > 5)
                 {
                     ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
@@ -471,7 +480,6 @@ namespace web_groupware.Controllers
                 model.title = request.title;
                 model.description = request.description;
                 model.public_set = request.public_set;
-                model.group_set = request.group_set;
                 model.deadline_set = request.deadline_set;
                 model.update_date = now;
                 model.response_status = request.response_status;
@@ -499,7 +507,15 @@ namespace web_groupware.Controllers
                     var type = item[..1];
                     if (type == "S")
                     {
-                        var target = new T_TODOTARGET(request.todo_no, cd);
+                        var target = new T_TODOTARGET
+                        {
+                            todo_no = request.todo_no,
+                            staf_cd = cd,
+                            create_user = user_id,
+                            create_date = now,
+                            update_user = user_id,
+                            update_date = now,
+                        };
                         _context.Add(target);
                     }
                 }
@@ -589,6 +605,8 @@ namespace web_groupware.Controllers
                     }
 
                     var file_name = Path.GetFileName(renamed_file);
+                    var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                    var now = DateTime.Now;
 
                     T_TODO_FILE record_file = new()
                     {
@@ -596,7 +614,11 @@ namespace web_groupware.Controllers
                         file_no = GetNextNo(DataTypes.FILE_NO),
                         //filepath = Path.Combine(dir_main, file_name),
                         filepath = Path.Combine(todo_no.ToString(), file_name),
-                        filename = file_name
+                        filename = file_name,
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now,
                     };
                     await _context.T_TODO_FILE.AddAsync(record_file);
 

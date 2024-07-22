@@ -26,8 +26,6 @@ namespace web_groupware.Models
         public string update_date { get; set; }
         public string message { get; set; }
         public string count { get; set; }
-        public bool isMe { get; set; }
-
     }
 
 }

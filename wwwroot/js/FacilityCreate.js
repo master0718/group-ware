@@ -44,7 +44,7 @@ $(function () {
             //for (var i = 0; i < placeList.length; i++) {
             //    var place = placeList[i];
             //    var ids = place.split("-")
-            //    if (ids[1] == "True") { // deprecated
+            //    if (ids[1] == "True") { // duplicated
 
             //    }
             //}
@@ -117,7 +117,10 @@ $(function () {
             $(".btn_file").removeClass('download_file')
             $(".btn_file").attr('data-bs-toggle', 'dropdown')
 
-            var repeatType = $("[name='repeatTypeRadio']:checked").val()
+            var repeatType = Number($("[name='repeatTypeRadio']:checked").val())
+            if (repeatType != 0) {
+                $("[name='repeatLimitRadio']").removeAttr('disabled')
+            }
             if (repeatType == 3) {
                 $("#list-week").removeAttr('disabled')
             } else if (repeatType == 4) {
@@ -160,7 +163,7 @@ $(function () {
             $("[name='repeatTypeRadio']").attr('disabled', true)
             $("[name='repeatLimitRadio']").attr('disabled', true)
             $("#list-week").attr('disabled', true)
-            $("#list-day").attr('disabled', true)            
+            $("#list-day").attr('disabled', true)
             $(".btn_file").addClass('download_file')
             $(".btn_file").dropdown('hide')
             $(".btn_file").attr('data-bs-toggle', '')
@@ -319,7 +322,12 @@ $(function () {
 
         $('#facilityForm').on('submit', function (e) {
             var repeat_type = $("#repeat_type").val()
-            if (repeat_type != 0) { // repeat none
+            var limitType = $("[name='repeatLimitRadio']:checked").val()
+
+            if (repeat_type == 0 || limitType == 0)
+                $('#repeat_date_from, #repeat_date_to').val('')
+
+            if (repeat_type != 0) { // repeatable
 
                 $("#start_datetime").val('')
                 $("#end_datetime").val('')

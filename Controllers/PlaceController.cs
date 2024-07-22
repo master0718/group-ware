@@ -17,7 +17,7 @@ namespace web_groupware.Controllers
         {
             try { 
                 var model = new PlaceViewModel();
-                model.placeList = _context.T_PLACEM.Select(x => new PlaceDetailModel
+                model.placeList = _context.M_PLACE.Select(x => new PlaceDetailModel
                 {
                     place_cd = x.place_cd,
                     place_name = x.place_name,
@@ -28,7 +28,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -44,7 +44,7 @@ namespace web_groupware.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PlaceDetailModel model)
         {
-            if (_context.T_PLACEM.Any(x => x.place_cd == model.place_cd))
+            if (_context.M_PLACE.Any(x => x.place_cd == model.place_cd))
             {
                 ModelState.AddModelError("", "この施設コードはすでに存在する。");
                 return View(model);
@@ -57,7 +57,7 @@ namespace web_groupware.Controllers
 
             try
             {
-                var model_new = new T_PLACEM
+                var model_new = new M_PLACE
                 {
                     place_cd = model.place_cd,
                     place_name = model.place_name,
@@ -70,7 +70,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -81,7 +81,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var record = await _context.T_PLACEM.FirstOrDefaultAsync(m => m.place_cd == place_cd);
+                var record = await _context.M_PLACE.FirstOrDefaultAsync(m => m.place_cd == place_cd);
                 if (record == null)
                 {
                     return RedirectToAction("Index");
@@ -95,7 +95,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -110,7 +110,7 @@ namespace web_groupware.Controllers
                 ModelState.AddModelError("", Message_change.FAILURE_001);
                 return View(model);
             }
-            var record = await _context.T_PLACEM.FirstOrDefaultAsync(x => x.place_cd == model.place_cd);
+            var record = await _context.M_PLACE.FirstOrDefaultAsync(x => x.place_cd == model.place_cd);
             if (record == null)
             {
                 ModelState.AddModelError("", "存在しないグループコードです。");
@@ -128,7 +128,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -139,7 +139,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var item = await _context.T_PLACEM.FirstOrDefaultAsync(x => x.place_cd == place_cd);
+                var item = await _context.M_PLACE.FirstOrDefaultAsync(x => x.place_cd == place_cd);
                 if (item == null)
                 {
                     return RedirectToAction("Index");
@@ -154,7 +154,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -171,19 +171,19 @@ namespace web_groupware.Controllers
                     ModelState.AddModelError("", Message_delete.FAILURE_001);
                     return View(model);
                 }
-                var record = await _context.T_PLACEM.FirstOrDefaultAsync(x => x.place_cd == model.place_cd);
+                var record = await _context.M_PLACE.FirstOrDefaultAsync(x => x.place_cd == model.place_cd);
                 if (record == null)
                 {
                     ModelState.AddModelError("", "存在しないグループコードです。");
                     return View(model);
                 }
-                _context.T_PLACEM.Remove(record);
+                _context.M_PLACE.Remove(record);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }

@@ -19,7 +19,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Board" asp-action="Index">掲示板</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">編集</li>
+                    <li class="breadcrumb-item active" aria-current="page">詳細</li>
                 </ol>
             </nav>
         </div>
@@ -27,11 +27,11 @@
             <form asp-action="Update" id="boardForm" class="form-box" method="post" enctype="multipart/form-data">
                 <div class="card-header justify-content-between d-flex align-items-center">
                     <span>
-                        <h4 class="mb-0">編集</h4>
+                        <h4 class="mb-0" id="pageTitle">詳細</h4>
                     </span>
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
                         @if (Model.already_checked)
                         {
@@ -45,10 +45,13 @@
                                 <i class="bi bi-check-circle"></i> 確認
                             </a>
                         }
+                        <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </button>                        
                         <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                             <i class="bi bi-trash3"></i> 削除
                         </button>
-                        <button type="button" class="btn btn-primary btnSave">
+                        <button type="button" class="btn btn-primary btnSave" hidden>
                             <i class="bi bi-floppy"></i> 保存
                         </button>
                     </div>
@@ -64,20 +67,35 @@
                     <input hidden asp-for="@Model.already_checked" />
                     <input hidden asp-for="@Model.file_nos_remove" value="@Model.file_nos_remove" />
                     <input hidden asp-for="@Model.Delete_files" />
+                    <input hidden id="show_on_top" name="show_on_top" />
                     @{
                         ViewData["DeleteID"] = Model.board_no;
                     }
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.title" class="form-label"></label>
-                        <input type="text" asp-for="@Model.title" class="form-control bg-white" />
-                        <span asp-validation-for="@Model.title" class="text-danger"></span>
+                        <div class="d-flex justify-content-between">
+                            <div class="flex-grow-1 me-3">
+                                <input type="text" asp-for="@Model.title" class="form-control" readonly />
+                                <span asp-validation-for="@Model.title" class="text-danger"></span>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                @if (Model.show_on_top)
+                                {
+                                    <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="true">トップから消す</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="false">トップに出す</button>
+                                }
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group mb-3">
                         <div class="col-sm-4">
                             <label asp-for="@Model.category_cd" class="form-label"></label>
-                            <select class="form-select bg-white" id="board_category">
+                            <select class="form-select read-only" id="board_category" disabled>
                                 <option value=""></option>
                                 @if (Model.CategoryList != null)
                                 {
@@ -99,14 +117,14 @@
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.content" class="form-label"></label>
-                        <textarea asp-for="@Model.content" class="form-control bg-white"
-                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <textarea asp-for="@Model.content" class="form-control"
+                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px" readonly></textarea>
                         <span asp-validation-for="@Model.content" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.applicant_cd" class="form-label"></label>
-                        <select class="form-select bg-white" id="applicant">
+                        <select class="form-select read-only" id="applicant" disabled>
                             <option value=""></option>
                             @if (Model.StaffList != null)
                             {
@@ -125,13 +143,6 @@
                         </select>
                     </div>
 
-                    <div class="form-group form-check mb-3 ms-1">
-                        <label class="form-check-label">
-                            <input class="form-check-input" asp-for="@Model.show_on_top" />
-                            @Html.DisplayNameFor(model => model.show_on_top)
-                        </label>
-                    </div>
-
                     <div class="form-group">
                         <label asp-for="@Model.File" class="form-label"></label>
                         <partial name="_FileList" model="@Model.fileModel" />
@@ -143,7 +154,7 @@
                         <input type="hidden" id="dir_no" value="@Model.board_no">
 
                         <div class="col-12 dropArea border-0 p-2">
-                            <div id="drag_area" class="text-center px-3 py-3 bg-white">
+                            <div id="drag_area" class="text-center px-3 py-3 bg-white" hidden>
                                 <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
                                 <label class="input-group-btn hand-pointer">
                                     <span class="btn btn-secondary">
@@ -153,8 +164,6 @@
                                 <br>
                                 <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
                             </div>
-                            @*                         <div id="message_file1" class="text-right"></div>
-                            *@
                         </div>
                     </div>
                     <div class="mb-3">
@@ -168,8 +177,8 @@
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                            <i class="bi bi-arrow-return-left"></i> キャンセル
+                        <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
                         @if (Model.already_checked)
                         {
@@ -183,10 +192,13 @@
                                 <i class="bi bi-check-circle"></i> 確認
                             </a>
                         }
+                        <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </button>                        
                         <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                             <i class="bi bi-trash3"></i> 削除
                         </button>
-                        <button type="button" class="btn btn-primary btnSave">
+                        <button type="button" class="btn btn-primary btnSave" hidden>
                             <i class="bi bi-floppy"></i> 保存
                         </button>
                     </div>
@@ -214,8 +226,41 @@
                                     <small class="text-muted fw-normal float-end pt-1 register-date">@item.register_date</small>
                                 </div>
                                 <span style="white-space: pre-wrap">@item.message</span>
+                                @if (item.CommentFileDetailList.Count != 0)
+                                {
+                                    <div class="row">
+                                        <div class="col d-flex">
+
+                                            @foreach (var file in item.CommentFileDetailList)
+                                            {
+                                                <div class="div_icon_child dropdown fileAreaHeitWidth">
+                                                    <input type="hidden" asp-for="@file.filename">
+                                                    <input type="hidden" asp-for="@file.file_no">
+                                                    <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                                        <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@file.filename">
+
+                                                            <div class="div_img_file bg-light p-2">
+                                                                @{
+                                                                    var icon = System.IO.Path.GetExtension(file.filename).Remove(0, 1) + ".svg";
+                                                                }
+
+                                                                <img src="~/images/file-icons/@icon" alt="icon" style="height: 50px;">
+                                                            </div>
+                                                            <div class="text-wrap">@file.filename</div>
+                                                        </div>
+                                                    </button>
+                                                    <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                                        <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="@file.filename">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                                    </ul>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                             </div>
+                            
                         </div>
+
                     }
                 }
             </div>
@@ -234,6 +279,28 @@
 
                 <div class="rounded mt-3 mb-3">
                     <div class="form-box comment-area-box">
+                        <div class="form-group">
+                        <label asp-for="@Model.CommentFile" class="form-label"></label>
+                        <partial name="_CommentFileList" model="@Model.commentFileModel" />
+                    </div>
+
+                    <div class="row mb-3" id="fileArea">
+                        <input type="hidden" asp-for="@Model.comment_work_dir">
+                        <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARDCOMMENT">
+                        
+                        <div class="col-12 commentDropArea border-0 p-2">
+                            <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
+                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                <label class="input-group-btn hand-pointer">
+                                    <span class="btn btn-secondary">
+                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.CommentFile">
+                                    </span>
+                                </label>
+                                <br>
+                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            </div>
+                        </div>
+                    </div>
                         <textarea id="message" class="form-control border resize-none"
                                   rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
                         <div class="p-2 text-end">
@@ -251,10 +318,10 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
 
         <script src="~/js/BoardCreate.js" asp-append-version="true"></script>
-        <script src="~/js/File.js" asp-append-version="true"></script>
+        <script src="~/js/BoardFile.js" asp-append-version="true"></script>
     }
     <script>
-        var isEditable = true
+        var isEditable = false
         var fileRemoveList = []
         var deleteAction = "Delete"
         var deleteKey = "board_no"

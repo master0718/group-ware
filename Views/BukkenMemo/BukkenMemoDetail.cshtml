@@ -1,4 +1,5 @@
 ﻿@using Microsoft.Extensions.Configuration
+@using web_groupware.Utilities
 @inject IConfiguration Configuration
 @model BukkenMemoDetailViewModel;
 
@@ -34,7 +35,7 @@
             </h4>
             <div class="d-flex justify-content-end">
                 <a type="button" asp-controller="BukkenMemo" asp-action="Index" asp-route-cond_bukken_name="@Model.cond_bukken_name" class="btn btn-secondary" style="margin-right: 10px">
-                    <i class="bi bi-arrow-return-left"></i> キャンセル
+                    <i class="bi bi-arrow-return-left"></i> 戻る
                 </a>
                 <button type="button" class="btn btn-primary kakuninDialog">
                     <i class="bi bi-plus-lg"></i>
@@ -112,21 +113,11 @@
                                     <div class="col-2">
                                         <span>@Model.list_detail[i].update_user</span>
                                     </div>
-                                    <div class="col-7">
+                                    <div class="col-5">
                                         <span style="white-space: pre-wrap">@Model.list_detail[i].message</span>
                                     </div>
-                                    <div class="col-1">
-                                        @if (!Model.list_detail[i].already_read_comment)
-                                        {
-                                            <button type="button" data-site_form="form_Read_comment" data-site_confirm="このコメントを確認済みにしてもよろしいですか？" data-comment_no="@Model.list_detail[i].comment_no" class="btn btn-primary Report_save_comment_no kakuninDialog">
-                                                <i class="bi bi-check-circle"></i>
-                                                確認
-                                            </button>
-                                        }
-
-                                    </div>
-
                                 </div>
+
                                 @if (Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED.Count != 0)
                                 {
                                     <div class="row">
@@ -134,7 +125,7 @@
 
                                             @for (int k = 0; k < Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED.Count; k++)
                                             {
-                                                <div class="div_icon_child dropdown fileAreaHeitWidth">
+                                                <div class="div_icon_child dropdown fileAreaInnerWidth">
                                                     <input type="hidden" asp-for="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">
                                                     <input type="hidden" asp-for="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].file_no">
                                                     <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
@@ -154,6 +145,14 @@
                                                         @*                                                 <button class="dropdown-item delete_file" type="button" role="button" id="delete_@k" data-dir_kind="1" data-file_name="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">削除</button>
                                             *@
                                                         <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName" data-dir_no_child="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].comment_no">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                                        @{
+                                                            var dir_no = Model.dir_no  +@"\"+ Model.list_detail[i].comment_no;
+                                                            var extension = System.IO.Path.GetExtension(Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName).ToLower();
+                                                        }
+                                                        @if (PREVIEW_ALLOWED_EXTENSION.LIST.Contains(extension))
+                                                        {
+                                                            <a class="dropdown-item preview_file site_iframe_preview" asp-controller="Base" asp-action="PreviewFile" asp-route-dic_cd="@Model.dic_cd" asp-route-dir_no="@dir_no" asp-route-file_name="@Model.list_detail[i].List_T_BUKKENCOMMENT_FILE_ADDED[k].fileName">ﾌﾟﾚﾋﾞｭｰ</a>
+                                                        }
                                                     </ul>
                                                 </div>
 
@@ -162,6 +161,39 @@
                                     </div>
 
                                 }
+                                @**********　確認　start　*************************************************************************@
+                                <div class="row">
+                                    <div class="col">
+                                        @{
+                                            var btn_text = "";
+                                            @if (!Model.list_detail[i].already_checked_comment)
+                                            {
+                                                btn_text = Check_button_text.CHECK;
+                                            }
+                                            else
+                                            {
+                                                btn_text = Check_button_text.CANCEL;
+                                            }
+                                        }
+                                        <a href="javascript:void(0)" data-comment_no="@Model.list_detail[i].comment_no" data-data_no="@i" class="check_comment me-3">@btn_text</a>
+                                        <span class="accordion" id="accordionExample_@i">
+                                            <span class="accordion-header alert alert-primary p-0">
+                                                <a href="javascript:void(0)" id="_Checked_count_@i" class="" data-bs-toggle="collapse" data-bs-target="#collapse_@i" aria-expanded="false" aria-controls="collapse_@i">
+                                                    @Model.list_detail[i].check_count
+                                                </a>
+                                            </span>
+                                            <div id="collapse_@i" class="accordion-collapse collapse" data-bs-parent="#accordionExample_@i">
+                                                <div id="_Checked_member_@i" class="accordion-body py-0">
+                                                    @foreach (var item in Model.list_detail[i].list_check_member)
+                                                    {
+                                                        <div>@item</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+                                @**********　確認　end　*************************************************************************@
 
                                 if (i != Model.list_detail.Count - 1)
                                 {
@@ -175,33 +207,33 @@
                     @***********************************************************************************@
                     <input type="hidden" asp-for="@Model.Delete_files" />
                     <div class="row mt-3" id="div_icon">
-                            @if (Model.List_T_BUKKENCOMMENT_FILE.Count != 0)
+                        @if (Model.List_T_BUKKENCOMMENT_FILE.Count != 0)
+                        {
+                            @for (int i = 0; i < Model.List_T_BUKKENCOMMENT_FILE.Count; i++)
                             {
-                                @for (int i = 0; i < Model.List_T_BUKKENCOMMENT_FILE.Count; i++)
-                                {
-                                    <div id="div_icon_@i" class="div_icon_child dropdown fileAreaHeitWidth">
-                                        <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
-                                        <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].file_no">
-                                        <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
-                                            <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
+                                <div id="div_icon_@i" class="div_icon_child dropdown fileAreaInnerWidth">
+                                    <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
+                                    <input type="hidden" asp-for="@Model.List_T_BUKKENCOMMENT_FILE[i].file_no">
+                                    <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                        <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">
 
-                                                <div class="div_img_file bg-light p-2">
-                                                    @{
-                                                        var icon = System.IO.Path.GetExtension(Model.List_T_BUKKENCOMMENT_FILE[i].fileName).Remove(0, 1) + ".svg";
-                                                    }
+                                            <div class="div_img_file bg-light p-2">
+                                                @{
+                                                    var icon = System.IO.Path.GetExtension(Model.List_T_BUKKENCOMMENT_FILE[i].fileName).Remove(0, 1) + ".svg";
+                                                }
 
-                                                    <img src="~/images/file-icons/@icon" alt="icon" class="">
-                                                </div>
-                                                <div class="text-wrap main_files">@Model.List_T_BUKKENCOMMENT_FILE[i].fileName</div>
+                                                <img src="~/images/file-icons/@icon" alt="icon" class="">
                                             </div>
-                                        </button>
-                                        <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                                            <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">削除</button>
-                                            <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">ﾀﾞｳﾝﾛｰﾄﾞ</button>
-                                        </ul>
-                                    </div>
-                                }
+                                            <div class="text-wrap main_files">@Model.List_T_BUKKENCOMMENT_FILE[i].fileName</div>
+                                        </div>
+                                    </button>
+                                    <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                        <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">削除</button>
+                                        <button class="dropdown-item download_file" type="button" role="button" data-dir_kind="1" data-file_name="@Model.List_T_BUKKENCOMMENT_FILE[i].fileName">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                    </ul>
+                                </div>
                             }
+                        }
                     </div>
                     <div class="row" id="fileArea">
                         <input type="hidden" asp-for="@Model.work_dir">
@@ -264,7 +296,7 @@
             <h4 class="page-title mb-0">　</h4>
             <div class="d-flex justify-content-end">
                 <a type="button" asp-controller="BukkenMemo" asp-action="Index" asp-route-cond_bukken_name="@Model.cond_bukken_name" class="btn btn-secondary" style="margin-right: 10px">
-                    <i class="bi bi-arrow-return-left"></i> キャンセル
+                    <i class="bi bi-arrow-return-left"></i> 戻る
                 </a>
                 <button type="button" class="btn btn-primary kakuninDialog">
                     <i class="bi bi-plus-lg"></i>
@@ -274,7 +306,7 @@
         </div>
 
     </form>
-    <form id="form_Read_comment" asp-controller="BukkenMemo" asp-action="Read_comment" method="post">
+    <form id="form_Read_comment" asp-controller="BukkenMemo" asp-action="Check_comment" method="post">
         <input type="hidden" asp-for="@Model.already_read_comment_no" />
         <input type="hidden" asp-for="@Model.bukn_cd" />
         @*         <input type="hidden" asp-for="@Model.list_staff" />
@@ -287,10 +319,12 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        <script src="~/js/BaseDialogStaff.js" asp-append-version="true"></script>
+        // <script src="~/js/BaseDialogStaff.js" asp-append-version="true"></script>
         <script src="~/js/BukkenMemo.js" asp-append-version="true"></script>
     }
     <script src="~/js/File.js" asp-append-version="true"></script>
+    <script>
+    </script>
 }
 
 

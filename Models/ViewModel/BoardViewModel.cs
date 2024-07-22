@@ -71,6 +71,9 @@ namespace web_groupware.Models
 
         [DisplayName("登緑日時")]
         public string? register_date { get; set; }
+
+        public List<T_BOARDCOMMENT_FILE> CommentFileDetailList { get; set; } = new List<T_BOARDCOMMENT_FILE>();
+
     }
 
     public class BoardViewModelStaff
@@ -90,6 +93,7 @@ namespace web_groupware.Models
         public string cond_already_read { get; set; }
         public string cond_applicant { get; set; }
         public string cond_category { get; set; }
+        public string? cond_keyword { get; set; }
         public List<SelectListItem> list_already_read { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> list_applicant { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> list_category { get; set; } = new List<SelectListItem>();
@@ -109,6 +113,11 @@ namespace web_groupware.Models
     {
         public List<T_BOARD_FILE> fileList { get; set; } = new List<T_BOARD_FILE>();
         public int editable = 0;
+    }
+
+    public class BoardCommentFileModel
+    {
+        public List<T_BOARDCOMMENT_FILE> commentFileList { get; set; } = new List<T_BOARDCOMMENT_FILE>();
     }
 
     public class BoardDetailViewModel
@@ -135,8 +144,11 @@ namespace web_groupware.Models
         [DisplayName("添付ファイル")]
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
         public BoardFileModel fileModel { get; set; } = new BoardFileModel();
+        [DisplayName("添付ファイル")]
+        public List<IFormFile> CommentFile { get; set; } = new List<IFormFile>();
+        public BoardCommentFileModel commentFileModel { get; set; } = new BoardCommentFileModel();
         public string? work_dir { get; set; }
-
+        public string? comment_work_dir { get; set; }
         public string? Delete_files { get; set; }
         public string? file_nos_remove { get; set; }
 
@@ -168,5 +180,6 @@ namespace web_groupware.Models
         public List<BoardViewModelCategory>? CategoryList = new();
 
         public int commentTotalCount;
+
     }
 }

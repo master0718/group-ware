@@ -6,17 +6,31 @@ $(function () {
     visibleCommentCount = $(".comment-item").length
 
     $(".back").on('click', function () {
-        var path_dir_delete = $('#work_dir').val()
-        var dic_cd = $("#dic_cd").val()
-        $.ajax({
-            type: "GET",
-            url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
-        })
+        if (isEditable && $(this).hasClass('back-edit')) {
+            isEditable = false
+            updateOnEditableChange()
 
-        window.location = baseUrl + "Board/Index"
+        } else {
+
+            var path_dir_delete = $('#work_dir').val()
+            var dic_cd = $("#dic_cd").val()
+            $.ajax({
+                type: "GET",
+                url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
+            })
+
+            window.location = baseUrl + "Board/Index"
+        }
+    })
+
+    $('.btnEdit').on('click', function () {
+        isEditable = true
+        updateOnEditableChange()
+
     })
 
     $('.btnSave').on('click', function (e) {
+        action = "submit";
         $('.loading').show()
 
         var fileNosRemove = fileRemoveList.join(',')
@@ -27,17 +41,42 @@ $(function () {
     })
 
     $('.btnCreate').on('click', function (e) {
+        action = "submit";
         $('.loading').show()
 
         $('#boardForm').trigger("submit")
     })
 
-    $('#boardForm').on('submit', function (e) {
+    $('#btnShowOnTop').on('click', function (e) {
+        let board_no = $('#board_no').val()
+        var url = baseUrl + `Board/UpdateTop?board_no=${board_no}`
+        var currVal = $(this).data('val')
+        
+        $.ajax({
+            method: "GET",
+            url: url,
+            success: function (result) {
+                if (currVal == true) {
+                    $('#btnShowOnTop').text("トップに出す")
+                    $('#btnShowOnTop').data('val', false)
+                } else {
+                    $('#btnShowOnTop').text("トップから消す")
+                    $('#btnShowOnTop').data('val', true)
+                }
+            },
+            error: function (xhr) {
+                alert("Error:" + xhr.responseText)
+            }
+        })
+    })
 
+    $('#boardForm').on('submit', function (e) {
         var applicant_cd = $('#applicant').val()
         $('#applicant_cd').val(applicant_cd)
         var category = $('#board_category').val()
         $('#category_cd').val(category)
+        var show_on_top = $('#btnShowOnTop').data('val')
+        $('#show_on_top').val(show_on_top)
 
         if (!$(this).valid()) {
             $('.loading').hide()
@@ -48,17 +87,20 @@ $(function () {
         var url = baseUrl + `Board/AddComment`
         let board_no = $("#board_no").val()
         let message = $("#message").val()
+        let work_dir = $("#comment_work_dir").val()
         $.ajax({
             method: "POST",
             url: url,
             data: {
                 board_no: board_no,
-                message: message
+                message: message,
+                work_dir: work_dir
             },
             success: function (result) {
                 console.log(result)
                 if (result.comment_no !== undefined) {
-                    updateOnCommentAdded(result.comment_no, result.update_date, message)
+                    $("#comment_work_dir").val(result.comment_work_dir);
+                    updateOnCommentAdded(result.comment_no, result.update_date, message, result.files)
                 }
             },
             error: function (xhr) {
@@ -86,12 +128,96 @@ $(function () {
         })
     })
 
+    function updateOnEditableChange() {
+        if (isEditable) {
+            $('#pageTitle').text('編集')
+
+            $('.btnEdit').attr('hidden', true)
+            $('.btnDelete').attr('hidden', true)
+            $('.btnSave').removeAttr('hidden')
+            $('#btnShowOnTop').attr('hidden', true)
+            $('#title').removeAttr('readonly')
+            $('#content').removeAttr('readonly')
+            $('#board_category').removeAttr('disabled')
+            $('#applicant').removeAttr('disabled')
+
+            $('#File').removeAttr('disabled')
+            $('#drag_area').removeAttr('hidden')
+            $('#drag_area').parent().addClass('dropArea')
+            $(".btn_file").removeClass('download_file')
+            $(".btn_file").attr('data-bs-toggle', 'dropdown')
+
+            $('.comment-area-box').addClass('d-none')
+
+            $('#title').addClass('bg-white')
+            $('#board_category').removeClass('read-only')
+            $('#board_category').addClass('bg-white')
+            $('#content').addClass('bg-white')
+            $('#applicant').removeClass('read-only')
+            $('#applicant').addClass('bg-white')
+        } else {
+            $('#pageTitle').text('詳細')
+
+            $('.btnEdit').removeAttr('hidden')
+            $('.btnDelete').removeAttr('hidden')
+            $('.btnSave').attr('hidden', true)
+            $('#btnShowOnTop').removeAttr('hidden')
+            $('#title').attr('readonly', true)
+            $('#content').attr('readonly', true)
+            $('#board_category').attr('disabled', true)
+            $('#applicant').attr('disabled', true)
+
+            $('#File').attr('disabled', true)
+            $('#drag_area').attr('hidden', true)
+            $('#drag_area').parent().removeClass('dropArea')
+            $(".btn_file").addClass('download_file')
+            $(".btn_file").dropdown('hide')
+            $(".btn_file").attr('data-bs-toggle', '')
+
+            $('.comment-area-box').removeClass('d-none')
+
+            $('#title').removeClass('bg-white')
+            $('#board_category').removeClass('bg-white')
+            $('#board_category').addClass('read-only')
+            $('#content').removeClass('bg-white')
+            $('#applicant').removeClass('bg-white')
+            $('#applicant').addClass('read-only')
+        }
+    }
+
     function updateOnMore(commentList) {
         visibleCommentCount += commentList.length
 
         var html = ''
+        
         for (var i = 0; i < commentList.length; i++) {
             var item = commentList[i]
+            var fileHtml = ''
+            if (item.commentFileDetailList && item.commentFileDetailList.length > 0) {
+                fileHtml += '<div class="row"><div class="col d-flex">';
+                item.commentFileDetailList.forEach(file => {
+                    var icon = file.filename.split('.').pop() + '.svg';
+                    fileHtml += `
+                        <div class="div_icon_child dropdown fileAreaHeitWidth">
+                            <input type="hidden" value="${file.filename}">
+                            <input type="hidden" value="${file.file_no}">
+                            <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                                <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="${file.filename}">
+                                    <div class="div_img_file bg-light p-2">
+                                        <img src="/images/file-icons/${icon}" alt="icon" style="height: 50px;">
+                                    </div>
+                                    <div class="text-wrap">${file.filename}</div>
+                                </div>
+                            </button>
+                            <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                                <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}">ダウンロード</button>
+                            </ul>
+                        </div>
+                    `;
+                });
+                fileHtml += '</div></div>';
+            }
+
             html += `<div class="comment-item d-flex" id="C-${item.comment_no}">
                         <span class="avatar-title rounded-circle bg-success text-white">${item.registrant_name[0]}</span>
                         <div class="flex-1 pt-1 ps-2">
@@ -100,6 +226,7 @@ $(function () {
                                 <small class="text-muted fw-normal float-end pt-1 register-date">${item.register_date}</small>
                             </div>
                             <span class="comment-message">${item.message}</span>
+                            ${fileHtml}
                         </div>
                     </div>`
         }
@@ -111,8 +238,10 @@ $(function () {
         }
     }
 
-    function updateOnCommentAdded(comment_no, update_date, message) {
+    function updateOnCommentAdded(comment_no, update_date, message, files) {
         $("#message").val("")
+        $("input[type='file'][asp-for='@Model.CommentFile']").val('')
+        $("#comment_div_icon").empty()
         
         var visibleCommentCount_ = $(".comment-item").length
         var visibleCommentCountMax = visibleCommentCount == 0 ? commentCountPerPage : (visibleCommentCount % 5 == 0 ? visibleCommentCount : (visibleCommentCount - visibleCommentCount % commentCountPerPage + commentCountPerPage))
@@ -126,6 +255,32 @@ $(function () {
             visibleCommentCount = visibleCommentCountMax
         }
 
+        var fileHtml = '';
+        if (files && files.length > 0) {
+            fileHtml += '<div class="row"><div class="col d-flex">';
+            files.forEach(file => {
+                var icon = file.filename.split('.').pop() + '.svg';
+                fileHtml += `
+                    <div class="div_icon_child dropdown fileAreaHeitWidth">
+                        <input type="hidden" value="${file.filename}">
+                        <input type="hidden" value="${file.file_no}">
+                        <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
+                            <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="${file.filename}">
+                                <div class="div_img_file bg-light p-2">
+                                    <img src="/images/file-icons/${icon}" alt="icon" style="height: 50px;">
+                                </div>
+                                <div class="text-wrap">${file.filename}</div>
+                            </div>
+                        </button>
+                        <ul class="dropdown-menu fileAreaInnerWidth text-center">
+                            <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" >ダウンロード</button>
+                        </ul>
+                    </div>
+                `;
+            });
+            fileHtml += '</div></div>';
+        }
+
         var update_user = $("#registrant_name").val()
         var html = `<div class="comment-item d-flex" id="C-${comment_no}">
                         <span class="avatar-title rounded-circle bg-success text-white">${update_user[0]}</span>
@@ -135,6 +290,7 @@ $(function () {
                                 <small class="text-muted fw-normal float-end pt-1 register-date">${update_date}</small>
                             </div>
                             <span class="comment-message">${message}</span>
+                            ${fileHtml}
                         </div>
                     </div>`
         $("#comment-list").append($(html))

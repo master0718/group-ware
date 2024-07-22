@@ -65,7 +65,6 @@
                                 <th style="min-width:150px;">タイトル</th>
                                 <th style="min-width:150px;">差出人</th>
                                 <th style="min-width:200px;" class="text-center">更新日時</th>
-                                <th style="min-width:400px;"></th>
                             </tr>
                         </thead>
                         <tbody class="card-body">
@@ -73,7 +72,9 @@
                             {
                                 <tr>
                                     <td>
-                                        <span>■業務日報</span><span>@Model.list_report[a][i].report_date</span><span>■</span>
+                                        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="4" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no">
+                                            <span>■業務日報</span><span>@Model.list_report[a][i].report_date</span><span>■</span>
+                                        </a>
                                     </td>
                                     <td>
                                         <span>@Model.list_report[a][i].name</span>
@@ -82,30 +83,13 @@
                                         <span>@Model.list_report[a][i].update_date</span>
                                     </td>
                                     <td class="text-end">
-                                        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="4" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
-                                            <i class="bi bi-check-circle"></i> 確認
-                                        </a>
-                                        <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="5" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
-                                            <i class="bi bi-plus"></i> コメント
-                                        </a>
-                                        @if (Model.list_report[a][i].isMe)
-                                        {
-                                            <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="2" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
-                                                <i class="bi bi-pencil"></i> 変更
-                                            </a>
-                                            <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="3" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-danger">
-                                                <i class="bi bi-trash3"></i> 削除
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <a class="btn btn-info invisible">
-                                                <i class="bi bi-pencil"></i> 変更
-                                            </a>
-                                            <a class="btn btn-info invisible">
-                                                <i class="bi bi-trash3"></i> 削除
-                                            </a>
-                                        }
+                                        @*                                         <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="4" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> 確認
+                                </a>
+                                <a asp-controller="Report" asp-action="ReportDetail" asp-route-mode="5" asp-route-cond_date="@Model.cond_date" asp-route-cond_already_read="@Model.cond_already_read" asp-route-report_no="@Model.list_report[a][i].report_no" class="btn btn-primary">
+                                <i class="bi bi-plus"></i> コメント
+                                </a>
+                                *@
                                     </td>
                                 </tr>
                             }

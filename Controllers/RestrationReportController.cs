@@ -116,7 +116,7 @@ namespace web_groupware.Controllers
                 // 発注基本情報
                 sql.Append(" FROM T_HATTINFO HED ");
                 // 物件基本情報
-                sql.Append(" INNER JOIN T_BUKKEN BUK ");
+                sql.Append(" INNER JOIN M_BUKKEN BUK ");
                 sql.Append("  ON  HED.bukn_cd = BUK.bukn_cd ");
 
                 sql.AppendLine(" LEFT JOIN ( ");

@@ -3,7 +3,7 @@
 }
 
 function load_(user_id, resourceType, list, eventsData, cdName) {
-    if (list != null &&　list.length > 0) {
+    if (list != null && list.length > 0) {
         list.forEach((element, index) => {
 
             var resourceId;
@@ -14,7 +14,9 @@ function load_(user_id, resourceType, list, eventsData, cdName) {
                 resourceId = element.place_cd
             }
 
-            if (element.repeat_type == 0) { // none
+            var repeat_type = element.repeat_type
+
+            if (repeat_type == 0) { // none
 
                 if (element.start_datetime !== undefined) {
                     eventsData.push({
@@ -22,140 +24,67 @@ function load_(user_id, resourceType, list, eventsData, cdName) {
                         'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
                         'start': moment(element.start_datetime, 'YYYY.MM.DD HH:mm').format('YYYY-MM-DD HH:mm'),
                         'end': moment(element.end_datetime, 'YYYY.MM.DD HH:mm').format('YYYY-MM-DD HH:mm'),
-                        'className': ["cell-color"], 'is_private': element.is_private
+                        'className': ["cell-color"], 'is_private': element.is_private,
+                        'place_cd': element.place_cd
                     })
                 }
 
-            } else if (element.repeat_type == 1) { // daily
-
-                var diffDays = 0
+            } else if (repeat_type == 1 || repeat_type == 2 || repeat_type == 3) { // daily | daily no holiday | weekly
                 var from = null
+                var to = null
                 if (element.repeat_date_from != null && element.repeat_date_to != null) {
                     from = moment(new Date(element.repeat_date_from))
-                    var to = moment(new Date(element.repeat_date_to))
-                    diffDays = to.diff(from, "days")
-                } else {
-                    from = moment(new Date())
-                    diffDays = 365
+                    to = moment(new Date(element.repeat_date_to)).add(1, 'days')
                 }
-                for (var i = 0; i <= diffDays; i++) {
-                    var date = from.format('YYYY-MM-DD')
-                    var time_from = element.time_from
-                    var time_to = element.time_to
-                    eventsData.push({
-                        'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
-                        'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
-                        'start': date + ' ' + time_from,
-                        'end': date + ' ' + time_to,
-                        'className': ["cell-color"], 'is_private': element.is_private
-                    })
-                    from.add(1, 'days')
+                var data = {
+                    'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
+                    'typename': element.typename, 'typecolor': element.typecolor, 'color': element.color,
+                    'startTime': element.time_from,
+                    'endTime': element.time_to,
+                    'className': ["cell-color"], 'is_private': element.is_private,
+                    'place_cd': element.place_cd
+                }
+                if (from != null) {
+                    data.startRecur = from.format('YYYY-MM-DD')
+                }
+                if (to != null) {
+                    data.endRecur = to.format('YYYY-MM-DD')
                 }
 
-            } else if (element.repeat_type == 2) { // daily no holiday
+                if (repeat_type == 2) {
+                    data.daysOfWeek = ['1', '2', '3', '4', '5']
+                } else if (repeat_type == 3) {
+                    data.daysOfWeek = [element.every_on]
+                }
 
-                var diffDays = 0
+                eventsData.push(data)
+
+            } else if (repeat_type == 4) { // monthly
+
                 var from = null
+                var to = null
                 if (element.repeat_date_from != null && element.repeat_date_to != null) {
                     from = moment(new Date(element.repeat_date_from))
-                    var to = moment(new Date(element.repeat_date_to))
-                    diffDays = to.diff(from, "days")
-                } else {
-                    from = moment(new Date())
-                    diffDays = 365
+                    to = moment(new Date(element.repeat_date_to)).add(1, 'days')
                 }
-                for (var i = 0; i <= diffDays; i++) {
-                    var weekday = from.isoWeekday()
-                    if (weekday < 6 && !isHoliday(from)) {
-                        var date = from.format('YYYY-MM-DD')
-                        var time_from = element.time_from
-                        var time_to = element.time_to
-                        eventsData.push({
-                            'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
-                            'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
-                            'start': date + ' ' + time_from,
-                            'end': date + ' ' + time_to,
-                            'className': ["cell-color"], 'is_private': element.is_private
-                        })
-                    }
-                    from.add(1, 'days')
+                var data = {
+                    'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
+                    'typename': element.typename, 'typecolor': element.typecolor, 'color': element.color,
+                    'startTime': element.time_from,
+                    'endTime': element.time_to,
+                    'className': ["cell-color"], 'is_private': element.is_private,
+                    'place_cd': element.place_cd
+                }
+                if (from != null) {
+                    data.startRecur = from.format('YYYY-MM-DD')
+                }
+                if (to != null) {
+                    data.endRecur = to.format('YYYY-MM-DD')
                 }
 
-            } else if (element.repeat_type == 3) { // weekly
+                data.daysOfMonth = [element.every_on]
 
-                var weeks = 0
-                var from = null
-                if (element.repeat_date_from != null && element.repeat_date_to != null) {
-                    from = moment(new Date(element.repeat_date_from))
-                    var to = moment(new Date(element.repeat_date_to))
-                    var diffDays = to.diff(from, "days")
-                    weeks = Math.floor((diffDays + 7) / 7)
-                } else {
-                    from = moment(new Date())
-                    weeks = 27
-                }
-                var every_on = element.every_on
-                from = from.startOf('week').add(every_on, 'days')
-                for (var i = 0; i <= weeks; i++) {
-                    var date = from.format('YYYY-MM-DD')
-                    var time_from = element.time_from
-                    var time_to = element.time_to
-                    eventsData.push({
-                        'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
-                        'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
-                        'start': date + ' ' + time_from,
-                        'end': date + ' ' + time_to,
-                        'className': ["cell-color"], 'is_private': element.is_private
-                    })
-                    from.add(1, 'weeks')
-                }
-
-            } else if (element.repeat_type == 4) { // monthly
-
-                var every_on = element.every_on
-                var from = null
-                if (element.repeat_date_from != null && element.repeat_date_to != null) {
-                    from = moment(new Date(element.repeat_date_from))
-                    var to = moment(new Date(element.repeat_date_to))
-                    for (; ;) {
-                        var startOf = moment(from.startOf('month'))
-                        var from_ = startOf.add(every_on - 1, 'days')
-                        if (from_.get('date') == every_on) {
-                            var date = from_.format('YYYY-MM-DD')
-                            var time_from = element.time_from
-                            var time_to = element.time_to
-                            eventsData.push({
-                                'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
-                                'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
-                                'start': date + ' ' + time_from,
-                                'end': date + ' ' + time_to,
-                                'className': ["cell-color"], 'is_private': element.is_private
-                            })
-                        }
-                        from.add(1, 'months')
-                        if (from.isAfter(to))
-                            break
-                    }
-                } else {
-                    from = moment(new Date())
-                    for (var i = 0; i < 12; i++) {
-                        var startOf = moment(from.startOf('month'))
-                        var from_ = startOf.add(every_on - 1, 'days')
-                        if (from_.get('date') == every_on) {
-                            var date = from_.format('YYYY-MM-DD')
-                            var time_from = element.time_from
-                            var time_to = element.time_to
-                            eventsData.push({
-                                'resourceId': resourceId, 'schedule_no': element.schedule_no, 'title': element.title,
-                                'typename': element.typename, 'typecolor': element.typecolor, 'bkcolor': element.color,
-                                'start': date + ' ' + time_from,
-                                'end': date + ' ' + time_to,
-                                'className': ["cell-color"], 'is_private': element.is_private
-                            })
-                        }
-                        from.add(1, 'months')
-                    }
-                }
+                eventsData.push(data)
             }
         })
     }

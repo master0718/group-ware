@@ -20,31 +20,35 @@
 <div class='card'>
     <form id="frm" method="post" asp-controller="Board" asp-action="Index">
         <div class="card-header d-flex align-items-center">
-            <div class="d-flex col-lg-2 col-2">
-                <div class="search-bar me-4">
-                    <div class="position-relative">
-                        <input id="text-searach" type="text" class="form-control form-control-light" placeholder="">
-                        <span class="bi bi-search"></span>
-                    </div>
+            <div class="d-flex col-lg-3 col-3 me-4">
+                <div class="input-group">
+                    <span class="input-group-text">タイトル・内容</span>
+                    <input type="text" asp-for="@Model.cond_keyword" class="form-control form-control-light" placeholder="">
                 </div>
             </div>
             <div class="d-flex col-lg-2 col-2 me-4">
-                <span class="input-group-text">確認状態</span>
-                <select asp-for="@Model.cond_already_read" asp-items="@Model.list_already_read" class="form-select site_change_post">
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text">確認状態</span>
+                    <select asp-for="@Model.cond_already_read" asp-items="@Model.list_already_read" class="form-select site_change_post">
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex col-lg-2 col-2 align-items-center me-4">
+                <div class="input-group">
+                    <span class="input-group-text">担当者</span>
+                    <select asp-for="@Model.cond_applicant" asp-items="@Model.list_applicant" class="form-select site_change_post">
+                    </select>
+                </div>
             </div>
             <div class="d-flex col-lg-2 col-2 me-4">
-                <span class="input-group-text">担当者</span>
-                <select asp-for="@Model.cond_applicant" asp-items="@Model.list_applicant" class="form-select site_change_post">
-                </select>
-            </div>
-            <div class="d-flex col-lg-2 col-2 me-4">
-                <span class="input-group-text">種類</span>
-                <select asp-for="@Model.cond_category" asp-items="@Model.list_category" class="form-select site_change_post">
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text">種類</span>
+                    <select asp-for="@Model.cond_category" asp-items="@Model.list_category" class="form-select site_change_post">
+                    </select>
+                </div>
             </div>
             <div class="d-flex col-lg-3 col-3">
-                <a class="btn btn-primary" style="margin-left: auto" asp-action="Create">
+                <a class="btn btn-primary" asp-action="Create">
                     <i class="bi bi-plus"></i> 新規登録
                 </a>
             </div>

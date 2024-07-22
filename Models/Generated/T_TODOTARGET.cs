@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace web_groupware.Models
 {
@@ -9,10 +11,14 @@ namespace web_groupware.Models
 
         public int staf_cd { get; set; }
 
-        public T_TODOTARGET(int todo_no, int staf_cd)
-        {
-            this.todo_no = todo_no;
-            this.staf_cd = staf_cd;
-        }
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime create_date { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string update_user { get; set; }
+        [DataType(DataType.DateTime)]
+        public DateTime update_date { get; set; }
     }
 }

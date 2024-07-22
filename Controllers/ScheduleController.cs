@@ -319,11 +319,11 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(string start_date)
+        public IActionResult Create(string start_date, string? curr_date = null)
         {
             try
             {
-                var viewModel = CreateScheduleView(start_date);
+                var viewModel = CreateScheduleView(start_date, curr_date);
                 return View("Create", viewModel);
             }
             catch (Exception ex)
@@ -331,7 +331,7 @@ namespace web_groupware.Controllers
                 _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
-            }            
+            }
         }
 
         [HttpPost]
@@ -356,13 +356,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditGroupDay(int schedule_no, string start_date)
+        public IActionResult EditGroupDay(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "group_day";
                 ViewBag.ViewMode = "GroupDay";
-                return Edit(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return Create(start_date, curr_date);
+                }
+                else
+                {
+                    return Edit(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -373,13 +380,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditGroupWeek(int schedule_no, string start_date)
+        public IActionResult EditGroupWeek(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "group_week";
                 ViewBag.ViewMode = "GroupWeek";
-                return Edit(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return Create(start_date, curr_date);
+                }
+                else
+                {
+                    return Edit(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -390,13 +404,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditPersonWeek(int schedule_no, string start_date)
+        public IActionResult EditPersonWeek(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "person_week";
                 ViewBag.ViewMode = "PersonWeek";
-                return Edit(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return Create(start_date, curr_date);
+                }
+                else
+                {
+                    return Edit(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -407,13 +428,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditPersonMonth(int schedule_no, string start_date)
+        public IActionResult EditPersonMonth(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "person_month";
                 ViewBag.ViewMode = "PersonMonth";
-                return Edit(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return Create(start_date, curr_date);
+                }
+                else
+                {
+                    return Edit(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -424,13 +452,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditPersonMonth2(int schedule_no, string start_date)
+        public IActionResult EditPersonMonth2(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "person_month2";
                 ViewBag.ViewMode = "PersonMonth2";
-                return Edit(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return Create(start_date, curr_date);
+                }
+                else
+                {
+                    return Edit(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -518,20 +553,18 @@ namespace web_groupware.Controllers
                 var schedulePeople = (from p in _context.T_SCHEDULEPEOPLE
                                       where group_cd == 0 || staffs_in_group.Contains(p.staf_cd)
                                       select new { p.schedule_no, p.staf_cd });
-                                    //  .Union(
-                                    //from g in _context.T_SCHEDULEGROUP
-                                    //join gs in _context.T_GROUPSTAFF on g.group_cd equals gs.group_cd
-                                    //where group_cd == 0 || staffs_in_group.Contains(gs.staf_cd)
-                                    //select new { g.schedule_no, gs.staf_cd });
 
                 var scheduleList = (from s in _context.T_SCHEDULE
                                     join p in schedulePeople on s.schedule_no equals p.schedule_no
+                                    join l in _context.T_SCHEDULEPLACE on s.schedule_no equals l.schedule_no into placeGroup
+                                    from place in placeGroup.DefaultIfEmpty()
                                     let r = _context.T_SCHEDULE_REPETITION.FirstOrDefault(x => x.schedule_no == s.schedule_no)
                                     join u in _context.M_STAFF on p.staf_cd equals u.staf_cd
                                     join m in _context.M_SCHEDULE_TYPE on s.schedule_type equals m.schedule_type
                                     orderby s.schedule_no, s.start_datetime
                                     select new
                                     {
+                                        place_cd = place != null ? place.place_cd : 0,
                                         s.schedule_no,
                                         u.staf_cd,
                                         typename = m.schedule_typename,
@@ -587,14 +620,11 @@ namespace web_groupware.Controllers
                 var schedulePeople = (from p in _context.T_SCHEDULEPEOPLE
                                       where p.staf_cd == filter_user_id
                                       select new { p.schedule_no, p.staf_cd });
-                                    //  .Union(
-                                    //from g in _context.T_SCHEDULEGROUP
-                                    //join gs in _context.T_GROUPSTAFF on g.group_cd equals gs.group_cd
-                                    //where gs.staf_cd == filter_user_id
-                                    //select new { g.schedule_no, gs.staf_cd });
 
                 var scheduleList = (from s in _context.T_SCHEDULE
                                     join p in schedulePeople on s.schedule_no equals p.schedule_no
+                                    join l in _context.T_SCHEDULEPLACE on s.schedule_no equals l.schedule_no into placeGroup
+                                    from place in placeGroup.DefaultIfEmpty()
                                     let r = _context.T_SCHEDULE_REPETITION.FirstOrDefault(x => x.schedule_no == s.schedule_no)
                                     join u in _context.M_STAFF on p.staf_cd equals u.staf_cd
                                     join m in _context.M_SCHEDULE_TYPE on s.schedule_type equals m.schedule_type
@@ -602,6 +632,7 @@ namespace web_groupware.Controllers
                                     orderby s.schedule_no, s.start_datetime
                                     select new
                                     {
+                                        place_cd = place != null ? place.place_cd : 0,
                                         s.schedule_no,
                                         u.staf_cd,
                                         typename = m.schedule_typename,

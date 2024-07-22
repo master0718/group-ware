@@ -145,21 +145,16 @@ namespace web_groupware.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        public async Task<IActionResult> GetReportCount()
+        public async Task<string> GetReportCount()
         {
             //frist_no==1 日報
             //first_no==2 日報コメント
             //second_no== 日報番号
             var staf_cd = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-            var t_report = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id ==INFO_PERSONAL_PARENT_ID.T_REPORT&&x.staf_cd.ToString()== staf_cd&&x.already_checked==false).Count());
-            var t_reportcomment = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_REPORTCOMMENT&& x.staf_cd.ToString() == staf_cd && x.already_checked == false).Count());
-            //_context.T_REPORTCOMMENT_READ.Where(x => x.staf_cd == staf_cd && x.alreadyread_flg ==false && x.update_user!=staf_cd.ToString());
+            var t_report = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_REPORT && x.staf_cd.ToString() == staf_cd && x.already_read == false).Count());
+            var t_reportcomment = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_REPORTCOMMENT && x.staf_cd.ToString() == staf_cd && x.already_read == false).Count());
             string count = t_report + t_reportcomment == 0 ? "" : (t_report + t_reportcomment).ToString();
-            var arrMessage = new string[1]
-        {
-                            count
-        };
-            return new JsonResult(arrMessage);
+            return count;
 
         }
         /// <summary>
@@ -167,18 +162,14 @@ namespace web_groupware.Controllers
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        public async Task<IActionResult> GetBukkenCommentReadCount()
+        public async Task<string> GetBukkenCommentReadCount()
         {
             //var staf_cd= int.Parse(HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value);
             var staf_cd = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
-            var records = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x =>x.parent_id==INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT&& x.staf_cd == int.Parse(staf_cd) && x.already_checked == false && x.update_user != staf_cd.ToString()));
+            var records = await Task.Run(() => _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.staf_cd == int.Parse(staf_cd) && x.already_read == false && x.update_user != staf_cd.ToString()));
             //_context.T_REPORTCOMMENT_READ.Where(x => x.staf_cd == staf_cd && x.alreadyread_flg ==false && x.update_user!=staf_cd.ToString());
             string count = records.Count() == 0 ? "" : records.Count().ToString();
-            var ret = new
-            {
-                count = count
-            };
-            return new JsonResult(ret);
+            return count;
         }
         /// <summary>
         /// 社員検索ダイアログ
@@ -189,8 +180,8 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var t_group=await _context.M_GROUP.ToListAsync();
-                for(int g = 0; g < t_group.Count; g++)
+                var t_group = await _context.M_GROUP.ToListAsync();
+                for (int g = 0; g < t_group.Count; g++)
                 {
                     var group = new SelectListItem()
                     {
@@ -199,31 +190,32 @@ namespace web_groupware.Controllers
                     };
                     model.List_group_cd.Add(group);
                 }
-                var t_staff = _context.M_STAFF.Where(x => x.staf_cd.ToString() != HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value).Select(x=>new {x.staf_cd,x.staf_name});
-                if (model.Selected_group_cd != null&& model.Selected_group_cd != "-1")
+                var t_staff = _context.M_STAFF.Where(x => x.staf_cd.ToString() != HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value).Select(x => new { x.staf_cd, x.staf_name });
+                if (model.Selected_group_cd != null && model.Selected_group_cd != "-1")
                 {
                     t_staff = t_staff.Join(_context.T_GROUPSTAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new
                     {
                         x.staf_cd,
                         x.staf_name,
                         y.group_cd
-                    }).Where(x => x.group_cd.ToString() == model.Selected_group_cd).Select(x => new {x.staf_cd,x.staf_name});
+                    }).Where(x => x.group_cd.ToString() == model.Selected_group_cd).Select(x => new { x.staf_cd, x.staf_name });
                 }
-                var list=t_staff.ToList();
-                for (int i = 0;i<t_staff.Count();i++)
+                var list = t_staff.ToList();
+                for (int i = 0; i < t_staff.Count(); i++)
                 {
                     var staff = new BaseDialogStaffCheckBoxModel()
                     {
                         Staf_cd = list[i].staf_cd,
                         Staf_name = list[i].staf_name,
-                        Is_checked=false
+                        Is_checked = false
                     };
                     model.List_staf_cd.Add(staff);
                 }
                 return View(model);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
 
@@ -265,11 +257,11 @@ namespace web_groupware.Controllers
             }
             else if (second > 604800)
             {
-                message = second/604800 + "週間前";
+                message = second / 604800 + "週間前";
             }
-            else if ( second>= 86400)
+            else if (second >= 86400)
             {
-                message = second/86400 + "日前";
+                message = second / 86400 + "日前";
             }
             else if (ymd < today0am)
             {
@@ -277,11 +269,11 @@ namespace web_groupware.Controllers
             }
             else if (second >= 3600)
             {
-                message = second/3600 + "時間前";
+                message = second / 3600 + "時間前";
             }
             else
             {
-                message = second /60 + "分前";
+                message = second / 60 + "分前";
             }
             return message;
 
@@ -346,7 +338,7 @@ namespace web_groupware.Controllers
                     catch (Exception ex)
                     {
                         tran.Rollback();
-                        _logger.LogError(ex.Message);
+                        _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                         _logger.LogError(ex.StackTrace);
                         tran.Dispose();
                         throw;
@@ -355,11 +347,65 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return StatusCode(500, ex.Message);
             }
         }
+        /// <summary>
+        /// ファイルプレビュー
+        /// </summary>
+        /// <param name="dic_cd">dic_cd</param>
+        /// <param name="dir_no">ルートディレクトリの下のディレクトリ名</param>
+        /// <param name="file_name">ファイル名</param>
+        [HttpGet]
+        public IActionResult PreviewFile(string dic_cd, string dir_no, string file_name)
+        {
+            try
+            {
+                var root_dir = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd).content;
+                var fullPath = Path.Combine(root_dir, dir_no, file_name);
+
+                var model = new BasePreviewFile();
+                model.dic_cd = dic_cd;
+                model.dir_no = dir_no;
+                model.file_name = file_name;
+                return View("DialogPreviewFile", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+        /// <summary>
+        /// ファイルダウンロード
+        /// </summary>
+        /// <param name="dic_cd">dic_cd</param>
+        /// <param name="dir_no">ルートディレクトリの下のディレクトリ名</param>
+        /// <param name="file_name">ファイル名</param>
+        [HttpGet]
+        public IActionResult DownloadFile_stream(string dic_cd, string dir_no, string file_name)
+        {
+            try
+            {
+                var root_dir = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd).content;
+                var fullPath = Path.Combine(root_dir, dir_no, file_name);
+                new FileExtensionContentTypeProvider()
+                                .TryGetContentType(fullPath, out string contentType);
+                if (contentType == null) contentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+                FileStream stream = new FileStream(fullPath, FileMode.Open);
+                return File(stream, contentType);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
         /// <summary>
         /// ファイルダウンロード
         /// </summary>
@@ -384,7 +430,34 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult DownloadFileM(int file_no)
+        {
+            try
+            {
+                var root_dir = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.FILEINFO).content;
+
+                var fileInfo = _context.T_FILEINFO.FirstOrDefault(x => x.file_no == file_no);
+                var path = fileInfo.path == "共有フォルダ" ? "" : fileInfo.path;
+                var fileName = fileInfo.name;
+                var fullPath = Path.Combine(root_dir, path, fileName);
+
+                var content = System.IO.File.ReadAllBytes(fullPath);
+                new FileExtensionContentTypeProvider()
+                                .TryGetContentType(fullPath, out string contentType);
+                if (contentType == null) contentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+
+                return File(content, contentType, fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return StatusCode(500, ex.Message);
             }
@@ -400,18 +473,18 @@ namespace web_groupware.Controllers
         {
             try
             {
-                        var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd);
-                        var dir_root = t_dic.content;
-                        work_dir = Path.Combine(dir_root, work_dir);
+                var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd);
+                var dir_root = t_dic.content;
+                work_dir = Path.Combine(dir_root, work_dir);
 
-                        System.IO.File.Delete(Path.Combine(work_dir, file_name));
+                System.IO.File.Delete(Path.Combine(work_dir, file_name));
 
-                        return Ok();
+                return Ok();
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return StatusCode(500, ex.Message);
             }
@@ -435,7 +508,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return StatusCode(500, ex.Message);
             }
@@ -466,7 +539,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 return StatusCode(500, ex.Message);
             }
@@ -582,7 +655,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -596,15 +669,15 @@ namespace web_groupware.Controllers
         {
             try
             {
-                        var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd);
-                        var dir_root = t_dic.content;
-                        var work_dir_full = Path.Combine(dir_root, work_dir);
+                var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd);
+                var dir_root = t_dic.content;
+                var work_dir_full = Path.Combine(dir_root, work_dir);
 
-                        return work_dir_full;
+                return work_dir_full;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -667,6 +740,12 @@ namespace web_groupware.Controllers
                         list_file.Add(list_dic_cd_dir_no_fileName);
                     }
                     TempData["Base_top_info_file"] = JsonSerializer.Serialize(list_file);
+                    //日報未読件数
+                    var count_report = GetReportCount().Result;
+                    TempData["Base_count_report"] = count_report;
+                    //物件メモ未読件数
+                    var count_bukken_memo = GetBukkenCommentReadCount().Result;
+                    TempData["Base_count_bukken_memo"] = count_bukken_memo;
                 }
 
                 // OnActionExecuted に相当する処理
@@ -674,7 +753,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }

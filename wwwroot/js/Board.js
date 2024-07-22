@@ -6,50 +6,7 @@ $(function () {
     $(".task").on('click', function () {
         let itemId = $(this).attr('id').substr(6)
         window.location.href = baseUrl + `Board/Update?id=${itemId}`
-    })
-    $('#text-searach').on('keyup', function () {
-        search($(this).val(), $('#checked').val(), $('#applicant').val(), $('#category').val())
-    })
-
-    $('#checked').on('change', function () {
-        search($('#text-searach').val(), $(this).val(), $('#applicant').val(), $('#category').val())
-    })
-    $('#applicant').on('change', function () {
-        search($('#text-searach').val(), $('#checked').val(), $(this).val(), $('#category').val())
-    })
-
-    $('#category').on('change', function () {
-        search($('#text-searach').val(), $('#checked').val(), $('#applicant').val(), $(this).val())
-    })
-
-    function search(text, checked, staff_cd, category_cd) {
-        if (checked == "0" && staff_cd == "0" && text == "" && category_cd == "0") {
-            $("li[id^='board']").removeClass('d-none')
-        } else {
-            $("li[id^='board']").each(function () {
-                var title = $(this).find('.item-title').html()
-                var item_checked = $(this).data('checked')
-                var applicant_cd = $(this).data('applicant_cd')
-                var this_category_cd = $(this).data('category_cd')
-                //var content = $(this).find('.item-content').html()
-                var text_ = new RegExp(text, 'i')
-                var show_checked = false;
-                var show_staff = false;
-                var show_category = false;
-                var show_text = false;
-                if (text == "" || title.search(text_) != -1) show_text = true;
-                if (checked == "0" || (checked == "1" && item_checked == "0") || (checked == "2" && item_checked == "1")) show_checked = true;
-                if (staff_cd == "0" || applicant_cd == staff_cd) show_staff = true;
-                if (category_cd == "0" || category_cd == this_category_cd) show_category = true;
-                if (show_checked && show_text && show_staff && show_category) {
-                    $(this).removeClass('d-none')
-                }
-                else {
-                    $(this).addClass('d-none')
-                }
-            })
-        }
-    }
+    })    
 })
 
 ////function FilterChanged() {

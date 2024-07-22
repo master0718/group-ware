@@ -7,18 +7,16 @@ namespace web_groupware.Models
     public class T_INFO_PERSONAL
     {
         [Key]
+
+        public int info_personal_no { get; set; }
         public int parent_id { get; set; }
-        [Key]
         public int first_no { get; set; }
-        [Key]
         public int second_no { get; set; }
-        [Key]
         public int third_no { get; set; }
-        [Key]
         public int staf_cd { get; set; }
         [ForeignKey(nameof(staf_cd))]
         public virtual M_STAFF? staff { get; set; }
-        public bool already_checked { get; set; }
+        public bool already_read { get; set; }
         public string title { get; set; }
         public string content { get; set; }
         public string url { get; set; }

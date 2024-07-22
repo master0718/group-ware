@@ -1,4 +1,5 @@
-@model web_groupware.Models.WorkFlowDetail
+@model web_groupware.Models.WorkFlowDetailViewModel
+@using web_groupware.Utilities;
 
 @{
     ViewData["Title"] = "ワークフロー	";
@@ -8,80 +9,114 @@
     <link href="~/css/file.css" rel="stylesheet" />
 }
 
-<div>
-    <div class="row">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
-                <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="WorkFlow" asp-action="Index">ワークフロー	</a></li>
-                <li class="breadcrumb-item active" aria-current="page">新規登録</li>
-            </ol>
-        </nav>
-    </div>
-    <form asp-action="Create" id="workFlowForm" class="form-box" method="post" enctype="multipart/form-data">
-        <div class="card">
-            <div class="card-header justify-content-between d-flex align-items-center">
-                <span>
-                    <h4 class="mb-0">新規登録</h4>
-                </span>
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                        <i class="bi bi-arrow-return-left"></i> キャンセル
-                    </button>
-                    <button type="button" class="btn btn-primary btnCreate">
-                        <i class="bi bi-plus"></i> 新規登録
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="form-group">
-                    <label asp-for="@Model.File" class="form-label"></label>
-                    <partial name="_FileList" model="@Model.fileModel" />
-                </div>
-
-                <div class="row mb-3" id="fileArea">
-                    <input type="hidden" asp-for="@Model.work_dir">
-                    <input type="hidden" id="dic_cd" value="9">
-                    <div class="col-12 dropArea border-0 p-2">
-                        <div id="drag_area" class="text-center px-3 py-3 bg-white">
-                            <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
-                            <label class="input-group-btn hand-pointer">
-                                <span class="btn btn-secondary">
-                                    ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
-                                </span>
-                            </label>
-                            <br>
-                            <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
-                        </div>
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="WorkFlow" asp-action="Index">ワークフロー	</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">新規登録</li>
+                </ol>
+            </nav>
+        </div>
+        <form asp-action="Create" id="workFlowForm" class="form-box" method="post" enctype="multipart/form-data">
+            <div class="card">
+                <div class="card-header justify-content-between d-flex align-items-center">
+                    <span>
+                        <h4 class="mb-0">新規登録</h4>
+                    </span>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
+                        </button>
+                        <button type="button" class="btn btn-primary btnCreate">
+                            <i class="bi bi-plus"></i> 新規登録
+                        </button>
                     </div>
                 </div>
-                
-                <div class="form-group mb-3">
-                    <label asp-for="@Model.title" class="form-label">タイトル</label>
-                    <input asp-for="@Model.title" type="text" class="form-control" id="s_title" required>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input hidden asp-for="@Model.request_type" />
+                    <input hidden asp-for="@Model.approver_cd" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.request_type" class="form-label"></label>
+                        <select asp-for="@Model.request_type" class="form-select bg-white" id="sel_request_type">
+                            @if (Model.requestTypeList != null)
+                            {
+                                @foreach (var item in Model.requestTypeList)
+                                {
+                                    <option value=@item.request_type>@item.request_name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="request_type" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.approver_cd" class="form-label"></label>
+                        <select class="form-select bg-white" id="sel_approver_cd">
+                            @if (Model.staffList != null)
+                            {
+                                @foreach (var item in Model.staffList)
+                                {
+                                    <option value=@item.staff_cd>@item.staff_name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.title" class="form-label"></label>
+                        <input type="text" asp-for="@Model.title" class="form-control bg-white" />
+                        <span asp-validation-for="@Model.title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.description" class="form-label"></label>
+                        <textarea asp-for="@Model.description" class="form-control bg-white"
+                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <span asp-validation-for="@Model.description" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.File" class="form-label"></label>
+                        <partial name="_FileList" model="@Model.fileModel" />
+                    </div>
+
+                    <div class="row mb-3" id="fileArea">
+                        <input type="hidden" asp-for="@Model.work_dir">
+                        <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.WORKFLOW">
+                        <div class="col-12 dropArea border-0 p-2">
+                            <div id="drag_area" class="text-center px-3 py-3 bg-white">
+                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                <label class="input-group-btn hand-pointer">
+                                    <span class="btn btn-secondary">
+                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
+                                    </span>
+                                </label>
+                                <br>
+                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="@Model.description" class="form-label">説明</label>
-                    <textarea asp-for="@Model.description" class="form-control" id="s_description"></textarea>
-                </div>               
-            </div>
-
-            <div class="card-footer">
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                        <i class="bi bi-arrow-return-left"></i> キャンセル
-                    </button>
-                    <button type="button" class="btn btn-primary btnCreate">
-                        <i class="bi bi-plus"></i> 新規登録
-                    </button>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
+                        </button>
+                        <button type="button" class="btn btn-primary btnCreate">
+                            <i class="bi bi-plus"></i> 新規登録
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-        
+        </form>
+    </div>
 </div>
 
 @section Scripts {
@@ -91,6 +126,7 @@
         <script src="~/js/WorkFlowCreate.js" asp-append-version="true"></script>
         <script src="~/js/File.js" asp-append-version="true"></script>
     }
+    <script>
+        var isEditable = true
+    </script>
 }
-
-

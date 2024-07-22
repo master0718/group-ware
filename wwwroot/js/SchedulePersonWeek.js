@@ -57,6 +57,9 @@ function updateOnResponse(scheduleList, initialDate) {
 
     let buttons = 'prev,prev_day,next_day,next today'
     var calendarEl = document.getElementById('calendar');
+    if (calendar != null) {
+        calendar.destroy();
+    }
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "timeGridWeek",
         initialDate: initialDate,
@@ -106,14 +109,11 @@ function updateOnResponse(scheduleList, initialDate) {
         eventDurationEditable: false, // Disable Resize
         height: '720px',
         allDaySlot: false,
-        slotLabelClassNames: function (data) {
+        dayHeaderClassNames: function(data) {
             var localDate = data.date;
-            var utcTimestamp = localDate.getTime() + (localDate.getTimezoneOffset() * 60000); // Convert local time to UTC timestamp
-            var utcDate = new Date(utcTimestamp); // Create a new Date object with the UTC timestamp
-
-            var year = utcDate.getFullYear();
-            var month = String(utcDate.getMonth() + 1).padStart(2, '0');
-            var day = String(utcDate.getDate()).padStart(2, '0');
+            var year = localDate.getFullYear();
+            var month = String(localDate.getMonth() + 1).padStart(2, '0');
+            var day = String(localDate.getDate()).padStart(2, '0');
             var stringDate = year + '-' + month + '-' + day;
 
             if ($.inArray(stringDate, holidays) !== -1) {
@@ -127,9 +127,15 @@ function updateOnResponse(scheduleList, initialDate) {
         },
         events: eventsData,
         eventContent: function (arg) {
-            var contentStyle = arg.event.extendedProps.bkcolor == undefined ? `` : ` style="background-color:${arg.event.extendedProps.bkcolor}"`
+            var props = arg.event.extendedProps;
+            var contentStyle = props.bkcolor == undefined ? `` : ` style="background-color:${props.bkcolor}"`
             let startTime = arg.event.start;
             let endTime = arg.event.end;
+            let schedule_no = props.schedule_no;
+            let place_cd = props.place_cd;
+
+            let from = moment(startTime, 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm');
+            let to = moment(endTime, 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm');
         
             // Format the start and end times to display in the format of 7.00-8.00
             let formattedStartTime = startTime.toLocaleTimeString('ja', {hour: 'numeric', minute: '2-digit'});
@@ -137,7 +143,7 @@ function updateOnResponse(scheduleList, initialDate) {
         
             if (arg.event.extendedProps.is_private) {
                 return {
-                    html: `<div class="fc-content"${contentStyle}>
+                    html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}">
                                 <div class="fc-date">${formattedStartTime}-${formattedEndTime}</div>
                                 <div class="px-1">
                                     <span class="fc-type px-1" style="background-color:${arg.event.extendedProps.typecolor}; height:fit-content;">${arg.event.extendedProps.typename}</span>
@@ -149,7 +155,7 @@ function updateOnResponse(scheduleList, initialDate) {
             }
             else {
                 return {
-                    html: `<div class="fc-content"${contentStyle}>
+                    html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}">
                                 <div class="fc-date">${formattedStartTime}-${formattedEndTime}</div>
                                 <div class="px-1">
                                     <span class="fc-type px-1" style="background-color:${arg.event.extendedProps.typecolor}; height:fit-content;">${arg.event.extendedProps.typename}</span>
@@ -183,6 +189,36 @@ function updateOnResponse(scheduleList, initialDate) {
             var startDate = currentView.activeStart;
 
             window.location.href = "EditPersonWeek?schedule_no=" + schedule_no + "&start_date=" + moment(startDate).format('YYYY-MM-DD');
+        },
+        viewClassNames: function (fn) {
+            $(".fc-content").each(function () {
+                var duplicated = false;
+                var thiz = $(this);
+                var schedule_no = thiz.data('schedule_no');
+                var place_cd = thiz.data('place_cd');
+                var from = moment(thiz.data('from'), 'YYYY/MM/DD HH:mm');
+                var to = moment(thiz.data('to'), 'YYYY/MM/DD HH:mm');
+
+                $(".fc-content").each(function () {
+                    var thiz1 = $(this);
+
+                    if (schedule_no == thiz1.data('schedule_no') && place_cd == thiz1.data('place_cd')) return; // itself
+                    if (place_cd != thiz1.data('place_cd')) return; // different place
+
+                    var item_from = moment(thiz1.data('from'), 'YYYY/MM/DD HH:mm');
+                    var item_to = moment(thiz1.data('to'), 'YYYY/MM/DD HH:mm');
+                    if (item_from.isAfter(to) || item_to.isBefore(from)) return;
+                    duplicated = true;
+                    return;
+                });
+
+                if (duplicated) {
+                    //thiz.attr('duplicated', true);
+                    if (thiz.find(".fc-duplicated").length == 0) {
+                        thiz.find(".fc-date").prepend('<i class="bi bi-exclamation-triangle-fill fc-duplicated" style="color:red"></i>');
+                    }
+                }
+            });
         }
     });
 

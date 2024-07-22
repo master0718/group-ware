@@ -10,6 +10,7 @@ using Azure.Core;
 using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.IdentityModel.Tokens;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 #pragma warning disable CS8600, CS8601, CS8602, CS8604, CS8618
 
@@ -19,6 +20,8 @@ namespace web_groupware.Controllers
     public class BoardController : BaseController
     {
         private readonly string _uploadPath;
+
+        private readonly string _commentUploadPath;
 
         public BoardController(IConfiguration configuration, ILogger<BaseController> logger, web_groupwareContext context, IWebHostEnvironment hostingEnvironment, IHttpContextAccessor httpContextAccessor) : base(configuration, logger, context, hostingEnvironment, httpContextAccessor) {
             var t_dic = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BOARD);
@@ -31,14 +34,25 @@ namespace web_groupware.Controllers
             {
                 _uploadPath = t_dic.content;
             }
+
+            var t_dic_comment = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BOARDCOMMENT);
+            if (t_dic_comment == null || t_dic_comment.content == null)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + Messages.DICTIONARY_FILE_PATH_NO_EXIST, DIC_KB.SAVE_PATH_FILE, DIC_KB_700_DIRECTORY.BOARDCOMMENT);
+                throw new Exception(Messages.DICTIONARY_FILE_PATH_NO_EXIST);
+            }
+            else
+            {
+                _commentUploadPath = t_dic_comment.content;
+            }
         }
 
         [HttpGet]
-        public IActionResult Index(string? cond_already_read = null, string? cond_applicant = null, string? cond_category = null)
+        public IActionResult Index(string? cond_already_read = null, string? cond_applicant = null, string? cond_category = null, string? cond_keyword = null)
         {
             try
             {
-                var model = CreateViewModel(cond_already_read, cond_applicant, cond_category);
+                var model = CreateViewModel(cond_already_read, cond_applicant, cond_category, cond_keyword);
                 return View(model);
             }
             catch (Exception ex)
@@ -54,12 +68,12 @@ namespace web_groupware.Controllers
         {
             try
             {
-                model = CreateViewModel(model.cond_already_read, model.cond_applicant, model.cond_category);
+                model = CreateViewModel(model.cond_already_read, model.cond_applicant, model.cond_category, model.cond_keyword);
                 return View(model);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
@@ -182,20 +196,21 @@ namespace web_groupware.Controllers
 
                     var item_read = new T_INFO_PERSONAL
                     {
+                        info_personal_no = GetNextNo(Utilities.DataTypes.INFO_PERSONAL_NO),
                         parent_id = INFO_PERSONAL_PARENT_ID.T_BOARD,
                         first_no = board_no,
                         second_no = 0,
                         third_no = 0,
                         staf_cd = Convert.ToInt32(user_id),
-                        already_checked = false,
+                        already_read = false,
                         title = "",
                         content = "",
                         url = "",
                         added = false,
                         create_user = user_id,
-                        create_date = DateTime.Now,
+                        create_date = now,
                         update_user = user_id,
-                        update_date = DateTime.Now
+                        update_date = now
                     };
                     _context.T_INFO_PERSONAL.Add(item_read);
 
@@ -249,7 +264,14 @@ namespace web_groupware.Controllers
                 string dir = Path.Combine(_uploadPath, dir_work);
                 //workディレクトリの作成
                 Directory.CreateDirectory(dir);
+
+                string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string comment_dir = Path.Combine(_commentUploadPath, comment_dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(comment_dir);
+
                 viewModel.work_dir = dir_work;
+                viewModel.comment_work_dir = comment_dir_work;
 
                 return View(viewModel);
             }
@@ -457,11 +479,11 @@ namespace web_groupware.Controllers
                     .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
                     .Where(m => m.first_no == board_no && m.staf_cd == user_id)
                     .FirstOrDefaultAsync();
-                if (memoRead != null && !memoRead.already_checked)
+                if (memoRead != null && !memoRead.already_read)
                 {
                     using (IDbContextTransaction tran = _context.Database.BeginTransaction())
                     {
-                        memoRead.already_checked = true;
+                        memoRead.already_read = true;
 
                         _context.T_INFO_PERSONAL.Update(memoRead);
                         await _context.SaveChangesAsync();
@@ -479,32 +501,86 @@ namespace web_groupware.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public IActionResult UpdateTop(int board_no)
+        {
+            using IDbContextTransaction tran = _context.Database.BeginTransaction();
+            try
+            {
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var now = DateTime.Now;
+
+                var boardTop = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == board_no && x.staf_cd == Convert.ToInt32(user_id));
+                if (boardTop != null)
+                {
+                    _context.Remove(boardTop);
+                }
+                else
+                {
+                    boardTop = new T_BOARD_TOP
+                    {
+                        board_no = board_no,
+                        staf_cd = Convert.ToInt32(user_id),
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now
+                    };
+                    _context.Add(boardTop);
+                }
+
+                _context.SaveChanges();
+                tran.Commit();
+
+                return Json(new { result = "ok" });
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                tran.Dispose();
+                ModelState.AddModelError("", Message_change.FAILURE_001);
+                throw;
+            }
+        }
+
         [HttpPost]
-        public IActionResult AddComment(int board_no, string message)
+        public IActionResult AddComment(int board_no, string message, string work_dir)
         {
             using IDbContextTransaction tran = _context.Database.BeginTransaction();
             try
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var no = GetNextNo(DataTypes.BOARD_COMMENT_NO);
-                
+                var now = DateTime.Now;
+
                 var model = new T_BOARDCOMMENT
                 {
                     board_no = board_no,
                     comment_no = no,
                     message = message,
                     create_user = user_id,
-                    create_date = DateTime.Now,
+                    create_date = now,
                     update_user = user_id,
-                    update_date = DateTime.Now
+                    update_date = now
                 };
 
                 _context.Add(model);
 
+                AddCommentFiles(work_dir, no, board_no);
+
                 _context.SaveChanges();
                 tran.Commit();
 
-                return Json(new { model.comment_no, update_date = model.update_date.ToString("yyyy年M月d日 H時m分") });
+                var commentFiles = _context.T_BOARDCOMMENT_FILE.Where(x => x.board_no == board_no && x.comment_no == no).ToList();
+
+                string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string comment_dir = Path.Combine(_commentUploadPath, comment_dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(comment_dir);
+
+                return Json(new { model.comment_no, update_date = model.update_date.ToString("yyyy年M月d日 H時m分"), files = commentFiles, comment_work_dir = comment_dir });
             }
             catch (Exception ex)
             {
@@ -533,7 +609,17 @@ namespace web_groupware.Controllers
                                        message = c.message,
                                        registrant_cd = v,
                                        registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v).staf_name,
-                                       register_date = c.update_date.ToString("yyyy年M月d日 H時m分")
+                                       register_date = c.update_date.ToString("yyyy年M月d日 H時m分"),
+                                       CommentFileDetailList = (List<T_BOARDCOMMENT_FILE>)(from f in _context.T_BOARDCOMMENT_FILE
+                                                                                           where f.board_no == board_no && f.comment_no == c.comment_no
+                                                                                           select new T_BOARDCOMMENT_FILE
+                                                                                           {
+                                                                                               board_no = f.board_no,
+                                                                                               comment_no = f.comment_no,
+                                                                                               file_no = f.file_no,
+                                                                                               filename = f.filename,
+                                                                                               filepath = f.filepath,
+                                                                                           })
                                    }).Take(5).ToList();
                 return Json(new { commentList });
             }
@@ -577,6 +663,14 @@ namespace web_groupware.Controllers
                     Directory.Delete(dir_main, true);
                 }
 
+                var comment_files = _context.T_BOARDCOMMENT_FILE.Where(x => x.board_no == board_no).ToList();
+                if (comment_files != null && comment_files.Count > 0)
+                {
+                    _context.T_BOARDCOMMENT_FILE.RemoveRange(comment_files);
+                    string dir_main = Path.Combine(_commentUploadPath, board_no.ToString());
+                    Directory.Delete(dir_main, true);
+                }
+
                 _context.SaveChanges();
                 tran.Commit();
 
@@ -593,7 +687,7 @@ namespace web_groupware.Controllers
             }
         }
 
-        private BoardViewModel CreateViewModel(string cond_already_read, string? cond_applicant, string? cond_category)
+        private BoardViewModel CreateViewModel(string cond_already_read, string? cond_applicant, string? cond_category, string? cond_keyword)
         {
             try
             {
@@ -613,7 +707,7 @@ namespace web_groupware.Controllers
                                      register_date = b.update_date.ToString("yyyy年M月d日"),
                                      applicant_cd = b.applicant_cd.ToString(),
                                      applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == b.applicant_cd).staf_name,
-                                     already_read = p.already_checked ? 1 : 0,
+                                     already_read = p.already_read ? 1 : 0,
                                      show_on_top = t != null,
                                  }).OrderByDescending(x => x.show_on_top).ToList();
                 if (cond_already_read == "1") // "未確認"
@@ -631,6 +725,10 @@ namespace web_groupware.Controllers
                 if (!cond_category.IsNullOrEmpty() && cond_category != "0")
                 {
                     boardList = boardList.Where(x => x.category_cd == cond_category).ToList();
+                }
+                if (cond_keyword != null)
+                {
+                    boardList = boardList.Where(x => x.title.Contains(cond_keyword) || x.content.Contains(cond_keyword)).ToList();
                 }
                 var model = new BoardViewModel
                 {
@@ -657,6 +755,7 @@ namespace web_groupware.Controllers
                 model.cond_already_read = cond_already_read;
                 model.cond_applicant = cond_applicant;
                 model.cond_category = cond_category;
+                model.cond_keyword = cond_keyword;
 
                 for (var i = 0; i < BoardStatus.All.Length; i++)
                 {
@@ -680,7 +779,7 @@ namespace web_groupware.Controllers
             {
                 var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
                 var model = (from b in _context.T_BOARD
-                             let t = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == board_no && x.staf_cd == Convert.ToInt32(user_id))
+                             let t = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == board_no && x.staf_cd == user_id)
                              where b.board_no == board_no
                              select new BoardDetailViewModel
                              {
@@ -720,7 +819,7 @@ namespace web_groupware.Controllers
                     .FirstOrDefault();
                 if (memoRead != null)
                 {
-                    model.already_checked = memoRead.already_checked;
+                    model.already_checked = memoRead.already_read;
                 }
 
                 var commentList = (from c in _context.T_BOARDCOMMENT
@@ -734,7 +833,17 @@ namespace web_groupware.Controllers
                                        message = c.message,
                                        registrant_cd = v,
                                        registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v).staf_name,
-                                       register_date = c.update_date.ToString("yyyy年M月d日 H時m分")
+                                       register_date = c.update_date.ToString("yyyy年M月d日 H時m分"),
+                                       CommentFileDetailList = (List<T_BOARDCOMMENT_FILE>)(from f in _context.T_BOARDCOMMENT_FILE
+                                                                where f.board_no == board_no && f.comment_no == c.comment_no
+                                                                select new T_BOARDCOMMENT_FILE
+                                                                {
+                                                                    board_no = f.board_no,
+                                                                    comment_no = f.comment_no,
+                                                                    file_no = f.file_no,
+                                                                    filename = f.filename,
+                                                                    filepath = f.filepath,
+                                                                })
                                    }).Take(5).ToList();
 
                 var commentCount = (from c in _context.T_BOARDCOMMENT
@@ -838,6 +947,7 @@ namespace web_groupware.Controllers
 
                     var file_name = Path.GetFileName(renamed_file);
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                    var now = DateTime.Now;
 
                     T_BOARD_FILE record_file = new()
                     {
@@ -847,11 +957,89 @@ namespace web_groupware.Controllers
                         filepath = Path.Combine(board_no.ToString(), file_name),
                         filename = file_name,
                         create_user = user_id,
-                        create_date = DateTime.Now,
+                        create_date = now,
                         update_user = user_id,
-                        update_date = DateTime.Now
+                        update_date = now
                     };
                     await _context.T_BOARD_FILE.AddAsync(record_file);
+
+                    //ファイルをworkからmainにコピー
+                    System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
+                    pdfFileToImg(Path.Combine(dir_main, file_name));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        protected async void AddCommentFiles(string work_dir, int comment_no, int board_no)
+        {
+            try
+            {
+                //ディレクトリ設定
+                string dir_main = Path.Combine(_commentUploadPath, board_no.ToString());
+                if (!Directory.Exists(dir_main))
+                {
+                    Directory.CreateDirectory(dir_main);
+                }
+                //レコード登録　workディレクトリ
+                string dir = Path.Combine(_commentUploadPath, work_dir);
+                var work_dir_files = Directory.GetFiles(dir);
+                for (int i = 0; i < work_dir_files.Length; i++)
+                {
+                    var renamed_file = "";
+                    //同名ファイルが存在していたら名前変更
+                    if (System.IO.File.Exists(Path.Combine(dir_main, Path.GetFileName(work_dir_files[i]))))
+                    {
+                        var count = 1;
+                        while (true)
+                        {
+                            var arr_work = work_dir_files[i].Split(".");
+                            var kandidat = "";
+                            for (var w = 0; w < arr_work.Length - 1; w++)
+                            {
+                                kandidat = kandidat + arr_work[w] + ".";
+                            }
+                            kandidat = kandidat[..^1];
+                            kandidat = kandidat + '（' + count + '）';
+                            // ファイルの拡張子を取得
+                            string fileExtention = Path.GetExtension(work_dir_files[i]);
+                            kandidat += fileExtention;
+                            if (!System.IO.File.Exists(kandidat))
+                            {
+                                renamed_file = Path.Combine(dir, kandidat);
+                                break;
+                            }
+                            count++;
+                        }
+                    }
+                    else
+                    {
+                        renamed_file = work_dir_files[i];
+                    }
+
+                    var file_name = Path.GetFileName(renamed_file);
+                    var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                    var now = DateTime.Now;
+
+                    T_BOARDCOMMENT_FILE record_file = new()
+                    {
+                        board_no = board_no,
+                        comment_no = comment_no,
+                        file_no = GetNextNo(DataTypes.BOARDCOMMENT_FILE_NO),
+                        //filepath = Path.Combine(dir_main, file_name),
+                        filepath = Path.Combine(board_no.ToString(), file_name),
+                        filename = file_name,
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now
+                    };
+                    await _context.T_BOARDCOMMENT_FILE.AddAsync(record_file);
 
                     //ファイルをworkからmainにコピー
                     System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));

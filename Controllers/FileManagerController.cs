@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.IO.Compression;
 using web_groupware.Utilities;
+using Azure.Core;
 
 #pragma warning disable CS8600,CS8601,CS8602,CS8604,CS8618,CS8629
 
@@ -139,6 +140,7 @@ namespace web_groupware.Controllers
 
                             var lastItem = _context.T_FILEINFO.OrderByDescending(u => u.file_no).FirstOrDefault();
                             var lastId = lastItem == null ? 1 : lastItem.file_no + 1;
+                            var now = DateTime.Now;
                             var record_new = new T_FILEINFO
                             {
                                 file_no = lastId,
@@ -148,9 +150,9 @@ namespace web_groupware.Controllers
                                 type = FILE_TYPE_FILE,
                                 path = currentDirectory,
                                 create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                create_date = DateTime.Now,
+                                create_date = now,
                                 update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                update_date = DateTime.Now
+                                update_date = now
                             };
 
                             _context.T_FILEINFO.Add(record_new);
@@ -162,7 +164,7 @@ namespace web_groupware.Controllers
                         catch (Exception ex)
                         {
                             tran.Rollback();
-                            _logger.LogError(ex.Message);
+                            _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                             _logger.LogError(ex.StackTrace);
                             tran.Dispose();
                             ModelState.AddModelError("", Message_register.FAILURE_001);
@@ -180,19 +182,23 @@ namespace web_groupware.Controllers
             {
                 try
                 {
+                    if (newName.Length > 64)
+                    {
+                        return BadRequest(Messages.MAX_FOLDER_NAME_LENGTH);
+                    }
                     storageDirectory = currentDirectory == "共有フォルダ" ? "" : currentDirectory;
                     var t_STAFFM = await _context.T_FILEINFO
                         .FirstOrDefaultAsync(m => m.name == newName && m.path == currentDirectory);
                     if (t_STAFFM != null)
                     {
-                        ModelState.AddModelError("", Messages.FOLDER_DUPLICATE);
-                        return RedirectToAction("Index");
+                        return BadRequest(Messages.FOLDER_DUPLICATE);
                     }
                     var newDir = Path.Combine(_uploadPath, storageDirectory, newName);
                     Directory.CreateDirectory(newDir);
 
                     var lastItem = _context.T_FILEINFO.OrderByDescending(u => u.file_no).FirstOrDefault();
                     var lastId = lastItem == null ? 1 : lastItem.file_no + 1;
+                    var now = DateTime.Now;
 
                     var detail = new T_FILEINFO
                     {
@@ -203,9 +209,9 @@ namespace web_groupware.Controllers
                         type = FILE_TYPE_FOLDER,
                         path = currentDirectory,
                         create_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
-                        create_date = DateTime.Now,
+                        create_date = now,
                         update_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value,
-                        update_date = DateTime.Now
+                        update_date = now
                     };
 
                     _context.T_FILEINFO.Add(detail);
@@ -213,7 +219,7 @@ namespace web_groupware.Controllers
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError(ex.Message);
+                    _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                     _logger.LogError(ex.StackTrace);
                     ModelState.AddModelError("", Message_register.FAILURE_001);
                 }
@@ -223,7 +229,7 @@ namespace web_groupware.Controllers
                 ModelState.AddModelError("", Message_register.FAILURE_001);
             }
 
-            return RedirectToAction("Index");
+            return Ok();
         }
 
         public async Task<IActionResult> Update(int? id, string newName, string currentDirectory)
@@ -283,7 +289,7 @@ namespace web_groupware.Controllers
                     catch (Exception ex)
                     {
                         tran.Rollback();
-                        _logger.LogError(ex.Message);
+                        _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                         _logger.LogError(ex.StackTrace);
                         tran.Dispose();
                         ModelState.AddModelError("", Message_change.FAILURE_001);
@@ -398,7 +404,7 @@ namespace web_groupware.Controllers
                 catch (Exception ex)
                 {
                     tran.Rollback();
-                    _logger.LogError(ex.Message);
+                    _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                     _logger.LogError(ex.StackTrace);
                     tran.Dispose();
                     ModelState.AddModelError("", Message_change.FAILURE_001);
@@ -441,7 +447,7 @@ namespace web_groupware.Controllers
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex.Message);
+                                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                             }
                         }
                         else
@@ -451,7 +457,7 @@ namespace web_groupware.Controllers
                                 Directory.Delete(path, true);
                             } catch (Exception ex)
                             {
-                                _logger.LogError(ex.Message);
+                                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                             }
                             var fileInfoList = _context.T_FILEINFO.AsEnumerable().Where(item => $"{ item.path }/".StartsWith($"{ subPath }/")).ToList();
                             _context.T_FILEINFO.RemoveRange(fileInfoList);
@@ -461,7 +467,7 @@ namespace web_groupware.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex.Message);
+                        _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
                     }
                 }
             }
@@ -532,7 +538,7 @@ namespace web_groupware.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
             }
             return BadRequest();
         }

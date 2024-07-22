@@ -11,8 +11,8 @@ namespace web_groupware.Models
         public int comment_no { get; set; }
         [Key]
         public int file_no { get; set; }
-        public string? fileName { get; set; } 
-        public string? fullPath { get; set; }
+        public string fileName { get; set; } 
+        public string fullPath { get; set; }
         public string create_user { get; set; }
         public DateTime create_date { get; set; }
         public string update_user { get; set; }

@@ -23,5 +23,17 @@ namespace web_groupware.Models
         [StringLength(64, ErrorMessage = Messages.MAXLENGTH)]
         [Column(TypeName = "nvarchar(64)")]
         public string filename { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; } = string.Empty;
+
+        [Column(TypeName = "datetime2(7)")]
+        public DateTime create_date { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string update_user { get; set; } = string.Empty;
+
+        [Column(TypeName = "datetime2(7)")]
+        public DateTime update_date { get; set; }
     }
 }

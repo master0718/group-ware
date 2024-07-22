@@ -206,14 +206,14 @@
                             <a class="@(controllerName == "BukkenMemo" ? "active" : "")" asp-controller="BukkenMemo" asp-action="Index">
                                 <i class="bi bi-card-checklist"></i>
                                 <span> 物件メモ　</span>
-                                <span id="layout_bukken_memo_count" class="badge bg-info text-white rounded-pill mt-0"></span>
+                                <span class="badge bg-info text-white rounded-pill mt-0">@TempData["Base_count_bukken_memo"]</span>
                             </a>
                         </li>
                         <li class="@(controllerName == "Report" ? "menuitem-active" : "") menu-item">
                             <a class="@(controllerName == "Report" ? "active" : "")" asp-controller="Report" asp-action="Index" asp-route-date="">
                                 <i class="bi bi-pencil-square"></i>
                                 <span> 日報 　</span>
-                                <span id="layout_report_count" class="badge bg-info text-white rounded-pill mt-0"></span>
+                                <span class="badge bg-info text-white rounded-pill mt-0">@TempData["Base_count_report"]</span>
                             </a>
                         </li>
                         <li class="@(controllerName == "NoticeLogin" ? "menuitem-active" : "") menu-item">

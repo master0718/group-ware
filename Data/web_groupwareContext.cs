@@ -25,14 +25,16 @@ namespace web_groupware.Data
         public DbSet<T_NO> T_NO { get; set; }
         public DbSet<T_REPORT> T_REPORT { get; set; }
         public DbSet<T_INFO_PERSONAL> T_INFO_PERSONAL { get; set; }
+        public DbSet<T_CHECKED> T_CHECKED { get; set; }
         public DbSet<T_REPORTCOMMENT> T_REPORTCOMMENT { get; set; }
         public DbSet<R_RESTORATION_REPORT> R_RESTORATION_REPORT { get; set; }
         public DbSet<T_FILEINFO> T_FILEINFO { get; set; }
         public DbSet<T_ATTENDANCE_DATE> T_ATTENDANCE_DATE { get; set; }
         public DbSet<T_WORKFLOW> T_WORKFLOW { get; set; }
         public DbSet<T_WORKFLOW_FILE> T_WORKFLOW_FILE { get; set; }
+        public DbSet<T_WORKFLOW_APPROVAL> T_WORKFLOW_APPROVAL { get; set; }
         public DbSet<M_DIC> M_DIC { get; set; }
-        public DbSet<T_PLACEM> T_PLACEM { get; set; }
+        public DbSet<M_PLACE> M_PLACE { get; set; }
         public DbSet<M_SCHEDULE_TYPE> M_SCHEDULE_TYPE { get; set; }
         public DbSet<M_SYSTEM> M_SYSTEM { get; set; }
 
@@ -52,6 +54,7 @@ namespace web_groupware.Data
         public DbSet<T_BOARD_TOP>? T_BOARD_TOP { get; set; }
         public DbSet<T_BOARD_FILE>? T_BOARD_FILE { get; set; }
         public DbSet<T_BOARDCOMMENT>? T_BOARDCOMMENT { get; set; }
+        public DbSet<T_BOARDCOMMENT_FILE>? T_BOARDCOMMENT_FILE { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,16 +73,18 @@ namespace web_groupware.Data
                 .HasKey(c => new { c.file_no });
 
             modelBuilder.Entity<T_WORKFLOW>()
-                .HasKey(c => new { c.id });
+                .HasKey(c => new { c.workflow_no });
             modelBuilder.Entity<T_WORKFLOW_FILE>()
                 .HasKey(c => new { c.workflow_no, c.file_no });
+            modelBuilder.Entity<T_WORKFLOW_APPROVAL>()
+                .HasKey(c => new { c.workflow_no, c.approver_cd});
 
             modelBuilder.Entity<T_MEMO>()
                 .HasKey(c => new { c.memo_no });
             modelBuilder.Entity<T_GROUPSTAFF>()
                 .HasKey(c => new { c.staf_cd, c.group_cd });
             modelBuilder.Entity<T_TODO>()
-                .HasKey(k => new { k.todo_no });
+                .HasKey(c => new { c.todo_no });
             modelBuilder.Entity<T_TODO_FILE>()
                 .HasKey(c => new { c.todo_no, c.file_no });
             modelBuilder.Entity<T_ATTENDANCE_DATE>()
@@ -91,7 +96,7 @@ namespace web_groupware.Data
             modelBuilder.Entity<M_SYSTEM>()
                 .HasNoKey();
             modelBuilder.Entity<T_INFO_PERSONAL>()
-                .HasKey(c => new { c.parent_id, c.first_no, c.second_no, c.third_no, c.staf_cd });
+                .HasKey(c => new { c.info_personal_no });
             modelBuilder.Entity<T_BUKKENCOMMENT_FILE>()
                 .HasKey(c => new { c.bukn_cd, c.comment_no, c.file_no });
 
@@ -118,6 +123,8 @@ namespace web_groupware.Data
                 .HasKey(c => new { c.board_no, c.file_no });
             modelBuilder.Entity<T_BOARDCOMMENT>()
                 .HasKey(c => new { c.board_no, c.comment_no });
+            modelBuilder.Entity<T_BOARDCOMMENT_FILE>()
+                .HasKey(c => new { c.board_no, c.comment_no, c.file_no });
         }
     }
 }

@@ -69,11 +69,12 @@ namespace web_groupware.Models
         [DisplayName("公開・非公開")]
         public int public_set { get; set; }
 
-        [DisplayName("対象者")]
-        public int group_set { get; set; }
-
         [DisplayName("期限")]
         public int deadline_set { get; set; }
+
+        [Display(Name = "期日")]
+        [DataType(DataType.DateTime)]
+        public string? deadline_date { get; set; }
 
         [DisplayName("状態")]
         public int response_status { get; set; }
@@ -81,9 +82,6 @@ namespace web_groupware.Models
         public string? staf_cd { get; set; }
 
         public string? Delete_files { get; set; }
-
-        [DataType(DataType.DateTime)]
-        public string? deadline_date { get; set; }
 
         [DisplayName("添付ファイル")]
         public List<IFormFile> File { get; set; } = new List<IFormFile>();
@@ -132,8 +130,6 @@ namespace web_groupware.Models
 
         [DisplayName("公開・非公開")]
         public int public_set { get; set; }
-
-        public int group_set { get; set; }
 
         [DisplayName("期限")]
         public int deadline_set { get; set; }

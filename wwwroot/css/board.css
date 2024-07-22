@@ -170,3 +170,7 @@
     max-width: 180px;
     display: inline-block;
 }
+
+select.read-only {
+    background-color: var(--bs-body-bg) !important;
+}

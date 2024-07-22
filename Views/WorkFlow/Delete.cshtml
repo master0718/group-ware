@@ -1,0 +1,116 @@
+@model web_groupware.Models.WorkFlowDetailViewModel
+@using web_groupware.Utilities;
+
+@{
+    ViewData["Title"] = "ワークフローの削除";
+    ViewData["ConfirmText"] = "データを削除します。よろしいですか？";
+    ViewData["FormName"] = "workFlowForm";
+}
+
+@section Styles {
+    <link href="~/css/workflow.css" rel="stylesheet" />
+    <link href="~/css/file.css" rel="stylesheet" />
+}
+
+<div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
+    <div class="container-fluid">
+        <div class="row">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
+                    <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="WorkFlow" asp-action="Index">ワークフロー	</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">削除</li>
+                </ol>
+            </nav>
+        </div>
+        <form asp-action="Delete" id="workFlowForm" class="form-box" method="post" enctype="multipart/form-data">
+            <div class="card">
+                <div class="card-header justify-content-between d-flex align-items-center">
+                    <span>
+                        <h4 class="mb-0">ワークフローの削除</h4>
+                    </span>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
+                        </button>
+                        <button type="button" class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input hidden asp-for="@Model.workflow_no" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.request_type" class="form-label"></label>
+                        <input type="hidden" asp-for="@Model.request_type" class="form-control" readonly />
+                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.request_type_name</label>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.approver_cd" class="form-label"></label>
+                        <input type="hidden" asp-for="@Model.approver_cd" class="form-control" readonly />
+                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.approver_name</label>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.title" class="form-label"></label>
+                        <input type="hidden" asp-for="@Model.title" class="form-control" readonly />
+                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.title</label>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.description" class="form-label"></label>
+                        @if (Model.description != null && Model.description.Any())
+                        {
+                            <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.description</label>
+                        }
+                        else
+                        {
+                            <label class="mb-0 p-2 form-control">&nbsp;</label>
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="@Model.File" class="form-label"></label>
+                        @if (Model.fileModel.fileList != null && Model.fileModel.fileList.Any())
+                        {
+                            <partial name="_FileList" model="@Model.fileModel" />
+                        }
+                        else
+                        {
+                            <p class="mb-0 p-2 form-label">添付ファイルなし</p>
+                        }
+                    </div>
+
+                </div>
+
+                <div class="card-footer">
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                            <i class="bi bi-arrow-return-left"></i> 戻る
+                        </button>
+                        <button type="button" class="btn btn-danger" data-toggle='modal' data-target="#modal-delete" onClick="onConfirmModal()" style="margin-right: 10px">
+                            <i class="bi bi-trash3"></i> 削除
+                        </button>
+                    </div>
+                </div>
+            
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+        <script src="~/js/WorkFlowCreate.js" asp-append-version="true"></script>
+        <script src="~/js/File.js" asp-append-version="true"></script>
+    }
+    <script>
+        var isEditable = false
+    </script>
+}

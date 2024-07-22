@@ -1148,6 +1148,15 @@ a.disabled {
     display: none;
 }
 
+.file-title-icon {
+    position: relative;
+}
+
+.file-icon {
+    position: absolute;
+    top: 0;
+    font-size: 0.8em; /* Adjust the size as needed */
+}
 
 .ui-datepicker-calendar .day-saturday > a {
     color: blue;

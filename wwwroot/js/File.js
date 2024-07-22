@@ -1,6 +1,5 @@
 ﻿//画面遷移orクローズでワークフォルダ削除
 let alreadyDeleted = false;
-let action = null;
 function deleteWorkDir() {
     if (!alreadyDeleted) {
         alreadyDeleted = true;

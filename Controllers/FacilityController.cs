@@ -92,15 +92,15 @@ namespace web_groupware.Controllers
                     staf_name = x.staf_name
                 }).FirstOrDefault();
 
-                var viewModel = new ScheduleViewModel()
+                var viewModel = new ScheduleViewModel
                 {
                     staf_cd = me.staf_cd,
                     staf_name = me.staf_name,
                     is_people = true,
                     // Keep previous week view when exit create/edit page
-                    startDate = start_date ?? DateTime.Now.ToString("yyyy-MM-dd")
+                    startDate = start_date ?? DateTime.Now.ToString("yyyy-MM-dd"),
+                    PlaceList = _context.M_PLACE.OrderBy(x => x.sort).ToList()
                 };
-                viewModel.PlaceList = _context.T_PLACEM.OrderBy(x => x.sort).ToList();
 
                 return viewModel;
             }
@@ -113,13 +113,13 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateNormalWeek(string start_date)
+        public IActionResult CreateNormalWeek(string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "week";
                 ViewBag.ViewMode = "Week";
-                return CreateNormal(start_date);
+                return CreateNormal(start_date, curr_date);
             }
             catch (Exception ex)
             {
@@ -130,13 +130,13 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateNormalDay(string start_date)
+        public IActionResult CreateNormalDay(string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "day";
                 ViewBag.ViewMode = "Day";
-                return CreateNormal(start_date);
+                return CreateNormal(start_date, curr_date);
             }
             catch (Exception ex)
             {
@@ -146,11 +146,11 @@ namespace web_groupware.Controllers
             }
         }
 
-        private IActionResult CreateNormal(string start_date)
+        private IActionResult CreateNormal(string start_date, string? curr_date = null)
         {
             try
             {
-                var viewModel = CreateScheduleView(start_date);
+                var viewModel = CreateScheduleView(start_date, curr_date);
                 return View("CreateNormal", viewModel);
             }
             catch (Exception ex)
@@ -166,6 +166,13 @@ namespace web_groupware.Controllers
         {
             try
             {
+                if (request.MyPlaceList.Length == 0)
+                {
+                    ModelState.AddModelError("", Messages.FACILITY_REQUIRED);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.SCHEDULE, request.work_dir);
+                    PrepareViewModel(request);
+                    return View(request);
+                }
                 var ret = await CreateSchedule(request);
                 if (!ret)
                     return View(request);
@@ -183,13 +190,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditNormalDay(int schedule_no, string start_date)
+        public IActionResult EditNormalDay(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "day";
                 ViewBag.ViewMode = "Day";
-                return EditNormal(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return CreateNormal(start_date, curr_date);
+                }
+                else
+                {
+                    return EditNormal(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -200,13 +214,20 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditNormalWeek(int schedule_no, string start_date)
+        public IActionResult EditNormalWeek(int schedule_no, string start_date, string? curr_date = null)
         {
             try
             {
                 TempData["view_mode"] = "week";
                 ViewBag.ViewMode = "Week";
-                return EditNormal(schedule_no, start_date);
+                if (schedule_no == 0)
+                {
+                    return CreateNormal(start_date, curr_date);
+                }
+                else
+                {
+                    return EditNormal(schedule_no, start_date);
+                }
             }
             catch (Exception ex)
             {
@@ -241,6 +262,13 @@ namespace web_groupware.Controllers
         {
             try
             {
+                if (request.MyPlaceList.Length == 0)
+                {
+                    ModelState.AddModelError("", Messages.FACILITY_REQUIRED);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.SCHEDULE, request.work_dir);
+                    PrepareViewModel(request);
+                    return View(request);
+                }
                 var ret = await UpdateSchedule(request);
                 if (!ret)
                     return View(request);
@@ -273,7 +301,7 @@ namespace web_groupware.Controllers
         {
             try
             {
-                var placeList = place == 0 ? _context.T_PLACEM.ToList() : _context.T_PLACEM.Where(x => x.place_cd == place).ToList();
+                var placeList = place == 0 ? _context.M_PLACE.ToList() : _context.M_PLACE.Where(x => x.place_cd == place).ToList();
                 if (placeList == null)
                 {
                     return Json(new { status = "place empty" });

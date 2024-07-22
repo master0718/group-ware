@@ -12,19 +12,8 @@
     });
     // #endregion
 
-    GetBukkenCommentReadCount(url);
     GetMemoReadCount(url);
 
-    $.ajax({
-        type: "POST",
-        url: url + "Base/GetReportCount",
-        success: function (ret) {
-            $("#layout_report_count").text(ret);
-        },
-        error: function (e) {
-            $("#layout_report_count").text("件数取得失敗");
-        },
-    });
     $.ajax({
         type: "POST",
         url: url + "Base/GetGroupItems",
@@ -133,6 +122,13 @@
             iframe: true,
             width: "30%", height: "80%",
             opacity: 0.5
+        });
+    $('.site_iframe_preview').colorbox(
+        {
+            iframe: true,
+            width: "90%", height: "90%",
+            opacity: 0.5,
+            scrolling:false
         });
 
     $(".site_iframe_close").on('click', function () {
@@ -284,19 +280,12 @@ function funcFileDownload(url, filename, messageForFailure) {
 
     xhr.send();
 }
-function GetBukkenCommentReadCount(url) {
-    $.ajax({
-        type: "POST",
-        url: url + "Base/GetBukkenCommentReadCount",
-        success: function (ret) {
-            $("#layout_bukken_memo_count").text(ret['count']);
-        },
-        error: function (e) {
-            $("#layout_bukken_memo_count").text("件数取得失敗");
-        },
-    });
+// form変更してsubmit
+function Change_form_sbmit(obj) {
+    var obj_form = $('#' + $(obj).attr('data-site_form'));
+    // 「OK」をクリックした際の処理を記述
+    obj_form.trigger("submit");
 }
-
 function GetMemoReadCount(url) {
     $.ajax({
         type: "POST",

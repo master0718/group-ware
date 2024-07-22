@@ -178,7 +178,7 @@ namespace web_groupware.Controllers
 
                             var memoReaders = _context.T_INFO_PERSONAL
                                 .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                                .Where(m => m.first_no == memo.memo_no && m.already_checked)
+                                .Where(m => m.first_no == memo.memo_no && m.already_read)
                                 .Include(m => m.staff)
                                 .ToList();
                             var readerNames = "";
@@ -296,6 +296,7 @@ namespace web_groupware.Controllers
             using (IDbContextTransaction tran = _context.Database.BeginTransaction())
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var now = DateTime.Now;
                 try
                 {
                     var record_new = new T_MEMO
@@ -313,9 +314,9 @@ namespace web_groupware.Controllers
                         working_cd = 0,
                         finish_cd = 0,
                         create_user = user_id,
-                        create_date = DateTime.Now,
+                        create_date = now,
                         update_user = user_id,
-                        update_date = DateTime.Now
+                        update_date = now
                     };
                     var tracked = _context.T_MEMO.Add(record_new);
 
@@ -323,20 +324,21 @@ namespace web_groupware.Controllers
                     {
                         var memo_read = new T_INFO_PERSONAL
                         {
+                            info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                             parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
                             first_no = tracked.Entity.memo_no,
                             second_no = 0,
                             third_no = 0,
                             staf_cd = request.receiver_cd,
-                            already_checked = false,
+                            already_read = false,
                             title = "",
                             content = "",
                             url = "",
                             added = false,
                             create_user = user_id,
-                            create_date = DateTime.Now,
+                            create_date = now,
                             update_user = user_id,
-                            update_date = DateTime.Now
+                            update_date = now
                         };
                         _context.T_INFO_PERSONAL.Add(memo_read);
                     }
@@ -350,20 +352,21 @@ namespace web_groupware.Controllers
                         {
                             var memo_read = new T_INFO_PERSONAL
                             {
+                                info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                                 parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
                                 first_no = tracked.Entity.memo_no,
                                 second_no = 0,
                                 third_no = 0,
                                 staf_cd = staf_cd,
-                                already_checked = false,
+                                already_read = false,
                                 title = "",
                                 content = "",
                                 url = "",
                                 added = false,
                                 create_user = user_id,
-                                create_date = DateTime.Now,
+                                create_date = now,
                                 update_user = user_id,
-                                update_date = DateTime.Now
+                                update_date = now
                             };
                             _context.T_INFO_PERSONAL.Add(memo_read);
                         }
@@ -375,7 +378,11 @@ namespace web_groupware.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.Message);
+                    tran.Rollback();
+                    _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                    _logger.LogError(ex.StackTrace);
+                    tran.Dispose();
+                    throw;
                 }
             }
             
@@ -396,11 +403,11 @@ namespace web_groupware.Controllers
                     .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
                     .Where(m => m.first_no == memo_no && m.staf_cd == user_id)
                     .FirstOrDefaultAsync();
-                if (memoRead != null && !memoRead.already_checked)
+                if (memoRead != null && !memoRead.already_read)
                 {
                     using (IDbContextTransaction tran = _context.Database.BeginTransaction())
                     {
-                        memoRead.already_checked = true;
+                        memoRead.already_read = true;
 
                         _context.T_INFO_PERSONAL.Update(memoRead);
                         await _context.SaveChangesAsync();
@@ -483,6 +490,7 @@ namespace web_groupware.Controllers
                 {
                     try
                     {
+                        var now = DateTime.Now;
                         if (request.receiver_type != memoItem.receiver_type || request.receiver_cd != memoItem.receiver_cd)
                         {
                             var itemsRemove = _context.T_INFO_PERSONAL
@@ -496,20 +504,21 @@ namespace web_groupware.Controllers
                             {
                                 var memo_read = new T_INFO_PERSONAL
                                 {
+                                    info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                                     parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
                                     first_no = request.memo_no,
                                     second_no = 0,
                                     third_no = 0,
                                     staf_cd = request.receiver_cd,
-                                    already_checked = false,
+                                    already_read = false,
                                     title = "",
                                     content = "",
                                     url = "",
                                     added = false,
                                     create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                    create_date = DateTime.Now,
+                                    create_date = now,
                                     update_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                    update_date = DateTime.Now
+                                    update_date = now
                                 };
                                 _context.T_INFO_PERSONAL.Add(memo_read);
                             }
@@ -523,20 +532,21 @@ namespace web_groupware.Controllers
                                 {
                                     var memo_read = new T_INFO_PERSONAL
                                     {
+                                        info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                                         parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
                                         first_no = request.memo_no,
                                         second_no = 0,
                                         third_no = 0,
                                         staf_cd = staf_cd,
-                                        already_checked = false,
+                                        already_read = false,
                                         title = "",
                                         content = "",
                                         url = "",
                                         added = false,
                                         create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                        create_date = DateTime.Now,
+                                        create_date = now,
                                         update_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
-                                        update_date = DateTime.Now
+                                        update_date = now
                                     };
                                     _context.T_INFO_PERSONAL.Add(memo_read);
                                 }
@@ -556,7 +566,7 @@ namespace web_groupware.Controllers
                             if (memoItem.working_cd == 0)
                             {
                                 memoItem.working_cd = user_id;
-                                memoItem.working_date = DateTime.Now;
+                                memoItem.working_date = now;
                             }
                         }
                         else
@@ -568,7 +578,7 @@ namespace web_groupware.Controllers
                             if (memoItem.finish_cd == 0)
                             {
                                 memoItem.finish_cd = user_id;
-                                memoItem.finish_date = DateTime.Now;
+                                memoItem.finish_date = now;
                             }
                         }
                         else
@@ -587,7 +597,7 @@ namespace web_groupware.Controllers
                         {
                             memoItem.state = CheckAllReadMemo(memoItem) ? MEMO_STATE_READ : MEMO_STATE_UNREAD;
                         }
-                        memoItem.update_date = DateTime.Now;
+                        memoItem.update_date = now;
 
                         _context.T_MEMO.Update(memoItem);
                         await _context.SaveChangesAsync();
@@ -596,7 +606,11 @@ namespace web_groupware.Controllers
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex.Message);
+                        tran.Rollback();
+                        _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        tran.Dispose();
+                        throw;
                     }
                 }
             }
@@ -653,7 +667,9 @@ namespace web_groupware.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.Message);
+                    _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                    _logger.LogError(ex.StackTrace);
+                    throw;
                 }
             }
 
@@ -671,7 +687,7 @@ namespace web_groupware.Controllers
                 int staf_cd = int.Parse(claim.Value);
                 count = await Task.Run(() => _context.T_INFO_PERSONAL
                     .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                    .Where(m => m.staf_cd == staf_cd && !m.already_checked)
+                    .Where(m => m.staf_cd == staf_cd && !m.already_read)
                     .Count());
             }
             else
@@ -762,7 +778,7 @@ namespace web_groupware.Controllers
             var memoReaders = _context.T_INFO_PERSONAL
                 .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
                 .Include(m => m.staff)
-                .Where(m => m.first_no == memo_no && m.already_checked)
+                .Where(m => m.first_no == memo_no && m.already_read)
                 .ToList();
             var readerNames = "";
             foreach (var memoReader in memoReaders)
@@ -854,7 +870,7 @@ namespace web_groupware.Controllers
             {
                 var memoRead = _context.T_INFO_PERSONAL
                     .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                    .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == memoItem.receiver_cd && m.already_checked)
+                    .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == memoItem.receiver_cd && m.already_read)
                     .FirstOrDefault();
                 return (memoRead != null);
             }
@@ -868,7 +884,7 @@ namespace web_groupware.Controllers
                 {
                     var memoRead = _context.T_INFO_PERSONAL
                         .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                        .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == staff && m.already_checked)
+                        .Where(m => m.first_no == memoItem.memo_no && m.staf_cd == staff && m.already_read)
                         .FirstOrDefault();
                     if (memoRead == null)
                     {

@@ -35,10 +35,11 @@ namespace web_groupware.Controllers
         {
             try
             {
-                model = createViewModel(model.cond_bukken_name,model.cond_contract_status);
+                model = createViewModel(model.cond_bukken_name, model.cond_contract_status);
                 return View(model);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
@@ -49,7 +50,7 @@ namespace web_groupware.Controllers
         /// </summary>
         /// <param name="bukken_name">検索条件（物件名）</param>
         /// <returns></returns
-        public BukkenMemoViewModel createViewModel(string bukken_name,string cond_contract_status)
+        public BukkenMemoViewModel createViewModel(string bukken_name, string cond_contract_status)
         {
             try
             {
@@ -75,7 +76,7 @@ namespace web_groupware.Controllers
                 {
                     sql.AppendFormat(" AND (B.bukn_cd LIKE '%{0}%' OR B.bukn_name LIKE '%{0}%' )", bukken_name);
                 }
-                if (cond_contract_status!=null&& cond_contract_status == "0")
+                if (cond_contract_status != null && cond_contract_status == "0")
                 {
                     sql.AppendFormat(" AND (S3.kaiyaku_kb IS NOT NULL AND S3.kaiyaku_kb = 0) ");
                 }
@@ -106,7 +107,7 @@ namespace web_groupware.Controllers
                     {
                         message = GetWhenFromNow((DateTime)dr["update_date"]);
                     }
-                    var records = _context.T_INFO_PERSONAL.Where(x =>x.parent_id== INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no== dr.Field<decimal>("bukn_cd")&& x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value && x.already_checked == false);
+                    var records = _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no == dr.Field<decimal>("bukn_cd") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value && x.already_read == false);
                     string count = records.Count() == 0 ? "" : records.Count().ToString();
 
                     model.list_bukken.Add(new BukkenMemo
@@ -150,6 +151,8 @@ namespace web_groupware.Controllers
                 Directory.CreateDirectory(dir_work_full);
 
                 model.work_dir = dir_work;
+
+                Read_comment(model);
 
                 return View(model);
             }
@@ -255,23 +258,28 @@ namespace web_groupware.Controllers
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    var T_INFO_PERSONAL = _context.T_INFO_PERSONAL.FirstOrDefault(x =>x.parent_id==INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT&&x.first_no== model.bukn_cd&& x.second_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
+                    var t_checked = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no == model.bukn_cd && x.second_no == dt.Rows[i].Field<int>("comment_no") && x.staf_cd.ToString() == HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                     var list_file = GetRecoard_file(dt.Rows[i].Field<int>("comment_no").ToString());
+                    var list_t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no == model.bukn_cd && x.second_no == dt.Rows[i].Field<int>("comment_no"));
                     model.list_detail.Add(new BukkenMemoDetail()
                     {
                         comment_no = dt.Rows[i].Field<int>("comment_no"),
                         update_user = dt.Rows[i].Field<string>("staf_name"),
                         update_date = dt.Rows[i].Field<DateTime>("update_date").ToString("yyyy/M/d HH:mm"),
                         message = dt.Rows[i].Field<string>("message"),
-                        already_read_comment = T_INFO_PERSONAL == null ? true : T_INFO_PERSONAL.already_checked,
-                        List_T_BUKKENCOMMENT_FILE_ADDED =list_file
-
-                }
+                        already_checked_comment = t_checked == null ? false : true,
+                        check_count = list_t_checked.Count() + "名",
+                        list_check_member = list_t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList(),
+                        List_T_BUKKENCOMMENT_FILE_ADDED = list_file
+                    }
                         );
+                    //var test = list_t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz=>zz.staf_name).ToList();
+
                 }
                 return model;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
                 throw;
@@ -314,6 +322,7 @@ namespace web_groupware.Controllers
                         for (int i = 0; i < t_staffm.Count; i++)
                         {
                             var record_comment_new = new T_INFO_PERSONAL();
+                            record_comment_new.info_personal_no = GetNextNo(Utilities.DataTypes.INFO_PERSONAL_NO);
                             record_comment_new.parent_id = INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT;
                             record_comment_new.first_no = model.bukn_cd;
                             record_comment_new.second_no = comment_no;
@@ -321,7 +330,7 @@ namespace web_groupware.Controllers
                             record_comment_new.title = "物件コメント";
                             record_comment_new.content = model.message_new;
                             record_comment_new.url = string.Format("{0}://{1}{2}{3}/BukkenMemoDetail?bukn_cd={4}", HttpContext.Request.Scheme, HttpContext.Request.Host, HttpContext.Request.PathBase + "/", ControllerContext.ActionDescriptor.ControllerName, model.bukn_cd);
-                            record_comment_new.create_user= user;
+                            record_comment_new.create_user = user;
                             record_comment_new.create_date = now;
                             record_comment_new.update_user = user;
                             record_comment_new.update_date = now;
@@ -332,7 +341,7 @@ namespace web_groupware.Controllers
                         //ディレクトリ設定
                         var t_dic = await _context.M_DIC.FirstOrDefaultAsync(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == DIC_KB_700_DIRECTORY.BUKKENCOMMENT_FILE);
                         var dir_root = t_dic.content;
-                        string dir_main = Path.Combine(dir_root, model.bukn_cd.ToString(),comment_no.ToString());
+                        string dir_main = Path.Combine(dir_root, model.bukn_cd.ToString(), comment_no.ToString());
                         if (!Directory.Exists(dir_main))
                         {
                             Directory.CreateDirectory(dir_main);
@@ -467,15 +476,78 @@ namespace web_groupware.Controllers
             }
         }
         /// <summary>
-        /// already_checked更新
+        /// T_CHECKED更新
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns
-        public IActionResult Read_comment(BukkenMemoDetailViewModel model)
+        /// <returns></returns>
+        public IActionResult Check_comment(string bukn_cd,string already_read_comment_no)
         {
             try
             {
-                ModelState.Clear();
+                using (IDbContextTransaction tran = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var login_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                        var btn_text = "";
+                        var t_checked_login_user = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no == int.Parse(bukn_cd) && x.second_no == int.Parse(already_read_comment_no) && x.staf_cd == int.Parse(login_user));
+                        if (t_checked_login_user == null)
+                        {
+                            var now = DateTime.Now;
+                            var t_checked_new = new T_CHECKED();
+                            t_checked_new.check_no = GetNextNo(DataTypes.CHECK_NO);
+                            t_checked_new.parent_id = INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT;
+                            t_checked_new.first_no = int.Parse(bukn_cd);
+                            t_checked_new.second_no = int.Parse(already_read_comment_no);
+                            t_checked_new.staf_cd = int.Parse(login_user);
+                            t_checked_new.create_user = login_user;
+                            t_checked_new.create_date = now;
+                            t_checked_new.update_user = login_user;
+                            t_checked_new.update_date = now;
+                            _context.T_CHECKED.Add(t_checked_new);
+                            btn_text = Check_button_text.CANCEL;
+                        }
+                        else
+                        {
+                            _context.T_CHECKED.Remove(t_checked_login_user);
+                            btn_text = Check_button_text.CHECK;
+                        }
+                        _context.SaveChanges();
+                        tran.Commit();
+                        var result = new List<object>();
+                        result.Add(btn_text);
+                        var t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT && x.first_no == int.Parse(bukn_cd) && x.second_no == int.Parse(already_read_comment_no));
+                        result.Add(t_checked.Count()+"名");
+                        var list = t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList();
+                        result.Add(list);
+                        return Json(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        tran.Dispose();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// T_INFO_PERSONAL更新
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns
+        public void Read_comment(BukkenMemoDetailViewModel model)
+        {
+            try
+            {
                 using (IDbContextTransaction tran = _context.Database.BeginTransaction())
                 {
                     try
@@ -483,13 +555,13 @@ namespace web_groupware.Controllers
                         StringBuilder sql = new StringBuilder();
                         sql.AppendLine(" UPDATE ");
                         sql.AppendLine(" T_INFO_PERSONAL ");
-                        sql.AppendLine(" SET already_checked=1");
+                        sql.AppendLine(" SET already_read=1");
                         sql.AppendFormat(" ,update_user = '{0}' ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                         sql.AppendFormat(" ,update_date = '{0}' ", DateTime.Now);
                         sql.AppendLine(" WHERE 1=1 ");
                         sql.AppendFormat(" AND parent_id = {0} ", INFO_PERSONAL_PARENT_ID.T_BUKKENCOMMENT);
                         sql.AppendFormat(" AND first_no = {0} ", model.bukn_cd);
-                        sql.AppendFormat(" AND second_no = {0} ", model.already_read_comment_no);
+                        //sql.AppendFormat(" AND second_no = {0} ", model.already_read_comment_no);
                         sql.AppendFormat(" AND staf_cd = {0} ", HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value);
                         using (SqlConnection con = new SqlConnection(_context.Database.GetDbConnection().ConnectionString))
                         {
@@ -508,20 +580,13 @@ namespace web_groupware.Controllers
                         _logger.LogError(ex.Message);
                         _logger.LogError(ex.StackTrace);
                         tran.Dispose();
-                        ModelState.AddModelError("", Message_register.FAILURE_001);
-                        //SetSelectListItem(model);
-                        return View("BukkenMemoDetail", model);
                     }
                 }
-                return RedirectToAction("BukkenMemoDetail", model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 _logger.LogError(ex.StackTrace);
-                ModelState.AddModelError("", Message_register.FAILURE_001);
-                //SetSelectListItem(model);
-                return View("BukkenMemoDetail", model);
             }
         }
     }

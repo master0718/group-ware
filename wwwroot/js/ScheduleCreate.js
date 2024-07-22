@@ -99,7 +99,10 @@
             $(".btn_file").removeClass('download_file')
             $(".btn_file").attr('data-bs-toggle', 'dropdown')
 
-            var repeatType = $("[name='repeatTypeRadio']:checked").val()
+            var repeatType = Number($("[name='repeatTypeRadio']:checked").val())
+            if (repeatType != 0) {
+                $("[name='repeatLimitRadio']").removeAttr('disabled')
+            }
             if (repeatType == 3) {
                 $("#list-week").removeAttr('disabled')
             } else if (repeatType == 4) {
@@ -110,10 +113,10 @@
             $('#update_info').attr('hidden', true)
 
             if (hasCopied) {
-                $('#scheduleForm').attr('action', '/groupware/Schedule/Create')
+                $('#scheduleForm').attr('action', baseUrl + 'Schedule/Create')
                 $('.btnSave').html('<i class="bi bi-plus"></i> 新規登録')
             } else {
-                $('#scheduleForm').attr('action', '/groupware/Schedule/Edit')
+                $('#scheduleForm').attr('action', baseUrl + 'Schedule/Edit')
                 $('.btnSave').html('<i class="bi bi-floppy"></i> 保存')
             }
 
@@ -183,6 +186,7 @@
 
     function showHideDateTimeControls($thiz) {
         var repeatType = $thiz == null ? $("#repeat_type").val() : $thiz.val()
+        $("#repeat_type").val(repeatType)
         if (repeatType == 0) { // none
             //$("#input-time-from-wrapper").addClass('d-none')
             //$("#input-time-to-wrapper").addClass('d-none')
@@ -306,6 +310,11 @@
 
         $('#scheduleForm').on('submit', function (e) {
             var repeat_type = $("[name='repeatTypeRadio']:checked").val()
+            var limitType = $("[name='repeatLimitRadio']:checked").val()
+
+            if (repeat_type == 0 || limitType == 0)
+                $('#repeat_date_from, #repeat_date_to').val('')
+
             $("#repeat_type").val(repeat_type)
             if (repeat_type != 0) { // repeat none
 

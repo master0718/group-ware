@@ -27,5 +27,17 @@ namespace web_groupware.Models
 
         [Column(TypeName = "date")]
         public DateTime? date_to { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string create_user { get; set; } = string.Empty;
+
+        [Column(TypeName = "datetime2(7)")]
+        public DateTime create_date { get; set; }
+
+        [Column(TypeName = "varchar(10)")]
+        public string update_user { get; set; } = string.Empty;
+
+        [Column(TypeName = "datetime2(7)")]
+        public DateTime update_date { get; set; }        
     }
 }

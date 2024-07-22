@@ -155,3 +155,18 @@
     height: 100%;
     overflow: unset !important;
 }
+
+.cell-add {
+    background-color: white;
+}
+
+.ic-cell-add {
+    color: #009a3f;
+    font-size: 1rem;
+
+}
+
+.ic-cell-add[class*=" bi-"]::before {
+    font-weight: 900 !important;
+    border: 1px solid #00000045;
+}
