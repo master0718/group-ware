@@ -377,7 +377,6 @@ $(function () {
     });
 
     $('.commentDropArea').on('drop', function (event) {
-        if (isEditable === false) return
         event.preventDefault();
         previewCommentImage(event.originalEvent.dataTransfer);
     });
@@ -505,17 +504,14 @@ $(function () {
     });
 
     $('#comment_drag_area').on('dragover', function (e) {
-        if (isEditable === false) return
         e.preventDefault(); // Prevent default behavior to allow drop
         $(this).addClass('drag-over');
     });
 
     $('#comment_drag_area').on('dragleave', function () {
-        if (isEditable === false) return
         $(this).removeClass('drag-over');
     });
     $('#comment_drag_area').on('drop', function () {
-        if (isEditable === false) return
         $(this).removeClass('drag-over');
     });
 });

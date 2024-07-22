@@ -91,6 +91,15 @@
     height: 2rem;
 }
 
+#comment_drag_area.drag-over {
+    background-color: #edf4f0;
+    border-color: #00836b;
+}
+
+#comment_drag_area {
+    border: 3px dotted #adadad;
+}
+
 #btnMore {
     cursor: pointer;
 }
