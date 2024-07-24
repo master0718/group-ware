@@ -293,7 +293,7 @@ $(function () {
                         <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
                             <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="${file.filename}">
                                 <div class="div_img_file bg-light p-2">
-                                    <img src="/images/file-icons/${icon}" alt="icon" style="height: 50px;">
+                                    <img src="${baseUrl}/images/file-icons/${icon}" alt="icon" style="height: 50px;">
                                 </div>
                                 <div class="text-wrap">${file.filename}</div>
                             </div>
