@@ -339,7 +339,6 @@ namespace web_groupware.Controllers
         {
 
             var item = await _context.T_TODO.FirstOrDefaultAsync(m => m.todo_no == todo_no);
-
             return item;
         }
 
