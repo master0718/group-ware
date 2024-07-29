@@ -215,7 +215,6 @@ namespace web_groupware.Controllers
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
-                    
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
 
                     DateTime? deadlineDate = null;
