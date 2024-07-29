@@ -1,4 +1,4 @@
-@model web_groupware.Models.WorkFlowDetailViewModel
+@model web_groupware.Models.ApproveDetailViewModel
 @using web_groupware.Utilities;
 
 @{
@@ -45,6 +45,7 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input hidden asp-for="@Model.workflow_no" />
                     <input hidden asp-for="@Model.is_accept" value=0 />
+                    <input hidden asp-for="@Model.is_top_approver" />
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.request_type" class="form-label"></label>
@@ -53,15 +54,15 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="@Model.approver_cd" class="form-label"></label>
-                        <input type="hidden" asp-for="@Model.approver_cd" class="form-control" readonly />
-                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.approver_name</label>
-                    </div>
-
-                    <div class="form-group mb-3">
                         <label asp-for="@Model.title" class="form-label"></label>
                         <input type="hidden" asp-for="@Model.title" class="form-control" readonly />
                         <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.title</label>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.requester_name" class="form-label"></label>
+                        <input type="hidden" asp-for="@Model.requester_name" class="form-control" readonly />
+                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.requester_name</label>
                     </div>
 
                     <div class="form-group mb-3">
@@ -77,7 +78,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="@Model.File" class="form-label"></label>
+                        <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.WORKFLOW">
+                        <input type="hidden" id="dir_no" value="@Model.workflow_no">
+                        <label asp-for="@Model.fileModel" class="form-label"></label>
                         @if (Model.fileModel.fileList != null && Model.fileModel.fileList.Any())
                         {
                             <partial name="_FileList" model="@Model.fileModel" />
@@ -98,7 +101,7 @@
 
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                        <button type="button" class="btn btn-secondary approve-back" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
                         <button type="button" class="btn btn-danger" style="margin-right: 10px" onclick="onReject()">

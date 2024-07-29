@@ -69,7 +69,7 @@ function updateOnResponse(scheduleList, initialDate) {
         'startTime': "23:00",
         'endTime': "23:00",
         'is_add': 1
-    })    
+    })
     if (viewMode == 'PersonMonth2') {
         scheduleList = scheduleList.filter(s=>s.schedule_type == 100);
     }
@@ -149,7 +149,7 @@ function updateOnResponse(scheduleList, initialDate) {
                 // Format the start and end times to display in the format of 7.00-8.00
                 let formattedStartTime = startTime.toLocaleTimeString('ja', {hour: 'numeric', minute: '2-digit'});
                 let formattedEndTime = endTime.toLocaleTimeString('ja', {hour: 'numeric', minute: '2-digit'});
-        
+
                 if (arg.event.extendedProps.is_private) {
                     return {
                         html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}">
@@ -214,7 +214,8 @@ function updateOnResponse(scheduleList, initialDate) {
                 window.location.href = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}`
             }
         },
-        viewClassNames: function (fn) {
+        
+        dayCellClassNames: function (fn) {
             $(".fc-content").each(function () {
                 var duplicated = false;
                 var thiz = $(this);
@@ -227,7 +228,7 @@ function updateOnResponse(scheduleList, initialDate) {
                     var thiz1 = $(this);
 
                     if (schedule_no == thiz1.data('schedule_no') && place_cd == thiz1.data('place_cd')) return; // itself
-                    if (place_cd != thiz1.data('place_cd')) return; // different place
+                    //if (place_cd != thiz1.data('place_cd')) return; // different place
 
                     var item_from = moment(thiz1.data('from'), 'YYYY/MM/DD HH:mm');
                     var item_to = moment(thiz1.data('to'), 'YYYY/MM/DD HH:mm');
@@ -242,6 +243,9 @@ function updateOnResponse(scheduleList, initialDate) {
                         thiz.find(".fc-date").prepend('<i class="bi bi-exclamation-triangle-fill fc-duplicated" style="color:red"></i>');
                     }
                 }
+            });
+            $("a.fc-event:has(.ic-cell-add)").css({
+                'width': 'fit-content'
             });
         }
     });

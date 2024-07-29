@@ -1,4 +1,5 @@
-﻿@model web_groupware.Models.TodoFileModel
+﻿@using web_groupware.Utilities
+@model web_groupware.Models.TodoFileModel
 
 @section Styles {
     <link href="~/css/file.css" rel="stylesheet" />
@@ -16,7 +17,7 @@
                     var controllerName = ViewContext.RouteData.Values["Controller"].ToString();
                 }
 
-                <button class="bg-white border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth @downloadClazz" type="button" data-bs-toggle="dropdown" data-controller="@controllerName" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename" aria-expanded="false">
+                <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth @downloadClazz" type="button" data-bs-toggle="dropdown" data-controller="@controllerName" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename" aria-expanded="false" style="background-color: var(--bs-card-bg);">
                     <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@Model.fileList[i].filename">
 
                         <div class="div_img_file bg-light p-2">
@@ -33,6 +34,14 @@
                 <ul class="dropdown-menu fileAreaInnerWidth text-center">
                     <button class="dropdown-item delete_file" type="button" role="button" id="delete_@i" data-dir_kind="1" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename">削除</button>
                     <button class="dropdown-item download_file" target="_blank" type="button" role="button" data-controller="@controllerName" data-file_no="@Model.fileList[i].file_no" data-file_name="@Model.fileList[i].filename">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                    @{
+                        var dir_no = Model.fileList[i].todo_no;
+                        var extension = System.IO.Path.GetExtension(Model.fileList[i].filename).ToLower();
+                    }
+                    @if (PREVIEW_ALLOWED_EXTENSION.LIST.Contains(extension))
+                    {
+                        <a class="dropdown-item preview_file site_iframe_preview" asp-controller="Base" asp-action="PreviewFile" asp-route-dic_cd="@DIC_KB_700_DIRECTORY.TODO" asp-route-dir_no="@dir_no" asp-route-file_name="@Model.fileList[i].filename">ﾌﾟﾚﾋﾞｭｰ</a>
+                    }
                 </ul>
             </div>
         }

@@ -15,14 +15,6 @@ namespace web_groupware.Controllers
     [Authorize]
     public class MemoController : BaseController
     {
-        public const int BUKKEN_COMMENT_CD = 2;
-
-        public const int MEMO_STATE_ALL = 0;
-        public const int MEMO_STATE_UNREAD = 0;
-        public const int MEMO_STATE_READ = 1;
-        public const int MEMO_STATE_WORKING = 2;
-        public const int MEMO_STATE_FINISH = 3;
-
         private const int MaxContentLength = 255;
 
         public MemoController(IConfiguration configuration, ILogger<BaseController> logger, web_groupwareContext context, IWebHostEnvironment hostingEnvironment, IHttpContextAccessor httpContextAccessor)
@@ -31,12 +23,30 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Memo_sent(int state = 0, int user = 0)
+        public IActionResult Memo_all(int state = 0, int user = 0, string? keyword = null)
         {
             try
             {
-                MemoViewModel model = CreateMemoViewModel(state, user, true);
-                TempData["is_sent"] = true;
+                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.ALL);
+                TempData["category"] = MemoCategory.ALL;
+                TempData["view_mode"] = "all";
+                ViewBag.ViewMode = "Memo_all";
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+        [HttpGet]
+        public IActionResult Memo_sent(int state = 0, int user = 0, string? keyword = null)
+        {
+            try
+            {
+                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.SENT);
+                TempData["category"] = MemoCategory.SENT;
                 TempData["view_mode"] = "sent";
                 ViewBag.ViewMode = "Memo_sent";
                 return View(model);
@@ -50,12 +60,12 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Memo_received(int state = 0, int user = 0)
+        public IActionResult Memo_received(int state = 0, int user = 0, string? keyword = null)
         {
             try
             {
-                MemoViewModel model = CreateMemoViewModel(state, user, false);
-                TempData["is_sent"] = false;
+                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.RECEIVED);
+                TempData["category"] = MemoCategory.RECEIVED;
                 TempData["view_mode"] = "received";
                 ViewBag.ViewMode = "Memo_received";
                 return View(model);
@@ -69,20 +79,23 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public IActionResult Filter(bool is_sent, int filter_state, int filter_user)
+        public IActionResult Filter(int category, int filter_state, int filter_user, string filter_keyword)
         {
             TempData["filter_state"] = filter_state;
             TempData["filter_user"] = filter_user;
-            TempData["is_sent"] = is_sent;
+            TempData["filter_keyword"] = filter_keyword;
+            TempData["category"] = category;
 
-            var routeValues = new { state = filter_state, user = filter_user };
-            if (is_sent)
+            var routeValues = new { state = filter_state, user = filter_user, keyword = filter_keyword };
+            if (category == MemoCategory.SENT)
                 return RedirectToAction("Memo_sent", routeValues);
-            else
+            else if (category == MemoCategory.RECEIVED)
                 return RedirectToAction("Memo_received", routeValues);
+            else
+                return RedirectToAction("Memo_all", routeValues);
         }
 
-        public MemoViewModel CreateMemoViewModel(int selected_state = 0, int selected_user = 0, bool is_sent = true)
+        public MemoViewModel CreateMemoViewModel(int selected_state = 0, int selected_user = 0, string? keyword = null, int category = MemoCategory.ALL)
         {
             try
             {
@@ -90,7 +103,8 @@ namespace web_groupware.Controllers
                 {
                     selectedState = selected_state,
                     selectedUser = selected_user,
-                    isSent = is_sent,
+                    category = category,
+                    keyword = keyword,
 
                     staffList = _context.M_STAFF
                     .Where(x => x.retired != 1)
@@ -121,105 +135,101 @@ namespace web_groupware.Controllers
                 }
 
                 int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
-                var memoList = _context.T_MEMO.ToList();
-                for (var i = memoList.Count - 1; i >= 0; i--)
+
+                List<T_MEMO>? memoList = null;
+                if (keyword != null && keyword != "")
                 {
-                    var memo = memoList[i];
+                    var keyword_ = keyword.ToLower();
+                    memoList = (from m in _context.T_MEMO
+                                where m.phone.ToLower().Contains(keyword_) || m.content.ToLower().Contains(keyword_)
+                                select m).ToList();
+                }
+                else
+                {
+                    memoList = (from m in _context.T_MEMO select m).ToList();
+                }
 
-                    if (selected_state == 0 || memo.state == selected_state - 1)
+                if (memoList != null)
+                {
+                    for (var i = memoList.Count - 1; i >= 0; i--)
                     {
-                        bool is_show = false;
-                        if (is_sent)
-                        {
-                            if (memo.sender_cd == user_id)
-                            {
-                                if (selected_user == 0) is_show = true;
-                                else if (selected_user == 1 && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
-                                else if (selected_user > 1 && memo.receiver_type == 1)
-                                {
-                                    if (memo.receiver_cd == selected_user - 2) is_show = true;
-                                }
-                            }
-
-                        }
-                        else
-                        {
-                            if ((selected_user == 0 || selected_user == 1) && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
-                            else if (memo.receiver_type == 1 && (selected_user == 0 || selected_user > 1 && memo.receiver_cd == selected_user - 2))
-                            {
-                                var memoReader = _context.T_INFO_PERSONAL
-                                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                                    .Where(m => m.first_no == memo.memo_no && m.staf_cd == user_id)
-                                    .FirstOrDefault();
-                                // グループの対象社員は作成者が宛先を登録・変更したタイミングでグループに属していた社員
-                                if (memoReader != null)
-                                {
-                                    is_show = model.groupList
-                                        .Where(m => m.group_cd == memo.receiver_cd)
-                                        .ToList().Any();
-                                }
-                            }
-                        }
-                        if (is_show)
-                        {
-                            var receiver_name = "";
-                            if (memo.receiver_type == 0)
-                            {
-                                var user = model.staffList.FirstOrDefault(u => u.staff_cd == memo.receiver_cd);
-                                receiver_name = user.staff_name;
-                            }
-                            else
-                            {
-                                var group = model.groupList.FirstOrDefault(u => u.group_cd == memo.receiver_cd);
-                                receiver_name = group.group_name;
-                            }
-                            var sender = model.staffList.FirstOrDefault(u => u.staff_cd == memo.sender_cd);
-                            var sender_name = sender?.staff_name;
-
-                            var memoReaders = _context.T_INFO_PERSONAL
+                        var memo = memoList[i];
+                        var memoRead = _context.T_INFO_PERSONAL
                                 .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                                .Where(m => m.first_no == memo.memo_no && m.already_read)
-                                .Include(m => m.staff)
-                                .ToList();
-                            var readerNames = "";
-                            foreach (var memoReader in memoReaders)
+                                .Where(m => m.first_no == memo.memo_no && m.staf_cd == memo.receiver_cd)
+                                .Where(m => m.already_read)
+                                .FirstOrDefault();
+                        int state = memoRead != null ? 1 : 0;
+
+                        if (selected_state == 0 || state == selected_state - 1)
+                        {
+                            bool is_show = false;
+                            if (category == MemoCategory.SENT || category == MemoCategory.ALL)
                             {
-                                if (readerNames.Length != 0) readerNames += "、";
-                                readerNames += memoReader.staff.staf_name;
+                                if (memo.sender_cd == user_id || category == MemoCategory.ALL)
+                                {
+                                    if (selected_user == 0) is_show = true;
+                                    else if (selected_user == 1 && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
+                                    else if (selected_user > 1 && memo.receiver_type == 1)
+                                    {
+                                        if (memo.receiver_cd == selected_user - 2) is_show = true;
+                                    }
+                                }
                             }
-                            var working_msg = "";
-                            if (memo.working_cd > 0)
+                            else if (category == MemoCategory.RECEIVED)
                             {
-                                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.working_cd);
-                                working_msg = memo.working_date.ToString("yyyy年M月d日 H時m分  ") + working?.staf_name;
-                            }
-                            var finish_msg = "";
-                            if (memo.finish_cd > 0)
-                            {
-                                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.finish_cd);
-                                finish_msg = memo.finish_date.ToString("yyyy年M月d日 H時m分  ") + working?.staf_name;
+                                if ((selected_user == 0 || selected_user == 1) && memo.receiver_type == 0 && memo.receiver_cd == user_id) is_show = true;
+                                else if (memo.receiver_type == 1 && (selected_user == 0 || selected_user > 1 && memo.receiver_cd == selected_user - 2))
+                                {
+                                    var memoReader = _context.T_INFO_PERSONAL
+                                        .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                                        .Where(m => m.first_no == memo.memo_no && m.staf_cd == user_id)
+                                        .FirstOrDefault();
+                                    // グループの対象社員は作成者が宛先を登録・変更したタイミングでグループに属していた社員
+                                    if (memoReader != null)
+                                    {
+                                        is_show = model.groupList
+                                            .Where(m => m.group_cd == memo.receiver_cd)
+                                            .ToList().Any();
+                                    }
+                                }
                             }
 
-                            model.memoList.Add(new MemoModel
+                            if (is_show)
                             {
-                                memo_no = memo.memo_no,
-                                create_date = memo.create_date.ToString("yyyy年M月d日 H時m分"),
-                                state = memo.state,
-                                receiver_type = memo.receiver_type,
-                                receiver_cd = memo.receiver_cd,
-                                receiver_name = receiver_name,
-                                applicant_type = memo.applicant_type,
-                                applicant_cd = memo.applicant_cd,
-                                applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == memo.applicant_cd)?.staf_name,
-                                comment_no = memo.comment_no,
-                                phone = memo.phone,
-                                content = memo.content,
-                                sender_name = sender_name,
-                                is_editable = memo.sender_cd == user_id,
-                                readers = readerNames,
-                                working_msg = working_msg,
-                                finish_msg = finish_msg
-                            });
+                                var receiver_name = "";
+                                if (memo.receiver_type == 0)
+                                {
+                                    var user = model.staffList.FirstOrDefault(u => u.staff_cd == memo.receiver_cd);
+                                    receiver_name = user.staff_name;
+                                }
+                                else
+                                {
+                                    var group = model.groupList.FirstOrDefault(u => u.group_cd == memo.receiver_cd);
+                                    receiver_name = group.group_name;
+                                }
+                                var memoChecked = _context.T_CHECKED
+                                    .Where(x => x.parent_id == CHECK_PARENT_ID.T_MEMO)
+                                    .Where(x => x.first_no == memo.memo_no && x.staf_cd == user_id)
+                                    .FirstOrDefault();
+
+                                model.memoList.Add(new MemoModel
+                                {
+                                    memo_no = memo.memo_no,
+                                    create_date = memo.create_date.ToString("yyyy年M月d日 H時m分"),
+                                    state = state,
+                                    receiver_type = memo.receiver_type,
+                                    receiver_cd = memo.receiver_cd,
+                                    receiver_name = receiver_name,
+                                    applicant_type = memo.applicant_type,
+                                    applicant_cd = memo.applicant_cd,
+                                    applicant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == memo.applicant_cd)?.staf_name,
+                                    comment_no = memo.comment_no,
+                                    phone = memo.phone,
+                                    content = memo.content,
+                                    already_checked = memoChecked != null
+                                });
+                            }
                         }
                     }
                 }
@@ -231,6 +241,17 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
+        }
+
+        [HttpGet]
+        public IActionResult CreateAll()
+        {
+            TempData["view_mode"] = "all";
+            ViewBag.ViewMode = "Memo_all";
+
+            var viewModel = new MemoDetailViewModel();
+            PrepareViewModel(viewModel);
+            return View("Create", viewModel);
         }
 
         [HttpGet]
@@ -299,10 +320,11 @@ namespace web_groupware.Controllers
                 var now = DateTime.Now;
                 try
                 {
+                    var memo_no = GetNextNo(DataTypes.MEMO_NO);
                     var record_new = new T_MEMO
                     {
-                        memo_no = GetNextNo(DataTypes.MEMO_NO),
-                        state = MEMO_STATE_UNREAD,
+                        memo_no = memo_no,
+                        state = 0,
                         receiver_type = request.receiver_type,
                         receiver_cd = request.receiver_cd,
                         applicant_type = request.applicant_type,
@@ -311,29 +333,28 @@ namespace web_groupware.Controllers
                         phone = request.phone,
                         content = request.content,
                         sender_cd = Convert.ToInt32(user_id),
-                        working_cd = 0,
-                        finish_cd = 0,
                         create_user = user_id,
                         create_date = now,
                         update_user = user_id,
                         update_date = now
                     };
-                    var tracked = _context.T_MEMO.Add(record_new);
+                    _context.T_MEMO.Add(record_new);
 
+                    string url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{Url.Action("Edit", "Memo", new { id = memo_no })}";
                     if (request.receiver_type == 0)
                     {
                         var memo_read = new T_INFO_PERSONAL
                         {
                             info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                             parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
-                            first_no = tracked.Entity.memo_no,
+                            first_no = memo_no,
                             second_no = 0,
                             third_no = 0,
                             staf_cd = request.receiver_cd,
                             already_read = false,
-                            title = "",
-                            content = "",
-                            url = "",
+                            title = "伝言・電話メモ",
+                            content = request.content,
+                            url = url,
                             added = false,
                             create_user = user_id,
                             create_date = now,
@@ -354,14 +375,14 @@ namespace web_groupware.Controllers
                             {
                                 info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
                                 parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
-                                first_no = tracked.Entity.memo_no,
+                                first_no = memo_no,
                                 second_no = 0,
                                 third_no = 0,
                                 staf_cd = staf_cd,
                                 already_read = false,
-                                title = "",
-                                content = "",
-                                url = "",
+                                title = "伝言・電話メモ",
+                                content = request.content,
+                                url = url,
                                 added = false,
                                 create_user = user_id,
                                 create_date = now,
@@ -389,49 +410,13 @@ namespace web_groupware.Controllers
             return ProperRedirect();
         }
 
-        public async Task<IActionResult> UpdateReadState(int memo_no)
+        [HttpGet]
+        public IActionResult EditAll(int memo_no)
         {
-            if (_context.T_MEMO == null)
-            {
-                return Problem("Entity set 'web_groupwareContext.Memo'  is null.");
-            }
+            TempData["view_mode"] = "all";
+            ViewBag.ViewMode = "Memo_all";
+            return Edit(memo_no);
 
-            int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
-            try
-            {
-                var memoRead = await _context.T_INFO_PERSONAL
-                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                    .Where(m => m.first_no == memo_no && m.staf_cd == user_id)
-                    .FirstOrDefaultAsync();
-                if (memoRead != null && !memoRead.already_read)
-                {
-                    using (IDbContextTransaction tran = _context.Database.BeginTransaction())
-                    {
-                        memoRead.already_read = true;
-
-                        _context.T_INFO_PERSONAL.Update(memoRead);
-                        await _context.SaveChangesAsync();
-
-                        var memoItem = await _context.T_MEMO.FindAsync(memo_no);
-                        if (memoItem.state == MEMO_STATE_UNREAD && CheckAllReadMemo(memoItem))
-                        {
-                            memoItem.state = MEMO_STATE_READ;
-                            _context.T_MEMO.Update(memoItem);
-                            await _context.SaveChangesAsync();
-                        }
-
-                        tran.Commit();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-
-            return ProperRedirect();
         }
 
         [HttpGet]
@@ -453,7 +438,7 @@ namespace web_groupware.Controllers
         [HttpGet]
         public IActionResult Edit(int memo_no)
         {
-            var viewModel = getDetailView(memo_no);
+            var viewModel = GetDetailView(memo_no);
             if (viewModel == null)
             {
                 return ProperRedirect();
@@ -495,11 +480,11 @@ namespace web_groupware.Controllers
                         {
                             var itemsRemove = _context.T_INFO_PERSONAL
                                 .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                                .Include(m => m.staff)
                                 .Where(m => m.first_no == request.memo_no)
                                 .ToList();
                             _context.T_INFO_PERSONAL.RemoveRange(itemsRemove);
 
+                            string url = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{Url.Action("Edit", "Memo", new { id = request.memo_no })}";
                             if (request.receiver_type == 0)
                             {
                                 var memo_read = new T_INFO_PERSONAL
@@ -511,9 +496,9 @@ namespace web_groupware.Controllers
                                     third_no = 0,
                                     staf_cd = request.receiver_cd,
                                     already_read = false,
-                                    title = "",
-                                    content = "",
-                                    url = "",
+                                    title = "伝言・電話メモ",
+                                    content = request.content,
+                                    url = url,
                                     added = false,
                                     create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
                                     create_date = now,
@@ -539,9 +524,9 @@ namespace web_groupware.Controllers
                                         third_no = 0,
                                         staf_cd = staf_cd,
                                         already_read = false,
-                                        title = "",
-                                        content = "",
-                                        url = "",
+                                        title = "伝言・電話メモ",
+                                        content = request.content,
+                                        url = url,
                                         added = false,
                                         create_user = @User.FindFirst(ClaimTypes.STAF_CD).Value,
                                         create_date = now,
@@ -561,42 +546,7 @@ namespace web_groupware.Controllers
                         memoItem.content = request.content;
 
                         var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
-                        if (request.working == 1)
-                        {
-                            if (memoItem.working_cd == 0)
-                            {
-                                memoItem.working_cd = user_id;
-                                memoItem.working_date = now;
-                            }
-                        }
-                        else
-                        {
-                            memoItem.working_cd = 0;
-                        }
-                        if (request.finish == 1)
-                        {
-                            if (memoItem.finish_cd == 0)
-                            {
-                                memoItem.finish_cd = user_id;
-                                memoItem.finish_date = now;
-                            }
-                        }
-                        else
-                        {
-                            memoItem.finish_cd = 0;
-                        }
-                        if (request.finish == 1)
-                        {
-                            memoItem.state = MEMO_STATE_FINISH;
-                        }
-                        else if (request.working == 1)
-                        {
-                            memoItem.state = MEMO_STATE_WORKING;
-                        }
-                        else
-                        {
-                            memoItem.state = CheckAllReadMemo(memoItem) ? MEMO_STATE_READ : MEMO_STATE_UNREAD;
-                        }
+                        memoItem.state = request.state;                        
                         memoItem.update_date = now;
 
                         _context.T_MEMO.Update(memoItem);
@@ -619,6 +569,14 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
+        public IActionResult DeleteAll(int memo_no)
+        {
+            TempData["view_mode"] = "all";
+            ViewBag.ViewMode = "Memo_all";
+            return Delete(memo_no);
+        }
+
+        [HttpGet]
         public IActionResult DeleteSent(int memo_no)
         {
             TempData["view_mode"] = "sent";
@@ -637,7 +595,7 @@ namespace web_groupware.Controllers
         [HttpGet]
         public IActionResult Delete(int memo_no)
         {
-            var viewModel = getDetailView(memo_no);
+            var viewModel = GetDetailView(memo_no);
             if (viewModel == null)
             {
                 return ProperRedirect();
@@ -662,6 +620,11 @@ namespace web_groupware.Controllers
                         .Where(m => m.first_no == request.memo_no);
                     _context.T_INFO_PERSONAL.RemoveRange(itemsRemove);
 
+                    var checkedList = _context.T_CHECKED
+                        .Where(m => m.parent_id == CHECK_PARENT_ID.T_MEMO)
+                        .Where(m => m.first_no == request.memo_no).ToList();
+                    _context.T_CHECKED.RemoveRange(checkedList);
+
                     _context.T_MEMO.Remove(memoDetail);
                     await _context.SaveChangesAsync();
                 }
@@ -675,6 +638,106 @@ namespace web_groupware.Controllers
 
             return ProperRedirect();
         }
+
+        [HttpGet]
+        public IActionResult DetailAll(int memo_no)
+        {
+            TempData["view_mode"] = "all";
+            ViewBag.ViewMode = "Memo_all";
+            return Detail(memo_no);
+
+        }
+
+        [HttpGet]
+        public IActionResult DetailSent(int memo_no)
+        {
+            TempData["view_mode"] = "sent";
+            ViewBag.ViewMode = "Memo_sent";
+            return Detail(memo_no);
+        }
+
+        [HttpGet]
+        public IActionResult DetailReceived(int memo_no)
+        {
+            TempData["view_mode"] = "received";
+            ViewBag.ViewMode = "Memo_received";
+            return Detail(memo_no);
+        }
+
+        [HttpGet]
+        public IActionResult Detail(int memo_no)
+        {
+            var viewModel = GetDetailView(memo_no);
+            if (viewModel == null)
+            {
+                return ProperRedirect();
+            }
+            return View("Detail", viewModel);
+        }
+
+        /// <summary>
+        /// T_CHECKED更新 日報
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Check_comment_main(string memo_no)
+        {
+            try
+            {
+                using (IDbContextTransaction tran = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var login_user = HttpContext.User.FindFirst(ClaimTypes.STAF_CD).Value;
+                        var btn_text = "";
+                        var t_checked_login_user = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO && x.first_no == int.Parse(memo_no) && x.staf_cd == int.Parse(login_user));
+                        if (t_checked_login_user == null)
+                        {
+                            var now = DateTime.Now;
+                            var t_checked_new = new T_CHECKED();
+                            t_checked_new.check_no = GetNextNo(DataTypes.CHECK_NO);
+                            t_checked_new.parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO;
+                            t_checked_new.first_no = int.Parse(memo_no);
+                            t_checked_new.staf_cd = int.Parse(login_user);
+                            t_checked_new.create_user = login_user;
+                            t_checked_new.create_date = now;
+                            t_checked_new.update_user = login_user;
+                            t_checked_new.update_date = now;
+                            _context.T_CHECKED.Add(t_checked_new);
+                            btn_text = Check_button_text.CANCEL;
+                        }
+                        else
+                        {
+                            _context.T_CHECKED.Remove(t_checked_login_user);
+                            btn_text = Check_button_text.CHECK;
+                        }
+                        _context.SaveChanges();
+                        tran.Commit();
+                        var result = new List<object>();
+                        result.Add(btn_text);
+                        var t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO && x.first_no == int.Parse(memo_no));
+                        result.Add(t_checked.Count() + "名");
+                        var list = t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList();
+                        result.Add(list);
+                        return Json(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        tran.Dispose();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
 
         [Authorize]
         public async Task<IActionResult> GetMemoReadCount()
@@ -740,7 +803,8 @@ namespace web_groupware.Controllers
                 throw;
             }
         }
-        private MemoDetailViewModel? getDetailView(int memo_no)
+
+        private MemoDetailViewModel? GetDetailView(int memo_no)
         {
             var memo = _context.T_MEMO.FirstOrDefault(x => x.memo_no == memo_no);
 
@@ -749,7 +813,7 @@ namespace web_groupware.Controllers
 
             var model = new MemoDetailViewModel
             {
-                memo_no = memo.memo_no,
+                memo_no = memo_no,
                 state = memo.state,
                 receiver_type = memo.receiver_type,
                 receiver_cd = memo.receiver_cd,
@@ -775,27 +839,54 @@ namespace web_groupware.Controllers
                     .ToList()
             };
 
-            var memoReaders = _context.T_INFO_PERSONAL
-                .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
-                .Include(m => m.staff)
-                .Where(m => m.first_no == memo_no && m.already_read)
-                .ToList();
-            var readerNames = "";
-            foreach (var memoReader in memoReaders)
+            var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+            var iUser_id = Convert.ToInt32(user_id);
+            var memoRead = _context.T_INFO_PERSONAL
+                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                    .Where(m => m.first_no == memo_no && m.staf_cd == iUser_id)
+                    .FirstOrDefault();
+
+            using IDbContextTransaction tran = _context.Database.BeginTransaction();
+            try
             {
-                if (readerNames.Length != 0) readerNames += "、";
-                readerNames += memoReader.staff.staf_name;
+                if (memoRead != null)
+                {
+                    memoRead.already_read = true;
+                    _context.T_INFO_PERSONAL.Update(memoRead);
+                }
+                else
+                {
+                    var now = DateTime.Now;
+                    memoRead = new T_INFO_PERSONAL
+                    {
+                        info_personal_no = GetNextNo(DataTypes.INFO_PERSONAL_NO),
+                        parent_id = INFO_PERSONAL_PARENT_ID.T_MEMO,
+                        first_no = memo_no,
+                        second_no = 0,
+                        third_no = 0,
+                        staf_cd = iUser_id,
+                        already_read = true,
+                        title = "",
+                        content = "",
+                        url = "",
+                        added = false,
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now
+                    };
+                    _context.T_INFO_PERSONAL.Add(memoRead);
+                }
+                _context.SaveChanges();
+                tran.Commit();
             }
-            model.readers = readerNames;
-            if (memo.working_cd > 0)
+            catch (Exception ex)
             {
-                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.working_cd)?.staf_name;
-                model.working_msg = memo.working_date.ToString("yyyy年MM月dd日 HH時mm分  ") + working;
-            }
-            if (memo.finish_cd > 0)
-            {
-                var working = _context.M_STAFF.FirstOrDefault(u => u.staf_cd == memo.finish_cd)?.staf_name;
-                model.finish_msg = memo.finish_date.ToString("yyyy年MM月dd日 HH時mm分  ") + working;
+                tran.Rollback();
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                tran.Dispose();
+                return null;
             }
 
             var comments = _context.M_DIC
@@ -809,16 +900,26 @@ namespace web_groupware.Controllers
                     comment = item.content
                 });
             }
+            var memoChecked = _context.T_CHECKED
+                .Where(x => x.parent_id == CHECK_PARENT_ID.T_MEMO)
+                .Where(x => x.first_no == memo_no && x.staf_cd.ToString() == user_id)
+                .FirstOrDefault();
+
+            var list_memo_checked = _context.T_CHECKED.Where(x => x.parent_id == CHECK_PARENT_ID.T_MEMO && x.first_no == memo_no );
+
+            model.already_checked = memoChecked == null ? false : true;
+            model.check_count = list_memo_checked.Count() + "名";
+            model.list_check_member = list_memo_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList();
 
             return model;
         }
 
         private IActionResult ProperRedirect()
         {
-            bool is_sent = true;
-            if (TempData.TryGetValue("is_sent", out var res))
+            var category = MemoCategory.ALL;
+            if (TempData.TryGetValue("category", out var res))
             {
-                is_sent = Convert.ToBoolean(res);
+                category = Convert.ToInt32(res);
             }
             var filter_state = 0;
             if (TempData.TryGetValue("filter_state", out res))
@@ -832,10 +933,12 @@ namespace web_groupware.Controllers
             }
 
             var routeValues = new { state = filter_state, user = filter_user };
-            if (is_sent)
+            if (category == MemoCategory.SENT)
                 return RedirectToAction("Memo_sent", routeValues);
-            else
+            else if (category == MemoCategory.RECEIVED)
                 return RedirectToAction("Memo_received", routeValues);
+            else
+                return RedirectToAction("Memo_all", routeValues);
         }
 
         private bool IsValidMemoRecord(MemoDetailViewModel request, out string validationMessage)
@@ -862,6 +965,7 @@ namespace web_groupware.Controllers
 
             return string.IsNullOrEmpty(validationMessage);
         }
+        /*
         private bool CheckAllReadMemo(T_MEMO? memoItem)
         {
             if (memoItem == null) return false;
@@ -894,5 +998,6 @@ namespace web_groupware.Controllers
                 return true;
             }
         }
+        */
     }
 }

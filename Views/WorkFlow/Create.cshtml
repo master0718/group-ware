@@ -37,12 +37,11 @@
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input hidden asp-for="@Model.request_type" />
-                    <input hidden asp-for="@Model.approver_cd" />
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.request_type" class="form-label"></label>
-                        <select asp-for="@Model.request_type" class="form-select bg-white" id="sel_request_type">
+                        <select asp-for="@Model.request_type" class="form-select bg-white">
+                            <option value=""></option>
                             @if (Model.requestTypeList != null)
                             {
                                 @foreach (var item in Model.requestTypeList)
@@ -52,19 +51,6 @@
                             }
                         </select>
                         <span asp-validation-for="request_type" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label asp-for="@Model.approver_cd" class="form-label"></label>
-                        <select class="form-select bg-white" id="sel_approver_cd">
-                            @if (Model.staffList != null)
-                            {
-                                @foreach (var item in Model.staffList)
-                                {
-                                    <option value=@item.staff_cd>@item.staff_name</option>
-                                }
-                            }
-                        </select>
                     </div>
 
                     <div class="form-group mb-3">
@@ -80,6 +66,50 @@
                         <span asp-validation-for="@Model.description" class="text-danger"></span>
                     </div>
 
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label asp-for="@Model.approver_cd1" class="form-label"></label>
+                            <select asp-for="@Model.approver_cd1" class="form-select bg-white">
+                                <option value="">承認者1を選択する</option>
+                                @if (Model.staffList != null)
+                                {
+                                    @foreach (var item in Model.staffList)
+                                    {
+                                        <option value=@item.staff_cd>@item.staff_name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label asp-for="@Model.approver_cd2" class="form-label"></label>
+                            <select asp-for="@Model.approver_cd2" class="form-select bg-white">
+                                <option value="">承認者2を選択する</option>
+                                @if (Model.staffList != null)
+                                {
+                                    @foreach (var item in Model.staffList)
+                                    {
+                                        <option value=@item.staff_cd>@item.staff_name</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="@Model.approver_cd2" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.top_approver_cd" class="form-label"></label>
+                        <select asp-for="@Model.top_approver_cd" class="form-select bg-white">
+                            <option value="">最終承認者をを選択する</option>
+                            @if (Model.top_staffList != null)
+                            {
+                                @foreach (var item in Model.top_staffList)
+                                {
+                                    <option value=@item.staff_cd>@item.staff_name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="@Model.top_approver_cd" class="text-danger"></span>
+                    </div>
+
                     <div class="form-group">
                         <label asp-for="@Model.File" class="form-label"></label>
                         <partial name="_FileList" model="@Model.fileModel" />
@@ -88,6 +118,9 @@
                     <div class="row mb-3" id="fileArea">
                         <input type="hidden" asp-for="@Model.work_dir">
                         <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.WORKFLOW">
+                        <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
+                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
+
                         <div class="col-12 dropArea border-0 p-2">
                             <div id="drag_area" class="text-center px-3 py-3 bg-white">
                                 <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>

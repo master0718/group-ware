@@ -7,7 +7,7 @@ using web_groupware.Utilities;
 #pragma warning disable CS8600,CS8602,CS8604,CS8618
 namespace web_groupware.Models
 {
-    public class BukkenMemoDetailViewModel
+    public class BukkenMemoDetailViewModel:BaseViewModel
     {
         public string? cond_bukken_name {  get; set; }
         public int? already_read_comment_no { get; set; }

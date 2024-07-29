@@ -16,35 +16,37 @@
             </nav>
         </div>
         <div class="card">
-            <div class="card-header justify-content-between">
-                <h4 class="mb-0"></h4>
-                <div class="col-auto d-flex">
-                    <div>
-                        <div class="input-group">
-                            <span class="input-group-text">状態</span>
-                            <select class="form-select me-3" id="filter_status" name="filter_status">
-                                @{
-                                    int idx = 0;
-                                }
-                                @foreach (var item in WorkflowApproveStatus.AllStatus)
-                                {
-                                    <option value=@idx>@WorkflowApproveStatus.AllStatus[idx]</option>
-                                    idx++;
-                                }
-                            </select>
+            <form id="selectionForm" asp-action="Filter" method="post">
+                <div class="card-header justify-content-between">
+                    <h4 class="mb-0"></h4>
+                    <div class="col-auto d-flex">
+                        <div>
+                            <div class="input-group">
+                                <span class="input-group-text">状態</span>
+                                <select class="form-select me-3" id="filter_status" name="filter_status" onchange="FilterChanged()">
+                                    @{
+                                        int idx = 0;
+                                    }
+                                    @foreach (var item in WorkflowApproveStatus.AllStatus)
+                                    {
+                                        <option value=@idx>@WorkflowApproveStatus.AllStatus[idx]</option>
+                                        idx++;
+                                    }
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div class="input-group me-3">
-                            <span class="input-group-text">キーワード</span>
-                            <input type="text" id="keyword" class="form-control" placeholder="キーワードを入力" aria-label="キーワード">
+                        <div>
+                            <div class="input-group me-3">
+                                <span class="input-group-text">キーワード</span>
+                                <input type="text" id="filter_keyword" name="filter_keyword" class="form-control form-control-light" placeholder="キーワードを入力" aria-label="キーワード">
+                            </div>
                         </div>
-                    </div>
-                    <div style="margin-left: auto">
-                        <a id="add_facility" class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> 新規登録</a>
+                        <div style="margin-left: auto">
+                            <a id="add_facility" class="btn btn-primary" asp-action="Create"><i class="bi bi-plus"></i> 新規登録</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
             <div class="card-body">
                 <div class="row">
                     @*<div class="btn-group float-end" role="group" aria-label="Basic example">
@@ -93,26 +95,16 @@
                                                     <td class="border-0">
                                                         <table class="table table-sm mb-0">
                                                             <tbody>
-                                                                <tr>
-                                                                    <td class="border-0 border-bottom border-dark-subtle">
-                                                                        <text>@item.approver_name：</text>
-                                                                        @if (item.approve_result == 1)
-                                                                        {
-                                                                            <span class="badge text-bg-success">承　認</span>
+                                                                <partial name="_IndexApprover" model="@item.top_approver" />
 
-                                                                        }
-                                                                        else if (item.approve_result == 2)
-                                                                        {
-                                                                            <span class="badge text-bg-danger">否　決</span>
-                                                                            <div>@item.comment</div>
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <span class="badge text-bg-warning">未処理</span>
-                                                                        }
-                                                                    </td>
-                                                                </tr>
-
+                                                                @if (item.approver2 != null)
+                                                                {
+                                                                    <partial name="_IndexApprover" model="@item.approver2" />
+                                                                }
+                                                                @if (item.approver1 != null)
+                                                                {
+                                                                    <partial name="_IndexApprover" model="@item.approver1" />
+                                                                }
                                                             </tbody>
                                                         </table>
                                                     </td>
@@ -135,7 +127,17 @@
                                                 <i class="bi bi-trash3"></i> 削除
                                             </a>
                                         }
-                                        else if (item.requester_cd != staff_cd && item.status == WorkflowApproveStatus.REQUEST)
+                                        else if (item.requester_cd != staff_cd && item.is_top_approver == 0 &&
+                                                (item.status == WorkflowApproveStatus.REQUEST || item.status == WorkflowApproveStatus.APPROVE) &&
+                                                item.my_approval_result == WorkflowApproveResult.NONE)
+                                        {
+                                            <a asp-action="Accept" asp-route-workflow_no="@item.workflow_no" class="btn btn-primary">
+                                                <i class="bi bi-check"></i>承認を行う
+                                            </a>
+                                        }
+                                        else if (item.requester_cd != staff_cd && item.is_top_approver == 1 &&
+                                                item.status == WorkflowApproveStatus.TOP_APPROVE &&
+                                                item.my_approval_result == WorkflowApproveResult.NONE)
                                         {
                                             <a asp-action="Accept" asp-route-workflow_no="@item.workflow_no" class="btn btn-primary">
                                                 <i class="bi bi-check"></i>承認を行う
@@ -157,6 +159,8 @@
 </div>
 @section Scripts {
     <script>
+        $("#filter_status").val(@Model.selectedStatus);
+        $("#filter_keyword").val('@Model.keyword');
     </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

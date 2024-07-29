@@ -366,7 +366,7 @@ namespace web_groupware.Controllers
                 var root_dir = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.SAVE_PATH_FILE && x.dic_cd == dic_cd).content;
                 var fullPath = Path.Combine(root_dir, dir_no, file_name);
 
-                var model = new BasePreviewFile();
+                var model = new BasePreviewFileViewModel();
                 model.dic_cd = dic_cd;
                 model.dir_no = dir_no;
                 model.file_name = file_name;
@@ -699,17 +699,17 @@ namespace web_groupware.Controllers
                     {
                         TempData["Base_staff_name"] = t_staff.staf_name;
                     }
-                    var t_staff_auth = _context.M_STAFF_AUTH.FirstOrDefault(x => x.staf_cd.ToString() == User.FindFirst(ClaimTypes.STAF_CD).Value);
-                    if (t_staff_auth != null)
-                    {
-                        TempData["Base_auth_admin"] = t_staff_auth.auth_admin;
-                        TempData["Base_workflow_auth"] = t_staff_auth.workflow_auth;
-                    }
-                    else
-                    {
-                        TempData["Base_auth_admin"] = "0";
-                        TempData["Base_workflow_auth"] = "0";
-                    }
+                    //var t_staff_auth = _context.M_STAFF_AUTH.FirstOrDefault(x => x.staf_cd.ToString() == User.FindFirst(ClaimTypes.STAF_CD).Value);
+                    //if (t_staff_auth != null)
+                    //{
+                    //    TempData["Base_auth_admin"] = t_staff_auth.auth_admin;
+                    //    TempData["Base_workflow_auth"] = t_staff_auth.workflow_auth;
+                    //}
+                    //else
+                    //{
+                    //    TempData["Base_auth_admin"] = "0";
+                    //    TempData["Base_workflow_auth"] = "0";
+                    //}
 
                     var systems = _context.M_SYSTEM.ToList();
                     var model = new List<List<string>>();

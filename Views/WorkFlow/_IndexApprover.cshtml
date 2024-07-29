@@ -1,0 +1,21 @@
+@model web_groupware.Models.ApproverModel
+
+<tr>
+    <td class="border-0 border-bottom border-dark-subtle">
+        <text>@Model?.approver_name：</text>
+        @if (Model?.approve_result == 1)
+        {
+            <span class="badge text-bg-success">承　認</span>
+
+        }
+        else if (Model?.approve_result == 2)
+        {
+            <span class="badge text-bg-danger">否　決</span>
+            <div>@Model?.comment</div>
+        }
+        else
+        {
+            <span class="badge text-bg-warning">未処理</span>
+        }
+    </td>
+</tr>

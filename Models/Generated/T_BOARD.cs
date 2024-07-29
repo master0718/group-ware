@@ -13,7 +13,6 @@ namespace web_groupware.Models
         [Required(ErrorMessage = Messages.REQUIRED)]
         public int status { get; set; }
         
-        [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
         public int? category_cd { get; set; }
 
         [Required(ErrorMessage = Messages.REQUIRED)]

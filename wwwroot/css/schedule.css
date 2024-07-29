@@ -157,7 +157,7 @@
 }
 
 .cell-add {
-    background-color: white;
+    background-color: transparent;
 }
 
 .ic-cell-add {
@@ -169,4 +169,11 @@
 .ic-cell-add[class*=" bi-"]::before {
     font-weight: 900 !important;
     border: 1px solid #00000045;
+}
+a.fc-event:hover {
+    background-color: transparent !important;
+}
+
+a.fc-event {
+    overflow: hidden;
 }

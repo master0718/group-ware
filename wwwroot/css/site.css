@@ -1178,6 +1178,11 @@ a.disabled {
     color: gray;
 }
 
+
+label.form-control {
+    min-height: 2.25rem;
+}
+
 @media (max-width: 360px) {
     .navbar-custom .topnav-menu .nav-link {
         padding: 0 12px

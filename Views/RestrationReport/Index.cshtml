@@ -25,10 +25,10 @@
             </div>
             *@
             <div class="row mx-0">
-                <div class="col-md-6 col-12  align-items-center d-flex px-0">
-                    <div class="input-group">
+                <div class="col-md-5 col-12  align-items-center d-flex px-0">
+                    <div class="input-group me-3">
                         <span class="input-group-text">退去日</span>
-                        <input type="text" asp-for="@Model.cond_leaving_date_from" class="form-control form-control-sm site_change_post site_calendar" style="max-width:100px;">
+                        <input type="text" asp-for="@Model.cond_leaving_date_from" class="form-control form-control-sm site_change_post site_calendar" style="">
                         <span class="input-group-text site_calendar_icon"><i class="bi bi-calendar-event"></i></span>
                         <span class="input-group-text">～</span>
                         <input type="text" asp-for="@Model.cond_leaving_date_to" class="form-control form-control-sm site_change_post site_calendar">
@@ -36,8 +36,8 @@
 
                     </div>
                 </div>
-                <div class="col-md-2 col-6  align-items-center d-flex px-0 mt-md-0 mt-2">
-                    <div class="input-group me-2">
+                <div class="col-md-3 col-6  align-items-center d-flex px-0 mt-md-0 mt-2">
+                    <div class="input-group me-3">
                         <span class="input-group-text">物件コード</span>
                         <input asp-for="@Model.cond_bukken_cd" class="form-control form-control-sm site_change_post">
                     </div>

@@ -146,11 +146,11 @@ namespace web_groupware.Controllers
             }
         }
 
-        private IActionResult CreateNormal(string start_date, string? curr_date = null)
+        private IActionResult CreateNormal(string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             try
             {
-                var viewModel = CreateScheduleView(start_date, curr_date);
+                var viewModel = CreateScheduleView(start_date, curr_date, start_time, end_time);
                 return View("CreateNormal", viewModel);
             }
             catch (Exception ex)
@@ -190,7 +190,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditNormalDay(int schedule_no, string start_date, string? curr_date = null)
+        public IActionResult EditNormalDay(int schedule_no, string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             try
             {
@@ -198,7 +198,7 @@ namespace web_groupware.Controllers
                 ViewBag.ViewMode = "Day";
                 if (schedule_no == 0)
                 {
-                    return CreateNormal(start_date, curr_date);
+                    return CreateNormal(start_date, curr_date, start_time, end_time);
                 }
                 else
                 {
@@ -331,7 +331,8 @@ namespace web_groupware.Controllers
                                         time_from = r == null ? null : (r.time_from ?? null),
                                         time_to = r == null ? null : (r.time_to ?? null),
                                         repeat_date_from = r == null ? null : (r.date_from != null ? r.date_from.Value.ToString("yyyy-MM-dd") : null),
-                                        repeat_date_to = r == null ? null : (r.date_to != null ? r.date_to.Value.ToString("yyyy-MM-dd") : null)
+                                        repeat_date_to = r == null ? null : (r.date_to != null ? r.date_to.Value.ToString("yyyy-MM-dd") : null),
+                                        _context.M_PLACE.Where(x => x.place_cd == l.place_cd).FirstOrDefault().duplicate
                                     })
                                     .ToList();
                 if (place != 0)

@@ -319,11 +319,11 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create(string start_date, string? curr_date = null)
+        public IActionResult Create(string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             try
             {
-                var viewModel = CreateScheduleView(start_date, curr_date);
+                var viewModel = CreateScheduleView(start_date, curr_date, start_time, end_time);
                 return View("Create", viewModel);
             }
             catch (Exception ex)
@@ -356,7 +356,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditGroupDay(int schedule_no, string start_date, string? curr_date = null)
+        public IActionResult EditGroupDay(int schedule_no, string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             try
             {
@@ -364,7 +364,7 @@ namespace web_groupware.Controllers
                 ViewBag.ViewMode = "GroupDay";
                 if (schedule_no == 0)
                 {
-                    return Create(start_date, curr_date);
+                    return Create(start_date, curr_date, start_time, end_time);
                 }
                 else
                 {
@@ -404,7 +404,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditPersonWeek(int schedule_no, string start_date, string? curr_date = null)
+        public IActionResult EditPersonWeek(int schedule_no, string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             try
             {
@@ -412,7 +412,7 @@ namespace web_groupware.Controllers
                 ViewBag.ViewMode = "PersonWeek";
                 if (schedule_no == 0)
                 {
-                    return Create(start_date, curr_date);
+                    return Create(start_date, curr_date, start_time, end_time);
                 }
                 else
                 {

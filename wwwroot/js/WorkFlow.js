@@ -1,5 +1,12 @@
 $(function () {
-    $('#keyword').on('keyup', function () {
+    $('#keyword').on('keydown', function (event) {
+        if (event.which == 13) {
+            event.preventDefault();
+            FilterChanged();
+        }
+    })
+
+    /*$('#keyword').on('keyup', function () {
         search($(this).val(), $('#filter_status').val())
     })
 
@@ -47,5 +54,9 @@ $(function () {
 
             })
         }
-    }
+    }*/
 })
+
+function FilterChanged() {
+    $("#selectionForm").trigger("submit");
+}

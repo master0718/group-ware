@@ -26,12 +26,12 @@ namespace web_groupware.Controllers
         /// <param name="hostingEnvironment"></param>
         /// <param name="httpContextAccessor"></param>
         public BukkenMemoController(IConfiguration configuration, ILogger<BaseController> logger, web_groupwareContext context, IWebHostEnvironment hostingEnvironment, IHttpContextAccessor httpContextAccessor) : base(configuration, logger, context, hostingEnvironment, httpContextAccessor) { }
-        /// <summary>
-        /// 一覧画面表示
-        /// </summary>
-        /// <param name="model">BukkenMemoViewModel</param>
-        /// <returns></returns
-        public IActionResult Index(BukkenMemoViewModel model)
+    /// <summary>
+    /// 一覧画面表示
+    /// </summary>
+    /// <param name="model">BukkenMemoViewModel</param>
+    /// <returns></returns
+    public IActionResult Index(BukkenMemoViewModel model)
         {
             try
             {
@@ -212,6 +212,7 @@ namespace web_groupware.Controllers
                 model.dir_no = bukn_cd.ToString();
                 createList(model);
                 model.cond_bukken_name = cond_bukken_name;
+                model.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
                 return model;
             }
             catch (Exception ex)
@@ -449,7 +450,6 @@ namespace web_groupware.Controllers
                         }
 
                         Directory.Delete(Make_work_dir_full(model.dic_cd, model.work_dir), true);
-
 
                         tran.Commit();
 

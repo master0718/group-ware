@@ -74,25 +74,38 @@ function navigate(baseDay) {
 function updateOnResponse(placeList, scheduleList, initialDate) {
     var resourcesData = [];
     var eventsData = [];
-    
+
     if (placeList != null && placeList.length > 0) {
-        var start_time, end_time;
         if (viewMode == 'Week') {
-            start_time = "23:00";
-            end_time = "24:00";
+            var start_time = "23:00";
+            var end_time = "24:00";
+            placeList.forEach(item => {
+                resourcesData.push({ 'id': item.place_cd, 'title': item.place_name, 'sort_id': item.sort })
+                eventsData.push({
+                    'resourceId': item.place_cd,
+                    'startTime': start_time,
+                    'endTime': end_time,
+                    'is_add': 1
+                })
+            })
         } else {
-            start_time = "07:00";
-            end_time = "08:00";
-        }        
-        placeList.forEach(item => {
-            resourcesData.push({ 'id': item.place_cd, 'title': item.place_name, 'sort_id': item.sort })
-            eventsData.push({
-                'resourceId': item.place_cd,
-                'startTime': start_time,
-                'endTime': end_time,
-                'is_add': 1
-            })            
-        })
+            placeList.forEach(item => {
+                resourcesData.push({ 'id': item.place_cd, 'title': item.place_name, 'sort_id': item.sort })
+
+                var start = moment().hours(7).minute(0);
+                for (var i = 0; i < 13; i++) {
+                    var start_time = start.format("HH:mm")
+                    var end_time = start.add(1, 'hours').format("HH:mm")
+                    eventsData.push({
+                        'resourceId': item.place_cd,
+                        'startTime': start_time,
+                        'endTime': end_time,
+                        'is_add': 1
+                    })
+                }
+            })
+        }
+
         if (scheduleList != null && scheduleList.length > 0) {
             loadCalendarEventsData(0, 'place', scheduleList, eventsData)
         }
@@ -150,7 +163,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                 dateIncrement: { days: 1 },
                 titleFormat: (info) => {
                     var date = new Date(info.date.year, info.date.month, info.date.day);
-                    const formattedDate = `${info.date.year} 年 ${info.date.month+1} 月 ${info.date.day} 日 `;
+                    const formattedDate = `${info.date.year} 年 ${info.date.month + 1} 月 ${info.date.day} 日 `;
                     const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
                     date.setDate(date.getDate() + 6);
                     const formattedEndDate = `${date.getDate()} 日 `;
@@ -162,7 +175,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
             resourceTimelineDay: {
                 titleFormat: (info) => {
                     var date = new Date(info.date.year, info.date.month, info.date.day);
-                    const formattedDate = `${info.date.year} 年 ${info.date.month+1} 月 ${info.date.day} 日 `;
+                    const formattedDate = `${info.date.year} 年 ${info.date.month + 1} 月 ${info.date.day} 日 `;
                     const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
                     return `${formattedDate}(${weekday})`;
                 },
@@ -219,7 +232,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
             let endTime = arg.event.end;
             let from = moment(startTime, 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm');
             let to = moment(endTime, 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm');
-            
+
             if (props.is_add) {
                 return {
                     html: `<div class="cell-add" data-from="${from}"><i class="bi bi-plus ic-cell-add"></i></div>`
@@ -228,6 +241,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                 var contentStyle = props.bkcolor == undefined ? `` : ` style="background-color:${props.bkcolor}"`
                 let schedule_no = props.schedule_no;
                 let place_cd = props.place_cd;
+                let duplicate = props.duplicate;
 
                 // Format the start and end times to display in the format of 7.00-8.00
                 let formattedStartTime = startTime.toLocaleTimeString('ja', {hour: 'numeric', minute: '2-digit'});
@@ -235,7 +249,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
             
                 if (props.is_private) {
                     return {
-                        html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}">
+                        html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}" data-duplicate="${duplicate}">
                                     <div class="fc-date">${formattedStartTime}-${formattedEndTime}</div>
                                     <div class="px-1">
                                         <span class="fc-type px-1" style="background-color:${props.typecolor}; height:fit-content;">${props.typename}</span>
@@ -247,7 +261,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                 }
                 else {
                     return {
-                        html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}">
+                        html: `<div class="fc-content"${contentStyle} data-from="${from}" data-to="${to}" data-schedule_no="${schedule_no}" data-place_cd="${place_cd}" data-duplicate="${duplicate}">
                                     <div class="fc-date">${formattedStartTime}-${formattedEndTime}</div>
                                     <div class="px-1">
                                         <span class="fc-type px-1" style="background-color:${props.typecolor}; height:fit-content;">${props.typename}</span>
@@ -257,7 +271,8 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                     };
                 }
             }
-        },    
+
+        },
         eventDrop: function(event) {
             let e = event.event;
             $.ajax({
@@ -265,6 +280,7 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                 url: baseUrl + "ScheduleFacility/UpdateDuration",
                 data: {
                     schedule_no: e.extendedProps.schedule_no,
+                    place_cd: e.extendedProps.place_cd,
                     start: e.startStr,
                     end: e.endStr
                 },                
@@ -281,27 +297,32 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
             var currentView = calendar.view;
             var startDate = currentView.activeStart;
     
-            var action = null;
+            var action = null
             if (viewMode == 'Week')
-                action = "EditNormalWeek";
+                action = "EditNormalWeek"
             else
-                action = "EditNormalDay";
+                action = "EditNormalDay"
             if (schedule_no == undefined) {
-                schedule_no = 0;
-                currDate = info.event.start;
-                window.location.href = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}&curr_date=${moment(currDate).format('YYYY-MM-DD')}`
+                schedule_no = 0
+                currDate = info.event.start
+                startTime = moment(info.event.start).format('HH:mm')
+                endTime = moment(info.event.end).format('HH:mm')
+                var url = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}&curr_date=${moment(currDate).format('YYYY-MM-DD')}`
+                if (viewMode == 'Day')
+                    url += `&start_time=${startTime}&end_time=${endTime}`
+                window.location.href = url
             } else {
                 window.location.href = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}`
             }
         },
 
         viewClassNames: function (fn) {
-            // console.log("viewClassNames");
-            $(".fc-content").each(function () {
+            /*$(".fc-content").each(function () {
                 var duplicated = false;
                 var thiz = $(this);
                 var schedule_no = thiz.data('schedule_no');
                 var place_cd = thiz.data('place_cd');
+                var duplicate = thiz.data('duplicate');
                 var from = moment(thiz.data('from'), 'YYYY/MM/DD HH:mm');
                 var to = moment(thiz.data('to'), 'YYYY/MM/DD HH:mm');
 
@@ -314,8 +335,12 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                     var item_from = moment(thiz1.data('from'), 'YYYY/MM/DD HH:mm');
                     var item_to = moment(thiz1.data('to'), 'YYYY/MM/DD HH:mm');
                     if (item_from.isAfter(to) || item_to.isBefore(from)) return;
-                    duplicated = true;
-                    return;
+
+                    if (duplicate == false && thiz1.data('duplicate') == true) {
+                        return;
+                    } else {
+                        duplicated = true;
+                    }
                 });
 
                 if (duplicated) {
@@ -324,10 +349,15 @@ function updateOnResponse(placeList, scheduleList, initialDate) {
                         thiz.find(".fc-date").prepend('<i class="bi bi-exclamation-triangle-fill fc-duplicated" style="color:red"></i>');
                     }
                 }
-            });
+            });*/
+
             $("a.fc-event:has(.cell-add)").removeClass("fc-h-event");
             $("a.fc-event:has(.cell-add)").css({
-                'margin': '1px'
+                'margin': '1px',
+                'box-shadow': 'none'
+            });
+            $("a.fc-event:has(.cell-add)").css({
+                'width': 'fit-content'
             });
         }
     });

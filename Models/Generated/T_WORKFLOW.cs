@@ -16,7 +16,7 @@ namespace web_groupware.Models
         [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
         public string title { get; set; }
 
-        [Column(TypeName = "nvarchar(64)")]
+        [Column(TypeName = "nvarchar(1000)")]
         [Required(ErrorMessage = Messages.REQUIRED)]
         [MaxLength(64, ErrorMessage = Messages.MAXLENGTH)]
         public string description { get; set; }
@@ -27,8 +27,8 @@ namespace web_groupware.Models
 
         public int requester_cd { get; set; }
 
-        [DataType(DataType.DateTime)]
-        public DateTime request_date { get; set; }
+        //[DataType(DataType.DateTime)]
+        //public DateTime? request_date { get; set; }
 
         [Column(TypeName = "varchar(10)")]
         public string update_user { get; set; }

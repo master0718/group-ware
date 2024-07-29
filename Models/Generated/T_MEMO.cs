@@ -35,11 +35,6 @@ namespace web_groupware.Models
         public string? content { get; set; }
         public int sender_cd { get; set; }
 
-        public int working_cd { get; set; }
-        public DateTime working_date { get; set; }
-        public int finish_cd { get; set; }
-        public DateTime finish_date { get; set; }
-
         [Column(TypeName = "varchar(10)")]
         public string create_user { get; set; }
         [DataType(DataType.DateTime)]

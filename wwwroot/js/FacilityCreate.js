@@ -114,9 +114,8 @@ $(function () {
             $('#drag_area').parent().addClass('dropArea')
             $("[name='repeatTypeRadio']").removeAttr('disabled')
             $("[name='repeatLimitRadio']").removeAttr('disabled')
-            $(".btn_file").removeClass('download_file')
-            $(".btn_file").attr('data-bs-toggle', 'dropdown')
-
+            $(".delete_file").show()
+            
             var repeatType = Number($("[name='repeatTypeRadio']:checked").val())
             if (repeatType != 0) {
                 $("[name='repeatLimitRadio']").removeAttr('disabled')
@@ -164,9 +163,8 @@ $(function () {
             $("[name='repeatLimitRadio']").attr('disabled', true)
             $("#list-week").attr('disabled', true)
             $("#list-day").attr('disabled', true)
-            $(".btn_file").addClass('download_file')
+            $(".delete_file").hide()
             $(".btn_file").dropdown('hide')
-            $(".btn_file").attr('data-bs-toggle', '')
 
             // $('#time_from').timepicker('destroy')
             // $('#time_to').timepicker('destroy')

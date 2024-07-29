@@ -1,10 +1,22 @@
 ﻿@using web_groupware.Utilities
 
+@{
+    var viewMode = ViewBag.ViewMode == "Memo_all" ? "All" : (ViewBag.ViewMode == "Memo_sent" ? "Sent" : "Received");
+    var actionView = ViewBag.ViewMode == "Memo_all" ? "DetailAll" : (ViewBag.ViewMode == "Memo_sent" ? "DetailSent" : "DetailReceived");
+}
+<link rel="stylesheet" href="~/css/memo.css" />
+
 <div class="card">
     <div class="card-header justify-content-between">
         <h4 class="mb-0"></h4>
         <div class="col-auto d-flex">
-            <form id="selectionForm" asp-controller="Memo" asp-action="Filter" method="post" asp-route-is_sent="@Model.isSent" class="d-flex">
+            <form id="selectionForm" asp-controller="Memo" asp-action="Filter" method="post" asp-route-category="@Model.category" class="d-flex">
+                <div class="d-flex col-xl-5 col-3 me-3">
+                    <div class="input-group">
+                        <span class="input-group-text">タイトル・内容</span>
+                        <input type="text" id="filter_keyword" name="filter_keyword" class="form-control form-control-light" placeholder="">
+                    </div>
+                </div>
                 <div class="input-group" style="flex-wrap: nowrap;">
                     <span class="input-group-text">宛先</span>
                     <select class="form-select me-3" id="filter_user" name="filter_user" style="width:120px" onchange="FilterChanged()">
@@ -48,7 +60,7 @@
                             <span>時刻：@item.create_date</span>
                         </div>
                         <div class="card-body">
-                            <p class="card-title h5">
+                            <a class="card-title h5 link-color" asp-action="@actionView" asp-route-memo_no="@item.memo_no">
                                 @{
                                     string comment_str = "";
                                     foreach (var comment_item in Model.commentList)
@@ -61,7 +73,7 @@
                                     }
                                 }
                                 @comment_str
-                            </p>
+                            </a>
 
                             <div class="card-text">
                                 <table class="table mb-0">
@@ -70,8 +82,8 @@
                                             <table class="table table-sm mb-0">
                                                 <tbody>
                                                     <tr>
-                                                        <td class="border-0 border-bottom border-dark-subtle">
-                                                            @item.receiver_name：
+                                                        <td class="border-0 border-bottom border-dark-subtle w-25">
+                                                            宛先：@item.receiver_name　
 
                                                             @if (@item.state == 0)
                                                             {
@@ -81,15 +93,11 @@
                                                             {
                                                                 <span class="badge text-bg-danger">@MemoTypes.Read</span>
                                                             }
-                                                            else if (@item.state == 2)
-                                                            {
-                                                                <span class="badge text-bg-success">@MemoTypes.Working</span>
-                                                            }
-                                                            else if (@item.state == 3)
-                                                            {
-                                                                <span class="badge text-bg-secondary">@MemoTypes.Finish</span>
-                                                            }
                                                         </td>
+                                                        <td class="border-0 border-bottom border-dark-subtle w-75">
+                                                            伝言：@item.content
+                                                        </td>
+
                                                     </tr>
 
                                                 </tbody>
@@ -100,19 +108,14 @@
                             </div>
 
                         </div>
-                        <div class="card-footer justify-content-between">
-
-                            @{
-                                var actionEdit = ViewBag.ViewMode == "Memo_sent" ? "EditSent" : "EditReceived";
-                                var actionDelete = ViewBag.ViewMode == "Memo_sent" ? "DeleteSent" : "DeleteReceived";
-                            }
+                        @* <div class="card-footer justify-content-between">
                             <a asp-action="@actionEdit" asp-route-memo_no="@item.memo_no" class="btn btn-primary">
                                 <i class="bi bi-pencil"></i> 変更
                             </a>
                             <a asp-action="@actionDelete" asp-route-memo_no="@item.memo_no" class="btn btn-danger">
                                 <i class="bi bi-trash3"></i> 削除
                             </a>
-                        </div>
+                        </div> *@
                     </div>
                 </div>
             }

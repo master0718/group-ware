@@ -96,8 +96,7 @@
             $('#drag_area').parent().addClass('dropArea')
             $("[name='repeatTypeRadio']").removeAttr('disabled')
             $("[name='repeatLimitRadio']").removeAttr('disabled')
-            $(".btn_file").removeClass('download_file')
-            $(".btn_file").attr('data-bs-toggle', 'dropdown')
+            $('.delete_file').show()
 
             var repeatType = Number($("[name='repeatTypeRadio']:checked").val())
             if (repeatType != 0) {
@@ -146,9 +145,8 @@
             $("[name='repeatLimitRadio']").attr('disabled', true)
             $("#list-week").attr('disabled', true)
             $("#list-day").attr('disabled', true)
-            $(".btn_file").addClass('download_file')
             $(".btn_file").dropdown('hide')
-            $(".btn_file").attr('data-bs-toggle', '')
+            $('.delete_file').hide()
 
             $('#time_from').timepicker('destroy')
             $('#time_to').timepicker('destroy')
@@ -293,6 +291,7 @@
     function initForm() {
 
         $('.btnSave').on('click', function (e) {
+            action = "submit";
             $('.loading').show()
 
             var fileNosRemove = fileRemoveList.join(',')
@@ -303,6 +302,7 @@
         })
 
         $('.btnCreate').on('click', function (e) {
+            action = "submit";
             $('.loading').show()
 
             $('#scheduleForm').trigger("submit")
@@ -451,8 +451,6 @@ function initDate() {
     }
 
     if (dateFrom == "") {
-        //$('#start_datetime').val(moment().format("YYYY年M月D日"))
-        //$('#end_datetime').val(moment().format("YYYY年M月D日"))
         $('#start_datetime').val(moment().format("YYYY/MM/DD"))
         $('#end_datetime').val(moment().format("YYYY/MM/DD"))
     } else {

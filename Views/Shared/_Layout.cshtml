@@ -160,6 +160,11 @@
                             </a>
                             <div class="collapse @(controllerName == "Memo" ? "show" : "")" id="sidebarLayouts2">
                                 <ul class="nav-second-level">
+                                    <li class="@(controllerName == "Memo" && actionName.EndsWith("All") ? "menuitem-active" : "") menu-item">
+                                        <a class="@(controllerName == "Memo" && actionName.EndsWith("All") ? "active" : "")" asp-area="" asp-controller="Memo" asp-action="Memo_all">
+                                            <span> 全て　</span>
+                                        </a>
+                                    </li>                                
                                     <li class="@(controllerName == "Memo" && actionName.EndsWith("Sent") ? "menuitem-active" : "") menu-item">
                                         <a class="@(controllerName == "Memo" && actionName.EndsWith("Sent") ? "active" : "")" asp-area="" asp-controller="Memo" asp-action="Memo_sent">
                                             <span> 自分作成　</span>
@@ -235,57 +240,6 @@
                                 <span> 退去修繕</span>
                             </a>
                         </li>
-                        @if (TempData["Base_auth_admin"].ToString() == "1")
-                        {
-                            <!--<li class="menu-title mt-2">管理者</li>
-
-                            <li class="@(controllerName == "Employee" ? "menuitem-active" : "") menu-item">
-                                <a class="@(controllerName == "Employee" ? "active" : "")" asp-area="" asp-controller="Employee" asp-action="Index">
-                                    <i class="bi bi-people"></i>
-                                    <span> 社員マスタ </span>
-                                </a>
-                            </li>
-                            <li class="@(controllerName == "Group" ? "menuitem-active" : "") menu-item">
-                                <a class="@(controllerName == "Group" ? "active" : "")" asp-area="" asp-controller="Group" asp-action="Index">
-                                    <i class="bi bi-person-square"></i>
-                                    <span> グループマスタ </span>
-                                </a>
-                            </li>
-                            <li class="@(controllerName == "Dictionary" ? "menuitem-active" : "") menu-item">
-                                <a class="@(controllerName == "Dictionary" ? "active" : "")" asp-area="" asp-controller="Dictionary" asp-action="Index">
-                                    <i class="bi bi-book-half"></i>
-                                    <span> 辞書マスタ </span>
-                                </a>
-                            </li>
-                            <li class="@(controllerName == "Place" ? "menuitem-active" : "") menu-item">
-                                <a class="@(controllerName == "Place" ? "active" : "")" asp-area="" asp-controller="Place" asp-action="Index">
-                                    <i class="bi bi-building-gear"></i>
-                                    <span> 施設マスタ </span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#menu-container" data-bs-toggle="collapse" aria-expanded="false" aria-controls="menu-container">
-                                    <i class="bi bi-people"></i>
-                                    <span>社員グループマスタ</span><span id="total-count"></span>
-                                    <span class="menu-arrow"></span>
-                                </a>
-                                <div class="collapse" id="menu-container">
-                                </div>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="bi bi-database"></i>
-                                    <span> 過去データバックアップ </span>
-                                </a>
-                            </li>-->
-                            <!--<li class="@(controllerName == "Attendance" ? "menuitem-active" : "") menu-item">
-                                <a class="@(controllerName == "Attendance" ? "active" : "")" asp-controller="Attendance" asp-action="Index">
-                                    <i class="bi bi-person-check"></i>
-                                    <span> 勤怠管理 </span>
-                                </a>
-                            </li>-->
-                        }
-
                     </ul>
 
                 </div>

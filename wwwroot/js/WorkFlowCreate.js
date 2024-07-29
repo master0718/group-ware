@@ -10,6 +10,11 @@ $(function () {
 
         window.location = baseUrl + "WorkFlow/Index"
     })
+
+    $(".approve-back").on('click', function () {
+        window.location = baseUrl + "WorkFlow/Index"
+    })
+
     if (!isEditable) {
         $(".delete_file").addClass('d-none');
     }
@@ -34,11 +39,11 @@ $(function () {
 
     $('#workFlowForm').on('submit', function (e) {
 
-        var request_type = $('#sel_request_type').val()
-        $('#request_type').val(request_type)
+        /*var request_type = $('#sel_request_type').val()
+        $('#request_type').val(request_type)*/
 
-        var approver_cd = $('#sel_approver_cd').val()
-        $('#approver_cd').val(approver_cd)
+        /*var approver_cd = $('#sel_approver_cd').val()
+        $('#approver_cd').val(approver_cd)*/
 
         if (!$(this).valid()) {
             $('.loading').hide()

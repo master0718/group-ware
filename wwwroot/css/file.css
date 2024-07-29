@@ -21,7 +21,7 @@
     padding: 0px;
 }
 
-button.dropdown-item:hover {
+.dropdown-item:hover {
     color: var(--bs-dropdown-link-active-color);
     text-decoration: none;
     background-color: var(--bs-dropdown-link-active-bg);

@@ -29,7 +29,7 @@
             <div class="d-flex col-lg-2 col-2 me-4">
                 <div class="input-group">
                     <span class="input-group-text">確認状態</span>
-                    <select asp-for="@Model.cond_already_read" asp-items="@Model.list_already_read" class="form-select site_change_post">
+                    <select asp-for="@Model.cond_already_checked" asp-items="@Model.list_already_checked" class="form-select site_change_post">
                     </select>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                                 {
                                     @if (item.status == i)
                                     {
-                                        <li id="board-@item.board_no" data-checked="@item.already_read" data-applicant_cd="@item.applicant_cd" data-category_cd="@item.category_cd" class="task" draggable="false">
+                                        <li id="board-@item.board_no" data-checked="@item.already_checked" data-applicant_cd="@item.applicant_cd" data-category_cd="@item.category_cd" class="task" draggable="false">
                                             <div>
                                                 <span class="badge @headerClasses[i]">@type</span>
                                                 <span class="fs-6"></span>

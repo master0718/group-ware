@@ -145,6 +145,7 @@ namespace web_groupware.Controllers
                 Directory.CreateDirectory(dir);
                 viewModel.work_dir = dir_work;
                 viewModel.fileModel.editable = 1;
+                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
                 return View(viewModel);
             }
@@ -184,16 +185,8 @@ namespace web_groupware.Controllers
 
                     return View(request);
                 }
-                var list_allowed_file_extentions = new List<string>() { ".pdf" };
                 for (int i = 0; i < request.File.Count; i++)
                 {
-                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                        ResetWorkDir(DIC_KB_700_DIRECTORY.TODO, request.work_dir);
-                        PrepareViewModel(request);
-                        return View(request);
-                    }
                     if (request.File[i].Length > Format.FILE_SIZE)
                     {
                         ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -215,6 +208,7 @@ namespace web_groupware.Controllers
                 {
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
+                    
                     var todo_no = GetNextNo(DataTypes.TODO_NO);
 
                     DateTime? deadlineDate = null;
@@ -323,6 +317,7 @@ namespace web_groupware.Controllers
                 //workディレクトリの作成
                 Directory.CreateDirectory(dir);
                 viewModel.work_dir = dir_work;
+                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
                 return View(viewModel);
             }
             catch (Exception ex)
@@ -338,6 +333,7 @@ namespace web_groupware.Controllers
         {
 
             var item = await _context.T_TODO.FirstOrDefaultAsync(m => m.todo_no == todo_no);
+
             return item;
         }
 
@@ -442,16 +438,8 @@ namespace web_groupware.Controllers
                     PrepareViewModel(request);
                     return View(request);
                 }
-                var list_allowed_file_extentions = new List<string>() { ".pdf" };
                 for (int i = 0; i < request.File.Count; i++)
                 {
-                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                        ResetWorkDir(DIC_KB_700_DIRECTORY.TODO, request.work_dir);
-                        PrepareViewModel(request);
-                        return View(request);
-                    }
                     if (request.File[i].Length > Format.FILE_SIZE)
                     {
                         ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -622,7 +610,7 @@ namespace web_groupware.Controllers
 
                     //ファイルをworkからmainにコピー
                     System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
-                    pdfFileToImg(Path.Combine(dir_main, file_name));
+                    // pdfFileToImg(Path.Combine(dir_main, file_name));
                 }
             }
             catch (Exception ex)

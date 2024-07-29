@@ -27,7 +27,7 @@ namespace web_groupware.Models
         public int editable = 0;
     }
 
-    public class ScheduleDetailViewModel
+    public class ScheduleDetailViewModel:BaseViewModel
     {
         public int schedule_no { get; set; }
 

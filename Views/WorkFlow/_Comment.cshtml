@@ -1,0 +1,20 @@
+@model web_groupware.Models.ApproverModel
+
+<div class="mt-5 d-flex">
+    <span class="fw-semibold">コメント</span>
+</div>
+
+<div class="card mt-2">
+    <div class="card-body">
+        <div class="comment-item d-flex">
+            <span class="avatar-title rounded-circle bg-success text-white">@Model?.approver_name?[0]</span>
+            <div class="flex-1 pt-1 ps-2">
+                <div class="fw-bold pb-2">
+                    @Model?.approver_name
+                    <small class="text-muted fw-normal float-end pt-1 register-date">@Model?.approve_date</small>
+                </div>
+                <span style="white-space: pre-wrap">@Model?.comment</span>
+            </div>
+        </div>
+    </div>
+</div>

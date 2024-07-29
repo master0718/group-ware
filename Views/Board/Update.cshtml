@@ -33,18 +33,6 @@
                         <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
-                        @if (Model.already_checked)
-                        {
-                            <a type="button" class="btn btn-secondary" style="margin-right: 10px">
-                                <i class="bi bi-check-circle"></i> 確認済
-                            </a>
-                        }
-                        else
-                        {
-                            <a type="button" asp-controller="Board" asp-action="Confirm" asp-route-board_no="@Model.board_no" class="btn btn-success back" style="margin-right: 10px">
-                                <i class="bi bi-check-circle"></i> 確認
-                            </a>
-                        }
                         <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
                             <i class="bi bi-pencil"></i> 変更
                         </button>                        
@@ -152,6 +140,8 @@
                         <input type="hidden" asp-for="@Model.work_dir">
                         <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
                         <input type="hidden" id="dir_no" value="@Model.board_no">
+                        <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
+                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
 
                         <div class="col-12 dropArea border-0 p-2">
                             <div id="drag_area" class="text-center px-3 py-3 bg-white" hidden>
@@ -166,32 +156,46 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <a href="#">確認しました</a>
+
+                    @**********　確認　start　*************************************************************************@
+                    <div class="row mt-1">
+                        <div class="col">
+                            @{
+                                var btn_text_main = "";
+                                @if (!Model.already_checked)
+                                {
+                                    btn_text_main = Check_button_text.CHECK;
+                                }
+                                else
+                                {
+                                    btn_text_main = Check_button_text.CANCEL;
+                                }
+                            }
+                            <a href="javascript:void(0)" data-comment_no="@Model.board_no" class="check_main me-3">@btn_text_main</a>
+                            <span class="accordion" id="accordionExample">
+                                <span class="accordion-header alert alert-primary p-0">
+                                    <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="false" aria-controls="collapse">
+                                        @Model.check_count
+                                    </a>
+                                </span>
+                                <div id="collapse" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                    <div id="_Checked_member" class="accordion-body py-0">
+                                        @foreach (var item in Model.list_check_member)
+                                        {
+                                            <div>@item</div>
+                                        }
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span class=" alert alert-primary p-1">
-                            <a href="#" class="">100名</a>
-                        </span>
-                    </div>
+                    @**********　確認　end　*************************************************************************@                    
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-secondary back back-edit" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
-                        @if (Model.already_checked)
-                        {
-                            <a type="button" class="btn btn-secondary" style="margin-right: 10px">
-                                <i class="bi bi-check-circle"></i> 確認済
-                            </a>
-                        }
-                        else
-                        {
-                            <a type="button" asp-controller="Board" asp-action="Confirm" asp-route-board_no="@Model.board_no" class="btn btn-success back" style="margin-right: 10px">
-                                <i class="bi bi-check-circle"></i> 確認
-                            </a>
-                        }
                         <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
                             <i class="bi bi-pencil"></i> 変更
                         </button>                        
@@ -251,6 +255,15 @@
                                                     </button>
                                                     <ul class="dropdown-menu fileAreaInnerWidth text-center">
                                                         <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="@file.filename" data-comment_no="@file.comment_no">ﾀﾞｳﾝﾛｰﾄﾞ</button>
+                                                        @{
+                                                            var dir_no = Model.board_no  +@"\"+ file.comment_no;
+
+                                                            var extension = System.IO.Path.GetExtension(file.filename).ToLower();
+                                                        }
+                                                        @if (PREVIEW_ALLOWED_EXTENSION.LIST.Contains(extension))
+                                                        {
+                                                            <a class="dropdown-item preview_file site_iframe_preview" asp-controller="Base" asp-action="PreviewFile" asp-route-dic_cd="@DIC_KB_700_DIRECTORY.BOARD" asp-route-dir_no="@dir_no" asp-route-file_name="@file.filename">ﾌﾟﾚﾋﾞｭｰ</a>
+                                                        }
                                                     </ul>
                                                 </div>
                                             }
@@ -287,7 +300,8 @@
                     <div class="row mb-3" id="commentFileArea">
                         <input type="hidden" asp-for="@Model.comment_work_dir">
                         <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
-                        
+                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
+
                         <div class="col-12 commentDropArea border-0 p-2">
                             <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
                                 <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
@@ -301,7 +315,7 @@
                             </div>
                         </div>
                     </div>
-                        <textarea id="message" class="form-control border resize-none"
+                        <textarea id="message" class="form-control bg-white border resize-none"
                                   rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
                         <div class="p-2 text-end">
                             <button class="btn btn-sm btn-primary" id="btnAddComment" disabled><i class="bi bi-send me-2"></i>登録</button>
@@ -312,7 +326,10 @@
         </div>
     </div>
 </div>
-
+@using System.Text.Json
+@{
+    var allowedExtensionsJson = JsonSerializer.Serialize(PREVIEW_ALLOWED_EXTENSION.LIST);
+}
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -326,5 +343,6 @@
         var deleteAction = "Delete"
         var deleteKey = "board_no"
         var deleteId = $('#board_no').val()
+        var PREVIEW_ALLOWED_EXTENSION_LIST = @Html.Raw(allowedExtensionsJson);
     </script>
 }

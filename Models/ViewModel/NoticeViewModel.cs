@@ -5,7 +5,7 @@ using web_groupware.Utilities;
 #pragma warning disable CS8600,CS8601,CS8602,CS8604,CS8618,CS8629
 namespace web_groupware.Models
 {
-    public class NoticeViewModel
+    public class NoticeViewModel:BaseViewModel
     {
         public string? Title { get; set; }
         [DisplayName("ÉRÉÅÉìÉg")]

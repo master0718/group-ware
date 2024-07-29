@@ -35,6 +35,7 @@
         public const string WORKFLOW_APPROVAL_ALREADY_FINISHED = "すでに完了した掲示物です。";
         public const string WORKFLOW_APPROVAL_ALREADY_REJECTED = "すでに否決された申請です。";
         public const string WORKFLOW_APPROVAL_NOT_APPROVAL = "申請や承認状態の掲示物ではありません。";
+        public const string WORKFLOW_APPROVAL_APPROVER2_REQUIRED = "承認者2を選択してください。";
         public const string PLACE_ALREADY_RESERVED = "施設予約が重複されています。";
         public const string TODO_DEADLINE_REQUIRED = "期日を入力してください。";
         public const string FACILITY_REQUIRED = "施設を選択してください。";

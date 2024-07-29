@@ -63,21 +63,36 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
         if (viewMode == 'GroupWeek') {
             start_time = "23:00";
             end_time = "24:00";
+            staffList.forEach(element => {
+                var id = user_id == element.staf_cd ? "1-" + user_id : "2-" + element.staf_cd;
+                resourcesData.push({ 'id': id, 'title': element.staf_name })
+                eventsData.push({
+                    'resourceId': id,
+                    'startTime': start_time,
+                    'endTime': end_time,
+                    'is_add': 1
+                })
+            })
         } else {
-            start_time = "07:00";
-            end_time = "08:00";
+            staffList.forEach(element => {
+                var id = user_id == element.staf_cd ? "1-" + user_id : "2-" + element.staf_cd;
+                resourcesData.push({ 'id': id, 'title': element.staf_name })
+
+                var start = moment().hours(7).minute(0);
+                for (var i = 0; i < 13; i++) {
+                    var start_time = start.format("HH:mm")
+                    var end_time = start.add(1, 'hours').format("HH:mm")
+                    eventsData.push({
+                        'resourceId': id,
+                        'startTime': start_time,
+                        'endTime': end_time,
+                        'is_add': 1
+                    })
+                }
+            })
         }
 
-        staffList.forEach(element => {
-            var id = user_id == element.staf_cd ? "1-" + user_id : "2-" + element.staf_cd;
-            resourcesData.push({ 'id': id, 'title': element.staf_name })
-            eventsData.push({
-                'resourceId': id,
-                'startTime': start_time,
-                'endTime': end_time,
-                'is_add': 1
-            })
-        })
+
         if (scheduleList != null && scheduleList.length > 0) {
             loadCalendarEventsData(user_id, 'staf', scheduleList, eventsData)
         }
@@ -265,6 +280,7 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
             })
         },
         eventClick: function (info) {
+
             var schedule_no = info.event.extendedProps.schedule_no
             var currentView = calendar.view;
             var startDate = currentView.activeStart;
@@ -277,7 +293,12 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
             if (schedule_no == undefined) {
                 schedule_no = 0
                 currDate = info.event.start;
-                window.location.href = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}&curr_date=${moment(currDate).format('YYYY-MM-DD')}`
+                startTime = moment(info.event.start).format('HH:mm')
+                endTime = moment(info.event.end).format('HH:mm')
+                var url = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}&curr_date=${moment(currDate).format('YYYY-MM-DD')}`
+                if (viewMode == 'GroupDay')
+                    url += `&start_time=${startTime}&end_time=${endTime}`
+                window.location.href = url
             } else {
                 window.location.href = `${action}?schedule_no=${schedule_no}&start_date=${moment(startDate).format('YYYY-MM-DD')}`
             }
@@ -295,7 +316,7 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
                     var thiz1 = $(this);
 
                     if (schedule_no == thiz1.data('schedule_no') && place_cd == thiz1.data('place_cd')) return; // itself
-                    if (place_cd != thiz1.data('place_cd')) return; // different place
+                    //if (place_cd != thiz1.data('place_cd')) return; // different place
 
                     var item_from = moment(thiz1.data('from'), 'YYYY/MM/DD HH:mm');
                     var item_to = moment(thiz1.data('to'), 'YYYY/MM/DD HH:mm');
@@ -314,7 +335,11 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
 
             $("a.fc-event:has(.cell-add)").removeClass("fc-h-event");
             $("a.fc-event:has(.cell-add)").css({
-                'margin': '1px'
+                'margin': '1px',
+                'box-shadow': 'none'
+            });
+            $("a.fc-event:has(.cell-add)").css({
+                'width': 'fit-content'
             });
         }
     });
@@ -333,5 +358,14 @@ function updateOnResponse(user_id, staffList, scheduleList, initialDate) {
     });
     $('.fc-next-button').click(function () {
         calendar.incrementDate({ day: +6 });
-    });   
+    });
+
+    /*$("a.fc-event:has(.cell-add)").removeClass("fc-h-event");
+    $("a.fc-event:has(.cell-add)").css({
+        'margin': '1px'
+    });*/
+    /*$("a.fc-event:has(.cell-add)").css({
+        'border-color': 'white',
+        'margin': '1px',
+    });*/
 }

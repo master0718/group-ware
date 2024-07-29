@@ -61,7 +61,14 @@
         public const string Read = "既読";
         public const string Working = "対応中";
         public const string Finish = "済";
-        public static string[] AllTypes = { All, Unread, Read, Working, Finish };
+        public static string[] AllTypes = { All, Unread, Read };
+    }
+
+    public static class MemoCategory
+    {
+        public const int ALL = 0;
+        public const int SENT = 1;
+        public const int RECEIVED = 2;
     }
 
     public class BoardStatus
@@ -78,16 +85,20 @@
         public const string All = "すべて";
         public const string DRAFT_NAME = "作成中";
         public const string REQUEST_NAME = "申請中";
+        public const string APPROVE_NAME = "承認中";
+        public const string TOP_APPROVE_NAME = "最終承認中";
         public const string REJECT_NAME = "否　決";
         public const string FINISH_NAME = "完　了";
 
         public const byte NONE = 0;
         public const byte DRAFT = 1;
         public const byte REQUEST = 2;
-        public const byte REJECT = 3;
-        public const byte FINISH = 4;
+        public const byte APPROVE = 3;
+        public const byte TOP_APPROVE = 4;
+        public const byte REJECT = 5;
+        public const byte FINISH = 6;
 
-        public static string[] AllStatus = { All, DRAFT_NAME, REQUEST_NAME, REJECT_NAME, FINISH_NAME };
+        public static string[] AllStatus = { All, DRAFT_NAME, REQUEST_NAME, APPROVE_NAME, TOP_APPROVE_NAME, REJECT_NAME, FINISH_NAME };
     }
 
     public static class WorkflowApproveResult
@@ -105,7 +116,17 @@
         public const int WEEKLY = 3;
         public const int MONTHLY = 4;
     }
+
     public class INFO_PERSONAL_PARENT_ID
+    {
+        public const int T_REPORT = 1;
+        public const int T_REPORTCOMMENT = 2;
+        public const int T_MEMO = 3;
+        public const int T_BUKKENCOMMENT = 4;
+        public const int T_BOARD = 5;
+    }
+
+    public class CHECK_PARENT_ID
     {
         public const int T_REPORT = 1;
         public const int T_REPORTCOMMENT = 2;
@@ -123,7 +144,11 @@
     }
     public class PREVIEW_ALLOWED_EXTENSION
     {
-        public static readonly List<string> LIST = new List<string>{ ".png", ".jpg", ".jpeg", ".heic", ".gif",".pdf" };
+        public static readonly List<string> LIST = new List<string> { ".png", ".jpg", ".jpeg", ".heic", ".gif", ".pdf" };
+    }
+    public class UPLOAD_FILE_ALLOWED_EXTENSION
+    {
+        public const string IMAGE_PDF = "png,jpg,jpeg,heic,gif,pdf";
     }
 
 }

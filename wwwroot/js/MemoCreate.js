@@ -2,41 +2,6 @@
 
     const action = $("#memoForm").attr('action')
     function initForm() {
-        if (action.endsWith("Edit") || action.endsWith("Delete")) {
-            var working_msg = $("#working_msg").val()
-            var finish_msg = $("#finish_msg").val()
-            if (working_msg && working_msg.length > 0) {
-                $("#check-working").attr("checked", true)
-                $("#working_msg_").text('対応します　済　　' + working_msg)
-            } else {
-                $("#working_msg_").hide()
-            }
-            if ($("#state").val() == "3") {
-                $("#check-finish").attr("checked", true)
-                $("#finish_msg_").text('処理済　　　済　　' + finish_msg)
-            } else {
-                $("#finish_msg_").hide()
-            }
-
-            var data = {
-                memo_no: $("#memo_no").val(),
-                // state: 1
-            }
-            var url = $("#url_update_read").val()
-
-            $.ajax({
-                method: "get",
-                url: url,
-                data: data,
-
-                success: function (result) {
-                    // console.log("updated")
-                },
-                error: function (xhr) {
-                    console.log("Error: " + xhr.responseText)
-                }
-            })
-        }
     }
 
     if (!action.endsWith("Delete")) {
@@ -65,10 +30,6 @@
     }
 
     $('#memoForm').submit(function () {
-
-        $('#working').val($('#check-working').is(":checked") ? 1 : 0)
-        $('#finish').val($('#check-finish').is(":checked") ? 1 : 0)
-
         var receiver_str = $('#receiver').val()
         if (receiver_str == null || receiver_str == "") {
             var errReceiver = $('[data-valmsg-for="receiver_cd"]');

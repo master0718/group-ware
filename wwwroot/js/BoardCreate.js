@@ -26,9 +26,10 @@ $(function () {
     $('.btnEdit').on('click', function () {
         isEditable = true
         updateOnEditableChange()
-
     })
-
+    if (!isEditable) {
+        $(".delete_file").addClass('d-none');
+    }
     $('.btnSave').on('click', function (e) {
         action = "submit";
         $('.loading').show()
@@ -124,6 +125,37 @@ $(function () {
         })
     })
 
+    $('.check_main').on('click', function () {
+        var board_no = $('#board_no').val()
+        var a = $(this);
+        var checked_count = $('#_Checked_count' )
+        var checked_member = $('#_Checked_member')
+        $.ajax({
+            type: "Get",
+            url: baseUrl + 'Board/Check_comment_main?board_no=' + board_no,
+            success: function (ret, status, xhr) {
+                if (ret != null) {
+                    a.text(ret[0]);
+                    checked_count.text(ret[1]);
+                    checked_member.empty();
+                    for (var i = 0; i < ret[2].length; i++) {
+                        checked_member.append('<div>' + ret[2][i] + '</div>');
+                    }
+                    console.log("成功");
+                } else {
+                    alert("失敗");
+                    console.log("失敗");
+                }
+            },
+            error: function (e) {
+                //レスポンスが返って来ない場合
+                alert("失敗");
+                console.log("失敗：　" + e);
+            }
+        })
+    
+    })
+
     $("#btnMore").on('click', function () {
         let board_no = $("#board_no").val()
         let lastComment = $(".comment-item:last-child").attr("id")
@@ -172,6 +204,7 @@ $(function () {
             $('#drag_area').parent().addClass('dropArea')
             $(".btn_file").removeClass('download_file')
             $(".btn_file").attr('data-bs-toggle', 'dropdown')
+            $(".delete_file").removeClass('d-none');
 
             $('.comment-area-box').addClass('d-none')
 
@@ -199,6 +232,7 @@ $(function () {
             $(".btn_file").addClass('download_file')
             $(".btn_file").dropdown('hide')
             $(".btn_file").attr('data-bs-toggle', '')
+            $(".delete_file").addClass('d-none');
 
             $('.comment-area-box').removeClass('d-none')
 
@@ -215,6 +249,7 @@ $(function () {
         visibleCommentCount += commentList.length
 
         var html = ''
+        let board_no = $("#board_no").val()
         
         for (var i = 0; i < commentList.length; i++) {
             var item = commentList[i]
@@ -222,6 +257,8 @@ $(function () {
             if (item.commentFileDetailList && item.commentFileDetailList.length > 0) {
                 fileHtml += '<div class="row"><div class="col d-flex">';
                 item.commentFileDetailList.forEach(file => {
+                    var extension = file.filename.split('.').pop().toLowerCase();
+
                     var icon = file.filename.split('.').pop() + '.svg';
                     fileHtml += `
                         <div class="div_icon_child dropdown fileAreaHeitWidth">
@@ -230,13 +267,23 @@ $(function () {
                             <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
                                 <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="${file.filename}">
                                     <div class="div_img_file bg-light p-2">
-                                        <img src="/images/file-icons/${icon}" alt="icon" style="height: 50px;">
+                                        <img src="${baseUrl}/images/file-icons/${icon}" alt="icon" style="height: 50px;">
                                     </div>
                                     <div class="text-wrap">${file.filename}</div>
                                 </div>
                             </button>
                             <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                                <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ダウンロード</button>
+                                <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ﾀﾞｳﾝﾛｰﾄﾞ</button>`;
+                    if (PREVIEW_ALLOWED_EXTENSION_LIST.includes(`.${extension}`)) {
+                        const dir_no = `${board_no}\\${file.comment_no}`;
+                        const link = document.createElement('a');
+                        link.className = 'dropdown-item preview_file site_iframe_preview';
+                        link.href = `${baseUrl}Base/PreviewFile?dic_cd=4&dir_no=${dir_no}&file_name=${file.filename}`;
+                        link.innerText = 'ﾌﾟﾚﾋﾞｭｰ';
+                        
+                        fileHtml += link.outerHTML;
+                    }
+                    fileHtml += `
                             </ul>
                         </div>
                     `;
@@ -257,7 +304,13 @@ $(function () {
                     </div>`
         }
         $("#comment-list").append($(html))
-
+        $('.site_iframe_preview').colorbox(
+            {
+                iframe: true,
+                width: "90%", height: "90%",
+                opacity: 0.5,
+                scrolling:false
+            });
         totalCommentCount = Number($("#comment-count").html())
         if (visibleCommentCount >= totalCommentCount) {
             $("#btnMore").parent().addClass("d-none")
@@ -273,6 +326,7 @@ $(function () {
         var visibleCommentCountMax = visibleCommentCount == 0 ? commentCountPerPage : (visibleCommentCount % 5 == 0 ? visibleCommentCount : (visibleCommentCount - visibleCommentCount % commentCountPerPage + commentCountPerPage))
         console.log(visibleCommentCount_)
         console.log(visibleCommentCountMax)
+        let board_no = $("#board_no").val()
 
         visibleCommentCount = visibleCommentCount_ + 1
         if (visibleCommentCount_ + 1 > visibleCommentCountMax) {
@@ -280,12 +334,13 @@ $(function () {
             $(".comment-item:last-child").remove()
             visibleCommentCount = visibleCommentCountMax
         }
-
         var fileHtml = '';
         if (files && files.length > 0) {
             fileHtml += '<div class="row"><div class="col d-flex">';
             files.forEach(file => {
                 var icon = file.filename.split('.').pop() + '.svg';
+                var extension = file.filename.split('.').pop().toLowerCase();
+
                 fileHtml += `
                     <div class="div_icon_child dropdown fileAreaHeitWidth">
                         <input type="hidden" value="${file.filename}">
@@ -299,8 +354,17 @@ $(function () {
                             </div>
                         </button>
                         <ul class="dropdown-menu fileAreaInnerWidth text-center">
-                            <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ダウンロード</button>
-                        </ul>
+                            <button class="dropdown-item comment_download_file" type="button" role="button" data-dir_kind="1" data-file_name="${file.filename}" data-comment_no="${file.comment_no}">ﾀﾞｳﾝﾛｰﾄﾞ</button>`;
+                        if (PREVIEW_ALLOWED_EXTENSION_LIST.includes(`.${extension}`)) {
+                            const dir_no = `${board_no}\\${file.comment_no}`;
+                            const link = document.createElement('a');
+                            link.className = 'dropdown-item preview_file site_iframe_preview';
+                            link.href = `${baseUrl}Base/PreviewFile?dic_cd=4&dir_no=${dir_no}&file_name=${file.filename}`;
+                            link.innerText = 'ﾌﾟﾚﾋﾞｭｰ';
+                            
+                            fileHtml += link.outerHTML;
+                        }
+                fileHtml += `</ul>
                     </div>
                 `;
             });
@@ -320,7 +384,13 @@ $(function () {
                         </div>
                     </div>`
         $("#comment-list").append($(html))
-
+        $('.site_iframe_preview').colorbox(
+            {
+                iframe: true,
+                width: "90%", height: "90%",
+                opacity: 0.5,
+                scrolling:false
+            });
         var commentCount = Number($("#comment-count").html()) + 1
         $("#comment-count").html(commentCount)
     }

@@ -42,6 +42,98 @@
                     <input hidden asp-for="@Model.repeat_type" />
                     <input hidden asp-for="@Model.every_on" />
 
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-6 mb-3">
+                            <label class="control-label" asp-for="@Model.start_datetime"></label>
+                            <div class="input-group position-relative mb-3" id="input-date-from-wrapper">
+                                <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.start_datetime" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-date-from-wrapper" readonly>
+                                <span class="input-group-text" id="date-from-icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                            <div class="input-group position-relative" id="input-time-from-wrapper">
+                                <input class="form-control input-time bg-white" asp-for="@Model.time_from" readonly />
+                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label class="control-label" asp-for="@Model.end_datetime"></label>
+                            <div class="input-group position-relative mb-3" id="input-date-to-wrapper">
+                                <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.end_datetime" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-date-to-wrapper" readonly>
+                                <span class="input-group-text" id="date-to-icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                            <div class="input-group position-relative" id="input-time-to-wrapper">
+                                <input class="form-control input-time bg-white" asp-for="@Model.time_to" readonly />
+                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="@Model.MyStaffList" class="control-label"></label>
+                            <select asp-for="@Model.MyStaffList" class="form-control" multiple>
+                                <option value=""></option>
+                                <optgroup label="グループ">
+                                    @if (Model.GroupList != null)
+                                    {
+                                        @foreach (var item in Model.GroupList)
+                                        {
+                                            <option value="G-@item.group_cd" data-staff_cds='@string.Join(",", @item.staffs)'>@item.group_name</option>
+                                        }
+                                    }
+                                </optgroup>
+                                <optgroup label="個人">
+                                    @if (Model.StaffList != null)
+                                    {
+                                        @foreach (var item in Model.StaffList)
+                                        {
+                                            <option value="S-@item.staf_cd">@item.staf_name</option>
+                                        }
+                                    }
+                                </optgroup>
+                            </select>
+                            <span asp-validation-for="@Model.MyStaffList" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="@Model.MyPlaceList" class="control-label"></label>
+                            <select asp-for="@Model.MyPlaceList" class="form-control" multiple>
+                                <option value=""></option>
+                                @if (Model.PlaceList != null)
+                                {
+                                    @foreach (var item in Model.PlaceList)
+                                    {
+                                        <option value="@item.place_cd">@item.place_name</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="@Model.MyPlaceList" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-3">
+                        <div class="col-sm-4">
+                            <label class="control-label me-4" asp-for="@Model.schedule_type"></label>
+                            <select asp-for="@Model.schedule_type" class="form-select me-4 bg-white">
+                                @if (Model.ScheduleTypeList != null)
+                                {
+                                    @foreach (var item in Model.ScheduleTypeList)
+                                    {
+                                        <option value=@item.schedule_type>@item.schedule_typename</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-sm-8" style="margin-top:22px">
+                            <input asp-for="@Model.title" class="form-control bg-white" type="text"/>
+                            <span asp-validation-for="@Model.title" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.memo" class="control-label"></label>
+                        <textarea asp-for="@Model.memo" class="form-control bg-white"
+                                  rows="15" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <span asp-validation-for="@Model.memo" class="text-danger"></span>
+                    </div>
+
                     <div class="form-group row mt-3 px-3">繰り返し条件</div>
                     <div class="form-group row mt-3 px-3">
                         <div class="col-lg-2 col-sm-6 mb-4">
@@ -112,98 +204,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group row mb-3 mt-2">
-                        <div class="col-sm-6 mb-3">
-                            <label class="control-label" asp-for="@Model.start_datetime"></label>
-                            <div class="input-group position-relative mb-3" id="input-date-from-wrapper">
-                                <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.start_datetime" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-date-from-wrapper" readonly>
-                                <span class="input-group-text" id="date-from-icon"><i class="bi bi-calendar-event"></i></span>
-                            </div>
-                            <div class="input-group position-relative" id="input-time-from-wrapper">
-                                <input class="form-control input-time bg-white" asp-for="@Model.time_from" readonly />
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <label class="control-label" asp-for="@Model.end_datetime"></label>
-                            <div class="input-group position-relative mb-3" id="input-date-to-wrapper">
-                                <input type="text" class="form-control bg-white site_calendar" asp-for="@Model.end_datetime" data-provide="datepicker" data-date-format="yyyy/mm/dd" data-date-autoclose="true" data-date-container="#input-date-to-wrapper" readonly>
-                                <span class="input-group-text" id="date-to-icon"><i class="bi bi-calendar-event"></i></span>
-                            </div>
-                            <div class="input-group position-relative" id="input-time-to-wrapper">
-                                <input class="form-control input-time bg-white" asp-for="@Model.time_to" readonly />
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group row mt-3">
-                        <div class="col-sm-4">
-                            <label class="control-label me-4" asp-for="@Model.schedule_type"></label>
-                            <select asp-for="@Model.schedule_type" class="form-select me-4 bg-white">
-                                @if (Model.ScheduleTypeList != null)
-                                {
-                                    @foreach (var item in Model.ScheduleTypeList)
-                                    {
-                                        <option value=@item.schedule_type>@item.schedule_typename</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="col-sm-8" style="margin-top:22px">
-                            <input asp-for="@Model.title" class="form-control bg-white" type="text"/>
-                            <span asp-validation-for="@Model.title" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label asp-for="@Model.memo" class="control-label"></label>
-                        <textarea asp-for="@Model.memo" class="form-control bg-white"
-                                  rows="15" style="margin-top: 0px; margin-bottom: 0px"></textarea>
-                        <span asp-validation-for="@Model.memo" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group row mt-3">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="@Model.MyStaffList" class="control-label"></label>
-                            <select asp-for="@Model.MyStaffList" class="form-control" multiple>
-                                <option value=""></option>
-                                <optgroup label="グループ">
-                                    @if (Model.GroupList != null)
-                                    {
-                                        @foreach (var item in Model.GroupList)
-                                        {
-                                            <option value="G-@item.group_cd" data-staff_cds='@string.Join(",", @item.staffs)'>@item.group_name</option>
-                                        }
-                                    }
-                                </optgroup>
-                                <optgroup label="個人">
-                                    @if (Model.StaffList != null)
-                                    {
-                                        @foreach (var item in Model.StaffList)
-                                        {
-                                            <option value="S-@item.staf_cd">@item.staf_name</option>
-                                        }
-                                    }
-                                </optgroup>
-                            </select>
-                            <span asp-validation-for="@Model.MyStaffList" class="text-danger"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label asp-for="@Model.MyPlaceList" class="control-label"></label>
-                            <select asp-for="@Model.MyPlaceList" class="form-control" multiple>
-                                <option value=""></option>
-                                @if (Model.PlaceList != null)
-                                {
-                                    @foreach (var item in Model.PlaceList)
-                                    {
-                                        <option value="@item.place_cd">@item.place_name</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="@Model.MyPlaceList" class="text-danger"></span>
-                        </div>
-                    </div>
                     <div class="form-group form-check mb-3 ms-1">
                         <label class="form-check-label">
                             <input class="form-check-input" asp-for="@Model.is_private" />
@@ -219,12 +219,14 @@
                     <div class="row mb-3" id="fileArea">
                         <input type="hidden" asp-for="@Model.work_dir">
                         <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.SCHEDULE">
+                        <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
+                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
                         <div class="col-12 dropArea border-0 p-2">
                             <div id="drag_area" class="text-center px-3 py-3 bg-white">
                                 <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
                                 <label class="input-group-btn hand-pointer">
                                     <span class="btn btn-secondary">
-                                                                                ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File" accept=".pdf">
+                                                                                ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
                                     </span>
                                 </label>
                                 <br>

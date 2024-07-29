@@ -46,6 +46,7 @@ namespace web_groupware.Controllers
                 model.dir_no=info_cd.ToString();
                 model.work_dir = dir_work;
                 model.List_T_INFO_FILE = recoard_file;
+                model.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
                 return View(model);
             }

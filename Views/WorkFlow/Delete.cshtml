@@ -50,12 +50,6 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="@Model.approver_cd" class="form-label"></label>
-                        <input type="hidden" asp-for="@Model.approver_cd" class="form-control" readonly />
-                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.approver_name</label>
-                    </div>
-
-                    <div class="form-group mb-3">
                         <label asp-for="@Model.title" class="form-label"></label>
                         <input type="hidden" asp-for="@Model.title" class="form-control" readonly />
                         <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.title</label>
@@ -73,7 +67,42 @@
                         }
                     </div>
 
+                    <div class="form-group row">
+                        <div class="col-sm-6 mb-3">
+                            <label asp-for="@Model.approver_cd1" class="form-label"></label>
+                            <input type="hidden" asp-for="@Model.approver_cd1" class="form-control" readonly />
+                            @if (Model.approver1 == null)
+                            {
+                                <label class="mb-0 p-2 form-control" style="white-space: pre-wrap"></label>
+                            }
+                            else
+                            {
+                                <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.approver1?.approver_name</label>
+                            }
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <label asp-for="@Model.approver_cd2" class="form-label"></label>
+                            <input type="hidden" asp-for="@Model.approver_cd2" class="form-control" readonly />
+                            @if (Model.approver2 == null)
+                            {
+                                <label class="mb-0 p-2 form-control" style="white-space: pre-wrap"></label>
+                            }
+                            else
+                            {
+                                <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.approver2?.approver_name</label>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="@Model.top_approver_cd" class="form-label"></label>
+                        <input type="hidden" asp-for="@Model.top_approver_cd" class="form-control" readonly />
+                        <label class="mb-0 p-2 form-control" style="white-space: pre-wrap">@Model.top_approver.approver_name</label>
+                    </div>
+
                     <div class="form-group">
+                        <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.WORKFLOW">
+                        <input type="hidden" id="dir_no" value="@Model.workflow_no">
                         <label asp-for="@Model.File" class="form-label"></label>
                         @if (Model.fileModel.fileList != null && Model.fileModel.fileList.Any())
                         {

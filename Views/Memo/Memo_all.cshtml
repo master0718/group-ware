@@ -9,7 +9,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">伝言・電話メモ （自分宛て）</li>
+                    <li class="breadcrumb-item active" aria-current="page">伝言・電話メモ （全て）</li>
                 </ol>
             </nav>
         </div>
@@ -25,7 +25,7 @@
     <script>
         $("#filter_state").val(@Model.selectedState);
         $("#filter_user").val(@Model.selectedUser);
-        $("#filter_keyword").val(@Model.keyword);
+        $("#filter_keyword").val('@Model.keyword');
         var viewMode = '@ViewBag.ViewMode';
     </script>
     @{

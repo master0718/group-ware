@@ -47,7 +47,7 @@ namespace web_groupware.Models
 
         public string? applicant_name { get; set; }
 
-        public int already_read { get; set; }
+        public int already_checked { get; set; }
 
         [DisplayName("トップに出す")]
         public bool show_on_top { get; set; }
@@ -89,11 +89,11 @@ namespace web_groupware.Models
 
     public class BoardViewModel
     {
-        public string cond_already_read { get; set; }
+        public string cond_already_checked { get; set; }
         public string cond_applicant { get; set; }
         public string cond_category { get; set; }
         public string? cond_keyword { get; set; }
-        public List<SelectListItem> list_already_read { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> list_already_checked { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> list_applicant { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> list_category { get; set; } = new List<SelectListItem>();
 
@@ -102,9 +102,9 @@ namespace web_groupware.Models
         public List<int> CountList { get; set; } = new();
         public BoardViewModel()
         {
-            list_already_read.Add(new SelectListItem { Value = "0", Text = "全て" });
-            list_already_read.Add(new SelectListItem { Value = "1", Text = "未確認" });
-            list_already_read.Add(new SelectListItem { Value = "2", Text = "確認済" });
+            list_already_checked.Add(new SelectListItem { Value = "0", Text = "全て" });
+            list_already_checked.Add(new SelectListItem { Value = "1", Text = "未確認" });
+            list_already_checked.Add(new SelectListItem { Value = "2", Text = "確認済" });
         }
     }
 
@@ -119,7 +119,7 @@ namespace web_groupware.Models
         public List<T_BOARDCOMMENT_FILE> commentFileList { get; set; } = new List<T_BOARDCOMMENT_FILE>();
     }
 
-    public class BoardDetailViewModel
+    public class BoardDetailViewModel: BaseViewModel
     {
         public int board_no { get; set; }
 
@@ -170,9 +170,11 @@ namespace web_groupware.Models
         public string? applicant_name { get; set; }
 
         public bool already_checked { get; set; }
+        public string? check_count { get; set; }
+        public List<string?> list_check_member { get; set; } = new List<string?>();
 
         [DisplayName("トップに出す")]
-        public bool show_on_top { get; set; }
+        public bool show_on_top { get; set; } = false;
 
         public List<BoardCommentModel>? CommentList;
         public List<BoardViewModelStaff>? StaffList = new();

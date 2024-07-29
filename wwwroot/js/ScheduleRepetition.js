@@ -25,7 +25,8 @@ function load_(user_id, resourceType, list, eventsData, cdName) {
                         'start': moment(element.start_datetime, 'YYYY.MM.DD HH:mm').format('YYYY-MM-DD HH:mm'),
                         'end': moment(element.end_datetime, 'YYYY.MM.DD HH:mm').format('YYYY-MM-DD HH:mm'),
                         'className': ["cell-color"], 'is_private': element.is_private,
-                        'place_cd': element.place_cd
+                        'place_cd': element.place_cd,
+                        'duplicate': element.duplicate
                     })
                 }
 
@@ -42,7 +43,8 @@ function load_(user_id, resourceType, list, eventsData, cdName) {
                     'startTime': element.time_from,
                     'endTime': element.time_to,
                     'className': ["cell-color"], 'is_private': element.is_private,
-                    'place_cd': element.place_cd
+                    'place_cd': element.place_cd,
+                    'duplicate': element.duplicate
                 }
                 if (from != null) {
                     data.startRecur = from.format('YYYY-MM-DD')
@@ -73,7 +75,8 @@ function load_(user_id, resourceType, list, eventsData, cdName) {
                     'startTime': element.time_from,
                     'endTime': element.time_to,
                     'className': ["cell-color"], 'is_private': element.is_private,
-                    'place_cd': element.place_cd
+                    'place_cd': element.place_cd,
+                    'duplicate': element.duplicate
                 }
                 if (from != null) {
                     data.startRecur = from.format('YYYY-MM-DD')

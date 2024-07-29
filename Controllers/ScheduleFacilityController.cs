@@ -36,22 +36,32 @@ namespace web_groupware.Controllers
             }
         }
 
-        protected ScheduleDetailViewModel CreateScheduleView(string start_date, string? curr_date = null)
+        protected ScheduleDetailViewModel CreateScheduleView(string start_date, string? curr_date = null, string? start_time = null, string? end_time = null)
         {
             var viewModel = new ScheduleDetailViewModel();
             PrepareViewModel(viewModel);
 
             var now = DateTime.Now;
-
             if (curr_date == null)
             {
-                viewModel.start_datetime = DateTime.Now.ToString("yyyy-MM-dd");
-                viewModel.end_datetime = DateTime.Now.ToString("yyyy-MM-dd");
+                viewModel.start_datetime = now.ToString("yyyy-MM-dd");
+                viewModel.end_datetime = now.ToString("yyyy-MM-dd");
             }
             else
             {
-                viewModel.start_datetime = curr_date;
-                viewModel.end_datetime = curr_date;
+                var s = curr_date;
+                var e = curr_date;
+                if (start_time != null)
+                {
+                    s += " " + start_time;
+                }
+                viewModel.start_datetime = s;
+
+                if (end_time != null)
+                {
+                    e += " " + end_time;
+                }
+                viewModel.end_datetime = e;
             }
             viewModel.is_private = false;
 
@@ -68,6 +78,7 @@ namespace web_groupware.Controllers
 
             ViewBag.StartDate = start_date;
             TempData["start_date"] = start_date;
+            viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
             return viewModel;
         }
@@ -103,16 +114,8 @@ namespace web_groupware.Controllers
                 return false;
             }
 
-            var list_allowed_file_extentions = new List<string>() { ".pdf" };
             for (int i = 0; i < request.File.Count; i++)
             {
-                if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                {
-                    ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                    ResetWorkDir(DIC_KB_700_DIRECTORY.SCHEDULE, request.work_dir);
-                    PrepareViewModel(request);
-                    return false;
-                }
                 if (request.File[i].Length > Format.FILE_SIZE)
                 {
                     ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -293,6 +296,7 @@ namespace web_groupware.Controllers
             //workディレクトリの作成
             Directory.CreateDirectory(dir);
             viewModel.work_dir = dir_work;
+            viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
             return viewModel;
         }
@@ -330,16 +334,8 @@ namespace web_groupware.Controllers
                     return false;
                 }
 
-                var list_allowed_file_extentions = new List<string>() { ".pdf" };
                 for (int i = 0; i < request.File.Count; i++)
                 {
-                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                        ResetWorkDir(DIC_KB_700_DIRECTORY.SCHEDULE, request.work_dir);
-                        PrepareViewModel(request);
-                        return false;
-                    }
                     if (request.File[i].Length > Format.FILE_SIZE)
                     {
                         ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -514,7 +510,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public async Task UpdateDuration(int schedule_no, string start, string end)
+        public async Task UpdateDuration(int schedule_no, int place_cd, string start, string end)
         {
             using (IDbContextTransaction tran = _context.Database.BeginTransaction())
             {
@@ -522,15 +518,33 @@ namespace web_groupware.Controllers
                 {
                     var user_id = HttpContext.User.FindFirst(Utilities.ClaimTypes.STAF_CD).Value;
                     var schedule = _context.T_SCHEDULE.FirstOrDefault(m => m.schedule_no == schedule_no);
-                    schedule.start_datetime = DateTime.Parse(start);
-                    schedule.end_datetime = DateTime.Parse(end);
+                    /*var repetition = _context.T_SCHEDULE_REPETITION.FirstOrDefault(m => m.schedule_no == schedule_no);
+                    if (repetition == null)
+                    {*/
+                        schedule.start_datetime = DateTime.Parse(start);
+                        schedule.end_datetime = DateTime.Parse(end);
+                        schedule.update_user = user_id;
+                        schedule.update_date = DateTime.Now;
 
-                    schedule.update_user = user_id;
-                    schedule.update_date = DateTime.Now;
+                        _context.T_SCHEDULE.Update(schedule);
 
-                    _context.T_SCHEDULE.Update(schedule);
+                        /*var places = _context.T_SCHEDULEPLACE.Where(x => x.schedule_no == schedule_no).Count();
+                        if (places > 1)
+                        {
+                            schedule.schedule_no = GetNextNo(DataTypes.SCHEDULE_NO);
+                        } else
+                        {
+                        }*/
 
-                    await _context.SaveChangesAsync();
+
+                        await _context.SaveChangesAsync();
+
+                        /*var peoples = _context.T_SCHEDULEPEOPLE.Where(x => x.schedule_no == schedule_no).Count();
+                        if (peoples > 1)
+                        {
+
+                        }
+                    }*/
                     tran.Commit();
                 }
                 catch (Exception ex)
@@ -838,7 +852,7 @@ namespace web_groupware.Controllers
 
                     //ファイルをworkからmainにコピー
                     System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
-                    pdfFileToImg(Path.Combine(dir_main, file_name));
+                    // pdfFileToImg(Path.Combine(dir_main, file_name));
                 }
             }
             catch (Exception ex)

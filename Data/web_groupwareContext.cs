@@ -33,6 +33,7 @@ namespace web_groupware.Data
         public DbSet<T_WORKFLOW> T_WORKFLOW { get; set; }
         public DbSet<T_WORKFLOW_FILE> T_WORKFLOW_FILE { get; set; }
         public DbSet<T_WORKFLOW_APPROVAL> T_WORKFLOW_APPROVAL { get; set; }
+        public DbSet<T_WORKFLOW_TOP_APPROVAL> T_WORKFLOW_TOP_APPROVAL { get; set; }
         public DbSet<M_DIC> M_DIC { get; set; }
         public DbSet<M_PLACE> M_PLACE { get; set; }
         public DbSet<M_SCHEDULE_TYPE> M_SCHEDULE_TYPE { get; set; }
@@ -78,6 +79,8 @@ namespace web_groupware.Data
                 .HasKey(c => new { c.workflow_no, c.file_no });
             modelBuilder.Entity<T_WORKFLOW_APPROVAL>()
                 .HasKey(c => new { c.workflow_no, c.approver_cd});
+            modelBuilder.Entity<T_WORKFLOW_TOP_APPROVAL>()
+                .HasKey(c => new { c.workflow_no, c.approver_cd });
 
             modelBuilder.Entity<T_MEMO>()
                 .HasKey(c => new { c.memo_no });

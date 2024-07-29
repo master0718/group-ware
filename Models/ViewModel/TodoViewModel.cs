@@ -52,7 +52,7 @@ namespace web_groupware.Models
         public int editable = 0;
     }
 
-    public class TodoDetailModel
+    public class TodoDetailModel: BaseViewModel
     {
         public int todo_no { get; set; }
 

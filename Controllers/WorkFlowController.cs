@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using web_groupware.Utilities;
 using Azure.Core;
 using System.Reflection.Metadata;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Format = web_groupware.Utilities.Format;
 
 #pragma warning disable CS8600, CS8601, CS8602, CS8604, CS8618, CS8629
 namespace web_groupware.Controllers
@@ -20,7 +18,6 @@ namespace web_groupware.Controllers
     public class WorkFlowController : BaseController
     {
         private readonly IWebHostEnvironment _environment;
-        private const int FILE_TYPE_FILE = 0;
         private readonly string _uploadPath;
 
         public WorkFlowController(IConfiguration configuration, ILogger<BaseController> logger, web_groupwareContext context, IWebHostEnvironment hostingEnvironment, IHttpContextAccessor httpContextAccessor)
@@ -39,20 +36,17 @@ namespace web_groupware.Controllers
             _environment = hostingEnvironment;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int status = 0, string? keyword = null)
         {
-            var userId = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-            var user_auth = _context.M_STAFF_AUTH.FirstOrDefault(m => m.staf_cd == int.Parse(userId));
-
-            var workflow_auth = user_auth.workflow_auth;
-            if (userId == null || _context.T_WORKFLOW == null)
-            {
-                return Problem(userId);
-            }
-
             try
             {
-                var model = CreateViewModel(workflow_auth, int.Parse(userId));
+                var userId = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var user_auth = _context.M_STAFF_AUTH.FirstOrDefault(m => m.staf_cd == int.Parse(userId));
+                if (userId == null || user_auth == null || _context.T_WORKFLOW == null)
+                {
+                    return View(new WorkFlowViewModel());
+                }
+                var model = CreateViewModel(user_auth.workflow_auth, int.Parse(userId), status, keyword);
                 return View(model);
             }
             catch (Exception ex)
@@ -61,6 +55,16 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
+        }
+
+        [HttpPost]
+        public IActionResult Filter(int filter_status = 0, string? filter_keyword = null)
+        {
+            TempData["filter_status"] = filter_status;
+            TempData["filter_keyword"] = filter_keyword;
+
+            var routeValues = new { status = filter_status, keyword = filter_keyword };
+            return RedirectToAction("Index", routeValues);
         }
 
         [HttpGet]
@@ -83,6 +87,7 @@ namespace web_groupware.Controllers
                 Directory.CreateDirectory(dir);
                 viewModel.work_dir = dir_work;
                 viewModel.fileModel.editable = 1;
+                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
                 return View(viewModel);
             }
@@ -115,16 +120,8 @@ namespace web_groupware.Controllers
 
                     return View(request);
                 }
-                var list_allowed_file_extentions = new List<string>() { ".pdf" };
                 for (int i = 0; i < request.File.Count; i++)
                 {
-                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                        ResetWorkDir(DIC_KB_700_DIRECTORY.WORKFLOW, request.work_dir);
-                        PrepareViewModel(request);
-                        return View(request);
-                    }
                     if (request.File[i].Length > Format.FILE_SIZE)
                     {
                         ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -156,25 +153,54 @@ namespace web_groupware.Controllers
                         request_type = request.request_type,
                         status = WorkflowApproveStatus.DRAFT,
                         requester_cd = int.Parse(user_id),
-                        request_date = now,
                         create_user = user_id,
                         create_date = now,
                         update_user = user_id,
                         update_date = now
                     };
+                    _context.Add(model);
 
-                    var approval_model = new T_WORKFLOW_APPROVAL
+                    var top_approval_model = new T_WORKFLOW_TOP_APPROVAL
                     {
                         workflow_no = workflow_no,
-                        approver_cd = request.approver_cd,
+                        approver_cd = request.top_approver_cd,
                         create_user = user_id,
                         create_date = now,
                         update_user = user_id,
                         update_date = now
                     };
 
-                    _context.Add(model);
-                    _context.Add(approval_model);
+                    _context.Add(top_approval_model);
+
+                    if (request.approver_cd1 != null)
+                    {
+                        var approval_model = new T_WORKFLOW_APPROVAL
+                        {
+                            workflow_no = workflow_no,
+                            approver_cd = request.approver_cd1 ?? 0,
+                            create_user = user_id,
+                            create_date = now,
+                            update_user = user_id,
+                            update_date = now
+                        };
+
+                        _context.Add(approval_model);
+                    }
+
+                    if (request.approver_cd2 != null)
+                    {
+                        var approval_model = new T_WORKFLOW_APPROVAL
+                        {
+                            workflow_no = workflow_no,
+                            approver_cd = request.approver_cd2 ?? 0,
+                            create_user = user_id,
+                            create_date = now,
+                            update_user = user_id,
+                            update_date = now
+                        };
+
+                        _context.Add(approval_model);
+                    }
 
                     AddFiles(request.work_dir, workflow_no);
 
@@ -214,6 +240,7 @@ namespace web_groupware.Controllers
                 //workディレクトリの作成
                 Directory.CreateDirectory(dir);
                 viewModel.work_dir = dir_work;
+                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
                 return View(viewModel);
             }
@@ -237,6 +264,13 @@ namespace web_groupware.Controllers
                     PrepareViewModel(request);
                     return View(request);
                 }
+                if (request.approver_cd1 != null && request.approver_cd2 == null)
+                {
+                    ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_APPROVER2_REQUIRED);
+                    ResetWorkDir(DIC_KB_700_DIRECTORY.WORKFLOW, request.work_dir);
+                    PrepareViewModel(request);
+                    return View(request);
+                }
                 if (request.File.Count > 5)
                 {
                     ModelState.AddModelError("", Messages.MAX_FILE_COUNT_5);
@@ -244,16 +278,8 @@ namespace web_groupware.Controllers
                     PrepareViewModel(request);
                     return View(request);
                 }
-                var list_allowed_file_extentions = new List<string>() { ".pdf" };
                 for (int i = 0; i < request.File.Count; i++)
                 {
-                    if (!list_allowed_file_extentions.Contains(Path.GetExtension(request.File[i].FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("", Messages.BOARD_ALLOWED_FILE_EXTENSIONS);
-                        ResetWorkDir(DIC_KB_700_DIRECTORY.WORKFLOW, request.work_dir);
-                        PrepareViewModel(request);
-                        return View(request);
-                    }
                     if (request.File[i].Length > Format.FILE_SIZE)
                     {
                         ModelState.AddModelError("", Messages.MAX_FILE_SIZE_20MB);
@@ -317,16 +343,48 @@ namespace web_groupware.Controllers
                 if (approvals != null)
                     _context.T_WORKFLOW_APPROVAL.RemoveRange(approvals);
 
-                var approval = new T_WORKFLOW_APPROVAL
+                var top_approvals = _context.T_WORKFLOW_TOP_APPROVAL.Where(x => x.workflow_no == request.workflow_no).ToList();
+                if (top_approvals != null)
+                    _context.T_WORKFLOW_TOP_APPROVAL.RemoveRange(top_approvals);
+
+                var top_approval_model = new T_WORKFLOW_TOP_APPROVAL
                 {
                     workflow_no = request.workflow_no,
-                    approver_cd = request.approver_cd,
+                    approver_cd = request.top_approver_cd,
                     create_user = user_id,
                     create_date = now,
                     update_user = user_id,
                     update_date = now
                 };
-                _context.T_WORKFLOW_APPROVAL.Add(approval);
+                _context.Add(top_approval_model);
+
+                if (request.approver_cd1 != null)
+                {
+                    var approval_model = new T_WORKFLOW_APPROVAL
+                    {
+                        workflow_no = request.workflow_no,
+                        approver_cd = request.approver_cd1 ?? 0,
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now
+                    };
+                    _context.Add(approval_model);
+                }
+
+                if (request.approver_cd2 != null)
+                {
+                    var approval_model = new T_WORKFLOW_APPROVAL
+                    {
+                        workflow_no = request.workflow_no,
+                        approver_cd = request.approver_cd2 ?? 0,
+                        create_user = user_id,
+                        create_date = now,
+                        update_user = user_id,
+                        update_date = now
+                    };
+                    _context.Add(approval_model);
+                }
 
                 await _context.SaveChangesAsync();
                 tran.Commit();
@@ -378,6 +436,10 @@ namespace web_groupware.Controllers
                 if (approvals != null)
                     _context.T_WORKFLOW_APPROVAL.RemoveRange(approvals);
 
+                var top_approvals = _context.T_WORKFLOW_TOP_APPROVAL.Where(x => x.workflow_no == request.workflow_no).ToList();
+                if (top_approvals != null)
+                    _context.T_WORKFLOW_TOP_APPROVAL.RemoveRange(top_approvals);
+
                 _context.SaveChanges();
                 tran.Commit();
 
@@ -414,17 +476,36 @@ namespace web_groupware.Controllers
                 var now = DateTime.Now;
 
                 var model = _context.T_WORKFLOW.FirstOrDefault(x => x.workflow_no == request.workflow_no);
-                model.status = WorkflowApproveStatus.REQUEST;
-                model.request_date = now;
+
+                var top_approval = _context.T_WORKFLOW_TOP_APPROVAL.FirstOrDefault(x => x.workflow_no == request.workflow_no);
+                if (top_approval != null)
+                {
+                    top_approval.approve_result = WorkflowApproveResult.NONE;
+                    top_approval.comment = "";
+                    _context.T_WORKFLOW_TOP_APPROVAL.Update(top_approval);
+                }
+
+                var approvals = _context.T_WORKFLOW_APPROVAL.Where(x => x.workflow_no == request.workflow_no).ToList();
+                if (approvals != null)
+                {
+                    foreach (var approval in approvals)
+                    {
+                        approval.approve_result = WorkflowApproveResult.NONE;
+                        approval.comment = "";
+                    }
+                    _context.T_WORKFLOW_APPROVAL.UpdateRange(approvals);
+                }
+
+                if (approvals == null || approvals.Count() == 0)
+                {
+                    model.status = WorkflowApproveStatus.TOP_APPROVE;
+                }
+                else
+                {
+                    model.status = WorkflowApproveStatus.REQUEST;
+                }
                 model.update_date = now;
                 _context.T_WORKFLOW.Update(model);
-
-                var approval = _context.T_WORKFLOW_APPROVAL.FirstOrDefault(x => x.workflow_no == request.workflow_no);
-                if (approval != null)
-                {
-                    approval.approve_result = WorkflowApproveResult.NONE;
-                    _context.T_WORKFLOW_APPROVAL.Update(approval);
-                }
 
                 var recipient = (from a in _context.T_WORKFLOW_APPROVAL
                                   join u in _context.M_STAFF on a.approver_cd equals u.staf_cd
@@ -455,47 +536,113 @@ namespace web_groupware.Controllers
         [HttpGet]
         public IActionResult Accept(int workflow_no)
         {
-            var viewModel = GetDetailView(workflow_no);
-            if (viewModel == null)
+            try
             {
-                return RedirectToAction("Index");
+                var viewModel = GetApproveDetailView(workflow_no);
+                if (viewModel == null)
+                {
+                    return Index();
+                }
+
+                return View("Approve", viewModel);
             }
-            return View("Approve", viewModel);
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
         [HttpPost]
-        public IActionResult Accept(WorkFlowDetailViewModel request)
+        public IActionResult Accept(ApproveDetailViewModel request)
         {
             using IDbContextTransaction tran = _context.Database.BeginTransaction();
             try
             {
                 var model = _context.T_WORKFLOW.FirstOrDefault(x => x.workflow_no == request.workflow_no);
-                if (model.status == WorkflowApproveStatus.FINISH)
+                if (request.is_top_approver == 0)
                 {
-                    ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_ALREADY_FINISHED);
-                    PrepareViewModel(request);
-                    return View(request);
-                } else if (model.status == WorkflowApproveStatus.REJECT)
-                {
-                    ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_ALREADY_REJECTED);
-                    PrepareViewModel(request);
-                    return View(request);
-                }
-
-                var approval = _context.T_WORKFLOW_APPROVAL.FirstOrDefault(x => x.workflow_no == request.workflow_no);
-
-                if (request.is_accept == 0)
-                {
-                    model.status = WorkflowApproveStatus.REJECT;
-                    approval.approve_result = WorkflowApproveResult.REJECT;
+                    if (model.status != WorkflowApproveStatus.REQUEST && model.status != WorkflowApproveStatus.APPROVE)
+                    {
+                        ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_NOT_APPROVAL);
+                        return Accept(request.workflow_no);
+                    }
                 } else
                 {
-                    model.status = WorkflowApproveStatus.FINISH;
-                    approval.approve_result = WorkflowApproveResult.ACCEPT;
+                    if (model.status == WorkflowApproveStatus.FINISH)
+                    {
+                        ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_ALREADY_FINISHED);
+                        return Accept(request.workflow_no);
+                    }
+                    else if (model.status == WorkflowApproveStatus.REJECT)
+                    {
+                        ModelState.AddModelError("", Messages.WORKFLOW_APPROVAL_ALREADY_REJECTED);
+                        return Accept(request.workflow_no);
+                    }
+                }
+
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                var iUser_id = Convert.ToInt32(user_id);
+                dynamic approval = null;
+
+                if (request.is_top_approver == 0) // approval
+                {
+                    approval = _context.T_WORKFLOW_APPROVAL.FirstOrDefault(x => x.workflow_no == request.workflow_no && x.approver_cd == Convert.ToInt32(user_id));
+
+                    if (request.is_accept == 0)
+                    {
+                        approval.approve_result = WorkflowApproveResult.REJECT;
+                    } else
+                    {
+                        approval.approve_result = WorkflowApproveResult.ACCEPT;
+                    }
+
+                    var no_approvers = _context.T_WORKFLOW_APPROVAL
+                        .Where(x => x.workflow_no == model.workflow_no && x.approver_cd != iUser_id)
+                        .Where(x => x.approve_result == WorkflowApproveResult.NONE)
+                        .ToList();
+                    if (no_approvers.Count > 0)
+                    {
+                        // 未承認処理の承認者
+                        if (model.status == WorkflowApproveStatus.REQUEST)
+                            model.status = WorkflowApproveStatus.APPROVE;
+                    }
+                    else
+                    {
+                        // 全員が承認処理済み
+                        var rejected_approvers = _context.T_WORKFLOW_APPROVAL
+                            .Where(x => x.workflow_no == model.workflow_no && x.approver_cd != iUser_id)
+                            .Where(x => x.approve_result == WorkflowApproveResult.REJECT)
+                            .ToList();
+                        if (rejected_approvers.Count > 0)
+                        {
+                            // すでに他人が否決
+                            model.status = WorkflowApproveStatus.REJECT;
+                        }
+                        else
+                        {
+                            // 別の方はすべて承認済み
+                            model.status = request.is_accept == 1 ? WorkflowApproveStatus.TOP_APPROVE : WorkflowApproveStatus.REJECT;
+                        }
+                    }
+                } else // top approval
+                {
+                    approval = _context.T_WORKFLOW_TOP_APPROVAL.FirstOrDefault(x => x.workflow_no == request.workflow_no && x.approver_cd == Convert.ToInt32(user_id));
+
+                    if (request.is_accept == 0)
+                    {
+                        model.status = WorkflowApproveStatus.REJECT;
+                        approval.approve_result = WorkflowApproveResult.REJECT;
+                    }
+                    else
+                    {
+                        model.status = WorkflowApproveStatus.FINISH;
+                        approval.approve_result = WorkflowApproveResult.ACCEPT;
+                    }
                 }
 
                 var now = DateTime.Now;
-                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 approval.update_user = user_id;
                 approval.update_date = now;
                 if (request.comment != null)
@@ -503,7 +650,11 @@ namespace web_groupware.Controllers
 
                 model.update_date = now;
 
-                _context.T_WORKFLOW_APPROVAL.Update(approval);
+                if (request.is_top_approver == 0)
+                    _context.T_WORKFLOW_APPROVAL.Update(approval);
+                else
+                    _context.T_WORKFLOW_TOP_APPROVAL.Update(approval);
+
                 _context.T_WORKFLOW.Update(model);
 
                 _context.SaveChanges();
@@ -525,44 +676,139 @@ namespace web_groupware.Controllers
         [HttpGet]
         public IActionResult Detail(int workflow_no)
         {
-            var viewModel = GetDetailView(workflow_no);
-            if (viewModel == null)
+            try
             {
-                return RedirectToAction("Index");
+                var viewModel = GetDetailView(workflow_no);
+                if (viewModel == null)
+                {
+                    return Index();
+                }
+
+                return View("Detail", viewModel);
             }
-            return View("Detail", viewModel);
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
         }
 
-        private WorkFlowViewModel CreateViewModel(int workflow_auth, int userId)
+        private WorkFlowViewModel CreateViewModel(int workflow_auth, int userId, int selected_status = 0, string? keyword = null)
         {
             try
             {
-                var workflowList = (from w in _context.T_WORKFLOW
-                                    join a in _context.T_WORKFLOW_APPROVAL on w.workflow_no equals a.workflow_no
-                                    let request_date = (w.status != WorkflowApproveStatus.NONE && w.status != WorkflowApproveStatus.DRAFT) ? w.request_date : default
-                                    let approve_date = (w.status == WorkflowApproveStatus.REJECT || w.status == WorkflowApproveStatus.FINISH) ? a.update_date : default
-                                    where ((workflow_auth == 0 && w.requester_cd == userId) || (workflow_auth > 0 && (w.requester_cd == userId || a.approver_cd == userId)))
-                                    select new WorkFlowModel
-                                    {
-                                        workflow_no = w.workflow_no,
-                                        title = w.title,
-                                        description = w.description,
-                                        status = w.status,
-                                        approve_result = a.approve_result,
-                                        request_type = w.request_type,
-                                        requester_cd = w.requester_cd,
-                                        requester_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == w.requester_cd).staf_name,
-                                        approver_cd = a.approver_cd,
-                                        approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == a.approver_cd).staf_name,
-                                        update_date = w.update_date.ToString("yyyy年M月d日 H時m分"),
-                                        request_date = request_date == default ? null : w.request_date.ToString("yyyy年M月d日 H時m分"),
-                                        approve_date = approve_date == default ? null : a.update_date.ToString("yyyy年M月d日 H時m分"),
-                                        comment = a.comment
-                                    }).ToList();
+                var myUserId = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
+
+                var workflowList__ = (from w in _context.T_WORKFLOW
+                                    let approver_me = _context.T_WORKFLOW_APPROVAL.Where(x => x.workflow_no == w.workflow_no && x.approver_cd == userId).Count()
+                                    let top_approver_me = _context.T_WORKFLOW_TOP_APPROVAL.Where(x => x.workflow_no == w.workflow_no && x.approver_cd == userId).Count()
+                                    //where (workflow_auth == 0 && w.requester_cd == userId) || (workflow_auth == 1 && approver_me > 0) || (workflow_auth == 2 && top_approver_me > 0)
+                                    where (w.requester_cd == userId) || (workflow_auth >= 1 && approver_me > 0) || (workflow_auth == 2 && top_approver_me > 0)
+                                    select w);
+
+                if (keyword != null && keyword != "")
+                {
+                    workflowList__ = workflowList__.Where(x => x.title.Contains(keyword));
+                }
+
+                if (selected_status != 0)
+                {
+                    workflowList__ = workflowList__.Where(x => x.status == selected_status);
+                }
+
+                var workflowList_ = workflowList__.ToList();
+
+                var workflowList = new List<WorkFlowModel>();
+                foreach (var w in workflowList_)
+                {
+                    var workflow = new WorkFlowModel
+                    {
+                        workflow_no = w.workflow_no,
+                        title = w.title,
+                        description = w.description,
+                        status = w.status,
+                        request_type = w.request_type,
+                        requester_cd = w.requester_cd,
+                        requester_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == w.requester_cd).staf_name,
+                        //request_date = w.request_date == null ? "" : w.request_date?.ToString("yyyy年M月d日 H時m分"),
+                        update_date = w.update_date.ToString("yyyy年M月d日 H時m分"),
+                    };
+
+                    var top_approver = _context.T_WORKFLOW_TOP_APPROVAL.FirstOrDefault(x => x.workflow_no == w.workflow_no);
+                    if (top_approver != null)
+                    {
+                        workflow.top_approver = new ApproverModel
+                        {
+                            approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == top_approver.approver_cd).staf_name,
+                            approve_date = top_approver.approve_result == WorkflowApproveResult.NONE ? "" : top_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                            comment = top_approver.comment,
+                            approve_result = top_approver.approve_result,
+                        };
+
+                        if (top_approver.approver_cd == myUserId)
+                        {
+                            workflow.my_approval_result = top_approver.approve_result;
+                            workflow.is_top_approver = 1;
+                        }
+                    }
+
+                    var approvers = _context.T_WORKFLOW_APPROVAL.Where(x => x.workflow_no == w.workflow_no).ToList();
+                    if (approvers != null)
+                    {
+                        T_WORKFLOW_APPROVAL? first_approver = null;
+                        T_WORKFLOW_APPROVAL? second_approver = null;
+                        if (approvers.Count == 1) // second approver
+                        {
+                            second_approver = approvers[0];
+                        } else if (approvers.Count == 2) // first, second arppvoer
+                        {
+                            first_approver = approvers[0];
+                            second_approver = approvers[1];
+                        }
+
+                        if (first_approver != null)
+                        {
+                            workflow.approver1 = new ApproverModel
+                            {
+                                approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == first_approver.approver_cd).staf_name,
+                                approve_date = first_approver?.approve_result == WorkflowApproveResult.NONE ? "" : first_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                                comment = first_approver.comment,
+                                approve_result = first_approver.approve_result,
+                            };
+
+                            if (first_approver.approver_cd == myUserId)
+                            {
+                                workflow.my_approval_result = first_approver.approve_result;
+                                workflow.is_top_approver = 0;
+                            }
+                        }
+                        if (second_approver != null)
+                        {
+                            workflow.approver2 = new ApproverModel
+                            {
+                                approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == second_approver.approver_cd).staf_name,
+                                approve_date = second_approver?.approve_result == WorkflowApproveResult.NONE ? "" : second_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                                comment = second_approver.comment,
+                                approve_result = second_approver.approve_result,
+                            };
+
+                            if (second_approver.approver_cd == myUserId)
+                            {
+                                workflow.my_approval_result = second_approver.approve_result;
+                                workflow.is_top_approver = 0;
+                            }
+                        }
+                    }
+
+                    workflowList.Add(workflow);
+                }
 
                 var model = new WorkFlowViewModel
                 {
-                    WorkflowList = workflowList
+                    WorkflowList = workflowList,
+                    selectedStatus = selected_status,
+                    keyword = keyword
                 };
 
                 return model;
@@ -580,42 +826,145 @@ namespace web_groupware.Controllers
             try
             {
                 var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
-                var model = (from w in _context.T_WORKFLOW
-                             join a in _context.T_WORKFLOW_APPROVAL on w.workflow_no equals a.workflow_no
-                             let approve_date = (w.status == WorkflowApproveStatus.REJECT || w.status == WorkflowApproveStatus.FINISH) ? a.update_date : default
-                             let request_type = w.request_type.ToString()
-                             where w.workflow_no == workflow_no
-                             select new WorkFlowDetailViewModel
-                             {
-                                 workflow_no = w.workflow_no,
-                                 title = w.title,
-                                 description = w.description,
-                                 status = w.status,
-                                 request_type = w.request_type,
-                                 requester_cd = w.requester_cd,
-                                 requester_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == w.requester_cd).staf_name,
-                                 approver_cd = a.approver_cd,
-                                 approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == a.approver_cd).staf_name,
-                                 comment = a.comment,
-                                 staffList = _context.M_STAFF
-                                     .Where(x => x.retired != 1)
-                                     .Select(u => new WorkFlowViewModelStaff
-                                     {
-                                         staff_cd = u.staf_cd,
-                                         staff_name = u.staf_name
-                                     })
-                                    .ToList(),
-                                 requestTypeList = _context.M_DIC
-                                    .Where(x => x.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE)
-                                    .Select(x => new WorkFlowViewModelRequestType
-                                    {
-                                        request_type = int.Parse(x.dic_cd),
-                                        request_name = x.content
-                                    })
-                                    .ToList(),
-                                 request_type_name = _context.M_DIC.FirstOrDefault(x => x.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE && request_type == x.dic_cd).content,
-                                 approve_date = approve_date == default ? null : a.update_date.ToString("yyyy年M月d日 H時m分")
-                             }).FirstOrDefault();
+               
+                var model_ = (from w in _context.T_WORKFLOW
+                                where w.workflow_no == workflow_no
+                                select w).FirstOrDefault();
+
+                var model = new WorkFlowDetailViewModel
+                {
+                    workflow_no = model_.workflow_no,
+                    title = model_.title,
+                    description = model_.description,
+                    status = model_.status,
+                    request_type = model_.request_type,
+                    requester_cd = model_.requester_cd,
+                    requester_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == model_.requester_cd).staf_name,
+
+                    requestTypeList = _context.M_DIC
+                                        .Where(x => x.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE)
+                                        .Select(x => new WorkFlowViewModelRequestType
+                                        {
+                                            request_type = int.Parse(x.dic_cd),
+                                            request_name = x.content
+                                        })
+                                        .ToList(),
+
+                    request_type_name = (from d in _context.M_DIC
+                                         where d.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE && model_.request_type.ToString() == d.dic_cd
+                                         select d.content)
+                                        .FirstOrDefault(),
+
+                    staffList = (from s in _context.M_STAFF
+                                       let auth = (from a in _context.M_STAFF_AUTH where a.staf_cd == s.staf_cd select a.workflow_auth).FirstOrDefault()
+                                       where s.retired != 1 && s.staf_cd != user_id && auth > 0
+                                       select new WorkFlowViewModelStaff
+                                       {
+                                           staff_cd = s.staf_cd,
+                                           staff_name = s.staf_name
+                                       }
+                                       ).ToList(),
+
+                    top_staffList = (from s in _context.M_STAFF
+                                           let auth = (from a in _context.M_STAFF_AUTH where a.staf_cd == s.staf_cd select a.workflow_auth).FirstOrDefault()
+                                           where s.retired != 1 && s.staf_cd != user_id && auth == 2
+                                           select new WorkFlowViewModelStaff
+                                           {
+                                               staff_cd = s.staf_cd,
+                                               staff_name = s.staf_name
+                                           }
+                                       ).ToList()
+                };
+
+                var top_approver = _context.T_WORKFLOW_TOP_APPROVAL.FirstOrDefault(x => x.workflow_no == model_.workflow_no);
+                if (top_approver != null)
+                {
+                    model.top_approver = new ApproverModel
+                    {
+                        approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == top_approver.approver_cd).staf_name,
+                        approve_date = top_approver.approve_result == WorkflowApproveResult.NONE ? "" : top_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                        comment = top_approver.comment,
+                        approve_result = top_approver.approve_result,
+                    };
+                    model.top_approver_cd = top_approver.approver_cd;
+                }
+
+                var approvers = _context.T_WORKFLOW_APPROVAL.Where(x => x.workflow_no == model_.workflow_no).ToList();
+                if (approvers != null)
+                {
+                    T_WORKFLOW_APPROVAL? first_approver = null;
+                    T_WORKFLOW_APPROVAL? second_approver = null;
+                    if (approvers.Count == 1) // second approver
+                    {
+                        second_approver = approvers[0];
+                    }
+                    else if (approvers.Count == 2) // first, second arppvoer
+                    {
+                        first_approver = approvers[0];
+                        second_approver = approvers[1];
+                    }
+
+                    if (first_approver != null)
+                    {
+                        model.approver1 = new ApproverModel
+                        {
+                            approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == first_approver.approver_cd).staf_name,
+                            approve_date = first_approver?.approve_result == WorkflowApproveResult.NONE ? "" : first_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                            comment = first_approver.comment,
+                            approve_result = first_approver.approve_result,
+                        };
+                        model.approver_cd1 = first_approver.approver_cd;
+                    }
+                    if (second_approver != null)
+                    {
+                        model.approver2 = new ApproverModel
+                        {
+                            approver_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == second_approver.approver_cd).staf_name,
+                            approve_date = second_approver?.approve_result == WorkflowApproveResult.NONE ? "" : second_approver.update_date.ToString("yyyy年M月d日 H時m分"),
+                            comment = second_approver.comment,
+                            approve_result = second_approver.approve_result,
+                        };
+                        model.approver_cd2 = second_approver.approver_cd;
+                    }
+                }
+
+                model.fileModel.fileList = _context.T_WORKFLOW_FILE.Where(x => x.workflow_no == workflow_no).ToList();
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        private ApproveDetailViewModel? GetApproveDetailView(int workflow_no)
+        {
+            try
+            {
+                var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
+
+                var model_ = (from w in _context.T_WORKFLOW
+                              where w.workflow_no == workflow_no
+                              select w).FirstOrDefault();
+
+                var model = new ApproveDetailViewModel
+                {
+                    workflow_no = model_.workflow_no,
+                    title = model_.title,
+                    description = model_.description,
+                    request_type = model_.request_type,
+                    requester_cd = model_.requester_cd,
+                    requester_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == model_.requester_cd).staf_name,
+
+                    request_type_name = (from d in _context.M_DIC
+                                         where d.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE && model_.request_type.ToString() == d.dic_cd
+                                         select d.content)
+                                        .FirstOrDefault(),
+                    is_top_approver = _context.T_WORKFLOW_TOP_APPROVAL.Where(x => x.workflow_no == workflow_no && x.approver_cd == user_id).Count() > 0 ? 1 : 0
+                };
 
                 model.fileModel.fileList = _context.T_WORKFLOW_FILE.Where(x => x.workflow_no == workflow_no).ToList();
 
@@ -633,19 +982,32 @@ namespace web_groupware.Controllers
         {
             try
             {
+                var user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
                 if (model.workflow_no > 0)
                 {
                     // 編集のみ
                     model.fileModel.fileList = _context.T_WORKFLOW_FILE.Where(x => x.workflow_no == model.workflow_no).ToList();
                 }
-                model.staffList = _context.M_STAFF
-                    .Where(x => x.retired != 1)
-                    .Select(u => new WorkFlowViewModelStaff
-                    {
-                        staff_cd = u.staf_cd,
-                        staff_name = u.staf_name
-                    })
-                    .ToList();
+
+                model.staffList = (from s in _context.M_STAFF
+                                   let auth = (from a in _context.M_STAFF_AUTH where a.staf_cd == s.staf_cd select a.workflow_auth).FirstOrDefault()
+                                   where s.retired != 1 && s.staf_cd != user_id && auth > 0
+                                   select new WorkFlowViewModelStaff 
+                                   {
+                                       staff_cd = s.staf_cd,
+                                       staff_name = s.staf_name
+                                   }
+                                   ).ToList();
+
+                model.top_staffList = (from s in _context.M_STAFF
+                                   let auth = (from a in _context.M_STAFF_AUTH where a.staf_cd == s.staf_cd select a.workflow_auth).FirstOrDefault()
+                                   where s.retired != 1 && s.staf_cd != user_id && auth == 2
+                                   select new WorkFlowViewModelStaff
+                                   {
+                                       staff_cd = s.staf_cd,
+                                       staff_name = s.staf_name
+                                   }
+                                   ).ToList();
 
                 model.requestTypeList = _context.M_DIC
                     .Where(x => x.dic_kb == DIC_KB.WORKFLOW_REQ_TYPE)
@@ -666,7 +1028,6 @@ namespace web_groupware.Controllers
 
         protected async void AddFiles(string work_dir, int workflow_no)
         {
-
             try
             {
                 //ディレクトリ設定
@@ -731,7 +1092,7 @@ namespace web_groupware.Controllers
 
                     //ファイルをworkからmainにコピー
                     System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
-                    pdfFileToImg(Path.Combine(dir_main, file_name));
+                    // pdfFileToImg(Path.Combine(dir_main, file_name));
                 }
             }
             catch (Exception ex)

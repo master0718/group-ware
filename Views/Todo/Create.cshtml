@@ -89,6 +89,9 @@
                 <div class="row mb-3" id="fileArea">
                     <input type="hidden" asp-for="@Model.work_dir">
                     <input type="hidden" id="dic_cd" value="@DIC_KB_700_DIRECTORY.TODO">
+                    <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
+                    <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
+
                     <div class="col-12 dropArea border-0 p-2">
                         <div id="drag_area" class="text-center px-3 py-3 bg-white">
                             <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>

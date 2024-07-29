@@ -22,9 +22,7 @@ namespace web_groupware.Models
         public string? content { get; set; }
         public string? sender_name { get; set; }
         public bool is_editable { get; set; }
-        public string? readers { get; set; }
-        public string? working_msg { get; set; }
-        public string? finish_msg { get; set; }
+        public bool already_checked { get; set; }
     }
     public class MemoComment
     {
@@ -50,7 +48,8 @@ namespace web_groupware.Models
         public List<MemoComment>? commentList = new();
         public int selectedState = 0;
         public int selectedUser = 0;
-        public bool isSent = true;
+        public int category = MemoCategory.ALL;
+        public string? keyword;
     }
 
     public class MemoDetailViewModel
@@ -58,6 +57,9 @@ namespace web_groupware.Models
         public int memo_no { get; set; }
         public int state { get; set; }
         public int receiver_type { get; set; }
+        public bool already_checked { get; set; }
+        public string? check_count { get; set; }
+        public List<string?> list_check_member { get; set; } = new List<string?>();
 
         [DisplayName("宛先")]
         [Required(ErrorMessage = Messages.REQUIRED)]
@@ -81,17 +83,6 @@ namespace web_groupware.Models
         [Required(ErrorMessage = Messages.REQUIRED)]
         [MaxLength(20, ErrorMessage = Messages.MAXLENGTH)]
         public string content { get; set; } = string.Empty;
-
-        [DisplayName("既読者")]
-        public string? readers { get; set; }
-
-        [DisplayName("対応します")]
-        public int working { get; set; }
-
-        [DisplayName("処理済\r\n")]
-        public int finish { get; set; }
-        public string? working_msg { get; set; }
-        public string? finish_msg { get; set; }
 
         public List<MemoViewModelGroup>? groupList = new List<MemoViewModelGroup>();
         public List<MemoViewModelStaff>? staffList = new List<MemoViewModelStaff>();

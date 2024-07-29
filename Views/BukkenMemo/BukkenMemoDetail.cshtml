@@ -29,6 +29,7 @@
         @*         <input type="hidden" asp-for="@Model.list_staff" />
         *@
         <input type="hidden" asp-for="@Model.cond_bukken_name" />
+        <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0">
                 @Model.bukken_name
@@ -239,6 +240,7 @@
                         <input type="hidden" asp-for="@Model.work_dir">
                         <input type="hidden" asp-for="@Model.dic_cd">
                         <input type="hidden" asp-for="@Model.dir_no">
+                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
                         <div class="col-12 card dropArea border-0 px-3 ">
                             <div class="text-center px-3 py-3 border-primary bg-white" style=" border: 3px dotted #adadad!important;">
                                 <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>

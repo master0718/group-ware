@@ -1,6 +1,7 @@
-﻿@model web_groupware.Models.MemoDetailViewModel;
+﻿@using web_groupware.Utilities
+@model web_groupware.Models.MemoDetailViewModel;
 @{
-    ViewData["Title"] = "伝言・電話メモの編集";
+    ViewData["Title"] = "伝言・電話メモの詳細";
 }
 
 <div class="p-2 px-md-3 pb-md-3 pt-md-2 pb-0">
@@ -15,7 +16,7 @@
                         }
                         @caption
                     </a></li>
-                    <li class="breadcrumb-item active" aria-current="page">編集</li>
+                    <li class="breadcrumb-item active" aria-current="page">詳細</li>
                 </ol>
             </nav>
         </div>
@@ -23,123 +24,142 @@
             <div class="card" style="">
                 <div class="card-header justify-content-between d-flex align-items-center">
                     <span>
-                        <h4 class="mb-0">メモの編集</h4>
+                        <h4 class="mb-0">メモの詳細</h4>
                     </span>
                     <div class="d-flex justify-content-end">
                         <a class="btn btn-secondary" asp-controller="Memo" asp-action="@ViewBag.ViewMode" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-floppy"></i> 保存
-                        </button>
+                        @{
+                            var viewMode = ViewBag.ViewMode == "Memo_all" ? "All" : (ViewBag.ViewMode == "Memo_sent" ? "Sent" : "Received");
+                            var actionEdit = ViewBag.ViewMode == "Memo_all" ? "EditAll" : (ViewBag.ViewMode == "Memo_sent" ? "EditSent" : "EditReceived");
+                            var actionDelete = ViewBag.ViewMode == "Memo_all" ? "DeleteAll" : (ViewBag.ViewMode == "Memo_sent" ? "DeleteSent" : "DeleteReceived");
+                        }
+                        <a asp-action="@actionEdit" asp-route-memo_no="@Model.memo_no" class="btn btn-primary"  style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </a>
+                        <a asp-action="@actionDelete" asp-route-memo_no="@Model.memo_no" class="btn btn-danger">
+                            <i class="bi bi-trash3"></i> 削除
+                        </a>
                     </div>
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                    <input hidden asp-for="@Model.memo_no" />
-                    <input hidden asp-for="@Model.state" />
-                    <input hidden asp-for="@Model.receiver_type" />
-                    <input hidden asp-for="@Model.receiver_cd" />
-                    <input hidden asp-for="@Model.applicant_type" />
-                    <input hidden asp-for="@Model.applicant_cd" />
-
                     <div class="form-group mb-3">
                         <label asp-for="@Model.receiver_cd" class="form-label"></label>
-                        <select class="form-select bg-white" id="receiver">
-                            <optgroup label="社員">
+                        <label class="form-control " id="receiver">
                                 @if (Model.staffList != null)
                                 {
                                     @foreach (var item in Model.staffList)
                                     {
                                         if (Model.receiver_type == 0 && item.staff_cd == Model.receiver_cd)
                                         {
-                                            <option value=@("staff" + item.staff_cd) selected>@item.staff_name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value=@("staff" + item.staff_cd)>@item.staff_name</option>
+                                            @item.staff_name
                                         }
                                     }
                                 }
-                            </optgroup>
-                            <optgroup label="グループ">
                                 @if (Model.groupList != null)
                                 {
                                     @foreach (var item in Model.groupList)
                                     {
                                         if (Model.receiver_type == 1 && item.group_cd == Model.receiver_cd)
                                         {
-                                            <option value=@("group" + item.group_cd) selected>@item.group_name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value=@("group" + item.group_cd)>@item.group_name</option>
+                                            @item.group_name
                                         }
                                     }
                                 }
-                            </optgroup>
-                        </select>
+                        </label>
                         <span asp-validation-for="@Model.receiver_cd" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.applicant_cd" class="form-label"></label>
-                        <select class="form-select bg-white" id="applicant">
-                            <option value=""></option>
+                        <label class="form-control" id="applicant">
                             @if (Model.staffList != null)
                             {
                                 @foreach (var item in Model.staffList)
                                 {
                                     if (Model.applicant_type == 0 && item.staff_cd == Model.applicant_cd)
                                     {
-                                        <option value=@("staff" + item.staff_cd) selected>@item.staff_name</option>
-                                    }
-                                    else
-                                    {
-                                        <option value=@("staff" + item.staff_cd)>@item.staff_name</option>
+                                        @item.staff_name
                                     }
                                 }
                             }
-                        </select>
+                        </label>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-sm-8">
                             <label asp-for="@Model.comment_no" class="form-label"></label>
-                            <select class="form-select bg-white" asp-for="@Model.comment_no">
+                            <label class="form-control" asp-for="@Model.comment_no">
                                 @if (Model.commentList != null)
                                 {
                                     @foreach (var item in Model.commentList)
                                     {
-                                        <option value=@item.comment_no>@item.comment</option>
+                                        if (item.comment_no == Model.comment_no)
+                                        {
+                                            @item.comment
+                                        }
                                     }
                                 }
-                            </select>
+                            </label>
                         </div>
                         <div class="col-sm-4">
                             <label asp-for="@Model.phone" class="form-label"></label>
-                            <input type="text" asp-for="@Model.phone" class="form-control bg-white" />
+                            <label class="form-control">@Model.phone</label>
                             <span asp-validation-for="@Model.phone" class="text-danger"></span>
                         </div>
                     </div>
-
                     <div class="form-group mb-3">
                         <label asp-for="@Model.content" class="form-label"></label>
-                        <textarea asp-for="@Model.content" class="form-control bg-white"
-                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                        <label class="form-control"
+                                    style="margin-top: 0px; margin-bottom: 0px">@Model.content</label>
                         <span asp-validation-for="@Model.content" class="text-danger"></span>
                     </div>
-
+                    <div class="row mb-3">
+                        <div class="col">
+                            @{
+                                var btn_text_main = "";
+                                @if (!Model.already_checked)
+                                {
+                                    btn_text_main = Check_button_text.CHECK;
+                                }
+                                else
+                                {
+                                    btn_text_main = Check_button_text.CANCEL;
+                                }
+                            }
+                            <a href="javascript:void(0)" data-comment_no="@Model.memo_no" class="check_main me-3">@btn_text_main</a>
+                            <span class="accordion" id="accordionExample">
+                                <span class="accordion-header alert alert-primary p-0">
+                                    <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="false" aria-controls="collapse">
+                                        @Model.check_count
+                                    </a>
+                                </span>
+                                <div id="collapse" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                    <div id="_Checked_member" class="accordion-body py-0">
+                                        @foreach (var item in Model.list_check_member)
+                                        {
+                                            <div>@item</div>
+                                        }
+                                    </div>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
                         <a class="btn btn-secondary" asp-controller="Memo" asp-action="@ViewBag.ViewMode" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-floppy"></i> 保存
-                        </button>
+                        <a asp-action="@actionEdit" asp-route-memo_no="@Model.memo_no" class="btn btn-primary"  style="margin-right: 10px">
+                            <i class="bi bi-pencil"></i> 変更
+                        </a>
+                        <a asp-action="@actionDelete" asp-route-memo_no="@Model.memo_no" class="btn btn-danger">
+                            <i class="bi bi-trash3"></i> 削除
+                        </a>
                     </div>
                 </div>
             </div>
@@ -148,12 +168,13 @@
 </div>
 
 @section Scripts {
+    <script>
+        var viewMode = '@ViewBag.ViewMode'
+        var memo_no = '@Model.memo_no'
+    </script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
 
-        <script src="~/js/MemoCreate.js" asp-append-version="true"></script>
+        <script src="~/js/MemoDetail.js" asp-append-version="true"></script>
     }
-    <script>
-        var viewMode = '@ViewBag.ViewMode'
-    </script>
 }

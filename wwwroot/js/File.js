@@ -34,15 +34,18 @@ const _dataTransfer = new DataTransfer()
  * @param {any} obj ファイルリスト
  */
 function previewImage(obj) {
+    var upload_file_allowed_extension_1 = $('#Upload_file_allowed_extension_1').val();//各機能のViewModelでBaseViewModelを継承し、Upload_file_allowed_extension_1にConstantsの値を設定
+    var arr_upload_file_allowed_extension_1 = upload_file_allowed_extension_1.split(",");
     for (var i = 0; i < obj.files.length; i++) {
-        if (obj.files[i].type != 'application/pdf') {
-            $(".validation-pdf-error").removeClass('d-none');
+        if (!arr_upload_file_allowed_extension_1.includes(obj.files[i].type.split("/").pop())) {
+            $(".validation-extension-error").removeClass('d-none');
             setTimeout(function () {
-                $(".validation-pdf-error").addClass('d-none');
-            }, 1500);
+                $(".validation-extension-error").addClass('d-none');
+            }, 2000);
             return;
         }
-    }    
+    }
+
     var arr_fileName = [];
     //アップロード済みファイル名を追加
     console.log("保存済↓")
@@ -288,7 +291,7 @@ function add_div_icon(filename, drag) {
     var count = $('#div_icon').find('.div_icon_child').length;
     var svg = filename.split('.').pop() + ".svg";
 
-    var html = '<div id="div_icon_' + count + '" class="div_icon_child dropdown fileAreaHeightWidth">' +
+    var html = '<div id="div_icon_' + count + '" class="div_icon_child dropdown fileAreaInnerWidth me-1">' +
         '<button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">' +
         '<div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="' + filename + '">' +
         '<div class="div_img_file bg-light p-2">' +
