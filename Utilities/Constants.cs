@@ -65,6 +65,14 @@
         public static string[] AllTypes = { All, Unread, Read, Checked };
     }
 
+    public static class MemoPersonalStateTypes
+    {
+        public const string All = "すべて";
+        public const string Unread = "未読";
+        public const string Read = "既読";
+        public static string[] AllTypes = { All, Unread, Read };
+    }
+
     public static class MemoCategory
     {
         public const int ALL = 0;

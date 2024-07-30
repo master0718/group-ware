@@ -7,17 +7,16 @@
 <link rel="stylesheet" href="~/css/memo.css" />
 
 <div class="card">
-    <div class="card-header justify-content-between">
-        <h4 class="mb-0"></h4>
-        <div class="col-auto d-flex">
-            <form id="selectionForm" asp-controller="Memo" asp-action="Index" method="post" asp-route-category="@Model.category" class="d-flex">
-                <div class="d-flex col-xl-5 col-3 me-3">
-                    <div class="input-group">
-                        <span class="input-group-text">タイトル・内容</span>
-                        <input type="text" id="filter_keyword" name="filter_keyword" class="form-control form-control-light" placeholder="">
-                    </div>
+    <form id="selectionForm" asp-controller="Memo" asp-action="Index" method="post" asp-route-category="@Model.category">
+        <div class="card-header d-flex align-items-center">
+            <div class="d-flex col-lg-3 col-3 me-4">
+                <div class="input-group">
+                    <span class="input-group-text">タイトル・内容</span>
+                    <input type="text" id="filter_keyword" name="filter_keyword" class="form-control form-control-light" placeholder="">
                 </div>
-                <div class="input-group" style="flex-wrap: nowrap;">
+            </div>
+            <div class="d-flex col-lg-2 col-2 me-4">
+                <div class="input-group">
                     <span class="input-group-text">宛先</span>
                     <select class="form-select me-3" id="filter_user" name="filter_user" style="width:120px" onchange="FilterChanged()">
                         <option selected="" value=0>すべて</option>
@@ -28,6 +27,8 @@
                         }
                     </select>
                 </div>
+            </div>
+            <div class="d-flex col-lg-2 col-2 align-items-center me-4">
                 <div class="input-group">
                     <span class="input-group-text">状態</span>
                     <select class="form-select" id="filter_state" name="filter_state" style="width:120px" onchange="FilterChanged()">
@@ -41,13 +42,27 @@
                         }
                     </select>
                 </div>
-            </form>
-
-            <div style="margin-left: auto">
+            </div>
+            <div class="d-flex col-lg-2 col-2 me-4">
+                <div class="input-group">
+                    <span class="input-group-text">本人状態</span>
+                    <select class="form-select" id="filter_personal_state" name="filter_personal_state" style="width:120px" onchange="FilterChanged()">
+                        @{
+                            int id = 0;
+                        }
+                        @foreach (var item in MemoPersonalStateTypes.AllTypes)
+                        {
+                            <option value=@id>@MemoPersonalStateTypes.AllTypes[id]</option>
+                            id++;
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex" style="margin-left: auto">
                 <button type="button" id="add_memo" class="btn btn-primary"><i class="bi bi-plus"></i> 新規登録</button>
             </div>
         </div>
-    </div>
+    </form>
 
     <div class="card-body">
         <div class="row">

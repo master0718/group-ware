@@ -233,52 +233,58 @@
                     </div>
 
                     @**********　確認　start　*************************************************************************@
-                    <div class="row mt-1">
-                        <div class="col">
-                            @{
-                                var btn_text_main = "";
-                                @if (!Model.already_checked)
-                                {
-                                    btn_text_main = Check_button_text.CHECK;
+                    @if (!Model.is_editable)
+                    {
+                        <div class="row mt-1">
+                            <div class="col">
+                                @{
+                                    var btn_text_main = "";
+                                    @if (!Model.already_checked)
+                                    {
+                                        btn_text_main = Check_button_text.CHECK;
+                                    }
+                                    else
+                                    {
+                                        btn_text_main = Check_button_text.CANCEL;
+                                    }
                                 }
-                                else
-                                {
-                                    btn_text_main = Check_button_text.CANCEL;
-                                }
-                            }
-                            <a href="javascript:void(0)" data-comment_no="@Model.board_no" class="check_main me-3">@btn_text_main</a>
-                            <span class="accordion" id="accordionExample">
-                                <span class="accordion-header alert alert-primary p-0">
-                                    <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="false" aria-controls="collapse">
-                                        @Model.check_count
-                                    </a>
-                                </span>
-                                <div id="collapse" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                    <div id="_Checked_member" class="accordion-body py-0">
-                                        @foreach (var item in Model.list_check_member)
-                                        {
-                                            <div>@item</div>
-                                        }
+                                <a href="javascript:void(0)" data-comment_no="@Model.board_no" class="check_main me-3">@btn_text_main</a>
+                                <span class="accordion" id="accordionExample">
+                                    <span class="accordion-header alert alert-primary p-0">
+                                        <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse" aria-expanded="false" aria-controls="collapse">
+                                            @Model.check_count
+                                        </a>
+                                    </span>
+                                    <div id="collapse" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                        <div id="_Checked_member" class="accordion-body py-0">
+                                            @foreach (var item in Model.list_check_member)
+                                            {
+                                                <div>@item</div>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                            </span>
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    }
                     @**********　確認　end　*************************************************************************@                    
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                            <i class="bi bi-arrow-return-left"></i> 戻る
-                        </button>
                         @if (Model.is_editable)
                         {
+                            <button type="button" class="btn btn-secondary back_edit" style="margin-right: 10px">
+                                <i class="bi bi-arrow-return-left"></i> 戻る
+                            </button>
                             <button type="button" class="btn btn-primary btnSave">
                                 <i class="bi bi-floppy"></i> 保存
                             </button>
                         }
                         else
                         {
+                            <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                                <i class="bi bi-arrow-return-left"></i> 戻る
+                            </button>
                             <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
                                 <i class="bi bi-pencil"></i> 変更
                             </button>                        

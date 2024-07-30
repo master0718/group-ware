@@ -50,6 +50,7 @@ namespace web_groupware.Models
         public int selectedUser = 0;
         public int category = MemoCategory.ALL;
         public string? keyword;
+        public int selectedPersonalState = 0;
     }
 
     public class MemoDetailViewModel

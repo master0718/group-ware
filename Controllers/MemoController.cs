@@ -23,11 +23,11 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Memo_all(int state = 0, int user = 0, string? keyword = null)
+        public IActionResult Memo_all(int state = 0, int user = 0, int personal_state = 0, string? keyword = null)
         {
             try
             {
-                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.ALL);
+                MemoViewModel model = CreateMemoViewModel(state, user, personal_state, keyword, MemoCategory.ALL);
                 TempData["category"] = MemoCategory.ALL;
                 TempData["view_mode"] = "all";
                 ViewBag.ViewMode = "Memo_all";
@@ -41,11 +41,11 @@ namespace web_groupware.Controllers
             }
         }
         [HttpGet]
-        public IActionResult Memo_sent(int state = 0, int user = 0, string? keyword = null)
+        public IActionResult Memo_sent(int state = 0, int user = 0, int personal_state = 0, string? keyword = null)
         {
             try
             {
-                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.SENT);
+                MemoViewModel model = CreateMemoViewModel(state, user, personal_state, keyword, MemoCategory.SENT);
                 TempData["category"] = MemoCategory.SENT;
                 TempData["view_mode"] = "sent";
                 ViewBag.ViewMode = "Memo_sent";
@@ -60,11 +60,11 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Memo_received(int state = 0, int user = 0, string? keyword = null)
+        public IActionResult Memo_received(int state = 0, int user = 0, int personal_state = 0, string? keyword = null)
         {
             try
             {
-                MemoViewModel model = CreateMemoViewModel(state, user, keyword, MemoCategory.RECEIVED);
+                MemoViewModel model = CreateMemoViewModel(state, user, personal_state, keyword, MemoCategory.RECEIVED);
                 TempData["category"] = MemoCategory.RECEIVED;
                 TempData["view_mode"] = "received";
                 ViewBag.ViewMode = "Memo_received";
@@ -79,14 +79,15 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(int category, int filter_state, int filter_user, string filter_keyword)
+        public IActionResult Index(int category, int filter_state, int filter_user, int filter_personal_state, string filter_keyword)
         {
             TempData["filter_state"] = filter_state;
             TempData["filter_user"] = filter_user;
+            TempData["filter_personal_state"] = filter_personal_state;
             TempData["filter_keyword"] = filter_keyword;
             TempData["category"] = category;
 
-            var routeValues = new { state = filter_state, user = filter_user, keyword = filter_keyword };
+            var routeValues = new { state = filter_state, user = filter_user, personal_state = filter_personal_state, keyword = filter_keyword };
             if (category == MemoCategory.SENT)
                 return RedirectToAction("Memo_sent", routeValues);
             else if (category == MemoCategory.RECEIVED)
@@ -95,13 +96,14 @@ namespace web_groupware.Controllers
                 return RedirectToAction("Memo_all", routeValues);
         }
 
-        public MemoViewModel CreateMemoViewModel(int selected_state = 0, int selected_user = 0, string? keyword = null, int category = MemoCategory.ALL)
+        public MemoViewModel CreateMemoViewModel(int selected_state = 0, int selected_user = 0, int selected_pesonal_state = 0, string? keyword = null, int category = MemoCategory.ALL)
         {
             try
             {
                 var model = new MemoViewModel
                 {
                     selectedState = selected_state,
+                    selectedPersonalState = selected_pesonal_state,
                     selectedUser = selected_user,
                     category = category,
                     keyword = keyword,
@@ -149,6 +151,42 @@ namespace web_groupware.Controllers
                     memoList = (from m in _context.T_MEMO select m).ToList();
                 }
 
+                if (selected_pesonal_state != 0)
+                {
+                    bool check_personal_state = false;
+                    if (selected_pesonal_state - 1 == 1)
+                        check_personal_state = true;
+
+                    memoList = memoList
+                        .Where(memo =>
+                        {
+                            var memoPersonalRead = _context.T_INFO_PERSONAL
+                                .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_MEMO)
+                                .Where(m => m.first_no == memo.memo_no && m.staf_cd == user_id)
+                                .Where(m => m.already_read == check_personal_state)
+                                .FirstOrDefault();
+
+                            return memoPersonalRead != null;
+                        })
+                        .ToList();
+                }
+
+                if (selected_state == 3)
+                {
+                    memoList = memoList
+                        .Where(memo =>
+                        {
+                            var memoChecked = _context.T_CHECKED
+                                .Where(x => x.parent_id == CHECK_PARENT_ID.T_MEMO)
+                                .Where(x => x.first_no == memo.memo_no && x.staf_cd == user_id)
+                                .FirstOrDefault();
+
+                            return memoChecked != null;
+                        })
+                        .ToList();
+                    selected_state = 0;
+                }
+
                 if (memoList != null)
                 {
                     for (var i = memoList.Count - 1; i >= 0; i--)
@@ -160,7 +198,6 @@ namespace web_groupware.Controllers
                                 .Where(m => m.already_read)
                                 .FirstOrDefault();
                         int state = memoRead != null ? 1 : 0;
-
                         if (selected_state == 0 || state == selected_state - 1)
                         {
                             bool is_show = false;
