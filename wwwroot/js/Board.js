@@ -5,7 +5,7 @@ const STATUS_BG_CLAZZ = ['bg-upcoming', 'bg-requesting', 'bg-progress', 'bg-comp
 $(function () {
     $(".task").on('click', function () {
         let itemId = $(this).attr('id').substr(6)
-        window.location.href = baseUrl + `Board/Detail?id=${itemId}`
+        window.location.href = baseUrl + `Board/Update?id=${itemId}`
     })    
 })
 

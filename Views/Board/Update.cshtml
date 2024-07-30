@@ -19,7 +19,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Board" asp-action="Index">掲示板</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">編集</li>
+                    <li class="breadcrumb-item active" aria-current="page">詳細</li>
                 </ol>
             </nav>
         </div>
@@ -27,15 +27,30 @@
             <form asp-action="Update" id="boardForm" class="form-box" method="post" enctype="multipart/form-data">
                 <div class="card-header justify-content-between d-flex align-items-center">
                     <span>
-                        <h4 class="mb-0" id="pageTitle">編集</h4>
+                        <h4 class="mb-0" id="pageTitle">詳細</h4>
                     </span>
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
-                            <i class="bi bi-arrow-return-left"></i> 戻る
-                        </button>
-                        <button type="button" class="btn btn-primary btnSave">
-                            <i class="bi bi-floppy"></i> 保存
-                        </button>
+                        @if (Model.is_editable)
+                        {
+                            <button type="button" class="btn btn-secondary back_edit" style="margin-right: 10px">
+                                <i class="bi bi-arrow-return-left"></i> 戻る
+                            </button>
+                            <button type="button" class="btn btn-primary btnSave">
+                                <i class="bi bi-floppy"></i> 保存
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
+                                <i class="bi bi-arrow-return-left"></i> 戻る
+                            </button>
+                            <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                                <i class="bi bi-pencil"></i> 変更
+                            </button>                        
+                            <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                                <i class="bi bi-trash3"></i> 削除
+                            </button>
+                        }
                     </div>
                 </div>
                 <div class="card-body">
@@ -57,72 +72,136 @@
                     <div class="form-group mb-3">
                         <label asp-for="@Model.title" class="form-label"></label>
                         <div class="d-flex justify-content-between">
-                            <div class="flex-grow-1 me-3">
-                                <input type="text" asp-for="@Model.title" class="form-control"/>
-                                <span asp-validation-for="@Model.title" class="text-danger"></span>
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                @if (Model.show_on_top)
-                                {
-                                    <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="true" hidden>トップから消す</button>
-                                }
-                                else
-                                {
-                                    <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="false" hidden>トップに出す</button>
-                                }
-                            </div>
+                            @if (Model.is_editable)
+                            {
+                                <div class="flex-grow-1 me-3">
+                                    <input type="text" asp-for="@Model.title" class="form-control bg-white"/>
+                                    <span asp-validation-for="@Model.title" class="text-danger"></span>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    @if (Model.show_on_top)
+                                    {
+                                        <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="true" hidden>トップから消す</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="false" hidden>トップに出す</button>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex-grow-1 me-3">
+                                    <label class="mb-0 p-1 form-control" style="white-space: pre-wrap">@Model.title</label>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    @if (Model.show_on_top)
+                                    {
+                                        <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="true">トップから消す</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-success" id="btnShowOnTop" data-val="false">トップに出す</button>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
 
                     <div class="form-group mb-3">
                         <div class="col-sm-4">
                             <label asp-for="@Model.category_cd" class="form-label"></label>
-                            <select class="form-select read-only" id="board_category">
-                                <option value=""></option>
-                                @if (Model.CategoryList != null)
-                                {
-                                    @foreach (var item in Model.CategoryList)
+                            @if (Model.is_editable)
+                            {
+                                <select class="form-select bg-white" id="board_category">
+                                    <option value=""></option>
+                                    @if (Model.CategoryList != null)
                                     {
-                                        if (item.category_cd == Model.category_cd)
+                                        @foreach (var item in Model.CategoryList)
                                         {
-                                            <option value=@item.category_cd selected>@item.category_name</option>
-                                        }
-                                        else
-                                        {
-                                            <option value=@item.category_cd>@item.category_name</option>
+                                            if (item.category_cd == Model.category_cd)
+                                            {
+                                                <option value=@item.category_cd selected>@item.category_name</option>
+                                            }
+                                            else
+                                            {
+                                                <option value=@item.category_cd>@item.category_name</option>
+                                            }
                                         }
                                     }
-                                }
-                            </select>
+                                </select>
+                            }
+                            else
+                            {
+                                <div class="flex-grow-1 me-3">
+                                    @if (Model.CategoryList != null)
+                                    {
+                                        @foreach (var item in Model.CategoryList)
+                                        {
+                                            if (item.category_cd == Model.category_cd)
+                                            {
+                                                <label class="mb-0 p-1 form-control" style="white-space: pre-wrap">@item.category_name</label>
+                                            }
+                                        }
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.content" class="form-label"></label>
-                        <textarea asp-for="@Model.content" class="form-control"
-                                  rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
-                        <span asp-validation-for="@Model.content" class="text-danger"></span>
+                        @if (Model.is_editable)
+                        {
+                            <textarea asp-for="@Model.content" class="form-control bg-white"
+                                rows="15" placeholder="" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                            <span asp-validation-for="@Model.content" class="text-danger"></span>
+                        }
+                        else
+                        {
+                            <div class="flex-grow-1 me-3">
+                                <label class="mb-0 p-1 form-control" style="white-space: pre-wrap">@Model.content</label>
+                            </div>
+                        }
                     </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="@Model.applicant_cd" class="form-label"></label>
-                        <select class="form-select read-only" id="applicant">
-                            <option value=""></option>
-                            @if (Model.StaffList != null)
-                            {
-                                @foreach (var item in Model.StaffList)
+                        @if (Model.is_editable)
+                        {
+                            <select class="form-select bg-white" id="applicant">
+                                <option value=""></option>
+                                @if (Model.StaffList != null)
                                 {
-                                    if (item.staff_cd == Model.applicant_cd)
+                                    @foreach (var item in Model.StaffList)
                                     {
-                                        <option value=@item.staff_cd selected>@item.staff_name</option>
-                                    }
-                                    else
-                                    {
-                                        <option value=@item.staff_cd>@item.staff_name</option>
+                                        if (item.staff_cd == Model.applicant_cd)
+                                        {
+                                            <option value=@item.staff_cd selected>@item.staff_name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value=@item.staff_cd>@item.staff_name</option>
+                                        }
                                     }
                                 }
-                            }
-                        </select>
+                            </select>
+                        }
+                        else
+                        {
+                            <div class="flex-grow-1 me-3">
+                                @if (Model.StaffList != null)
+                                {
+                                    @foreach (var item in Model.StaffList)
+                                    {
+                                        if (item.staff_cd == Model.applicant_cd)
+                                        {
+                                            <label class="mb-0 p-1 form-control" style="white-space: pre-wrap">@item.staff_name</label>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
                     </div>
 
                     <div class="form-group">
@@ -136,19 +215,21 @@
                         <input type="hidden" id="dir_no" value="@Model.board_no">
                         <input type="hidden" asp-for="@Model.Upload_file_allowed_extension_1" />
                         <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
-
-                        <div class="col-12 dropArea border-0 p-2">
-                            <div id="drag_area" class="text-center px-3 py-3 bg-white">
-                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
-                                <label class="input-group-btn hand-pointer">
-                                    <span class="btn btn-secondary">
-                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
-                                    </span>
-                                </label>
-                                <br>
-                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                        @if (Model.is_editable)
+                        {
+                            <div class="col-12 dropArea border-0 p-2">
+                                <div id="drag_area" class="text-center px-3 py-3 bg-white">
+                                    <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                    <label class="input-group-btn hand-pointer">
+                                        <span class="btn btn-secondary">
+                                            ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.File">
+                                        </span>
+                                    </label>
+                                    <br>
+                                    <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
 
                     @**********　確認　start　*************************************************************************@
@@ -190,9 +271,21 @@
                         <button type="button" class="btn btn-secondary back" style="margin-right: 10px">
                             <i class="bi bi-arrow-return-left"></i> 戻る
                         </button>
-                        <button type="button" class="btn btn-primary btnSave">
-                            <i class="bi bi-floppy"></i> 保存
-                        </button>
+                        @if (Model.is_editable)
+                        {
+                            <button type="button" class="btn btn-primary btnSave">
+                                <i class="bi bi-floppy"></i> 保存
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
+                                <i class="bi bi-pencil"></i> 変更
+                            </button>                        
+                            <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
+                                <i class="bi bi-trash3"></i> 削除
+                            </button>
+                        }
                     </div>
                 </div>
             </form>
@@ -278,38 +371,41 @@
                     <div id="btnMore"><div class="btn-more"></div></div>
                 </div>
 
-                <div class="rounded mt-3 mb-3">
-                    <div class="form-box comment-area-box d-none">
-                        <div class="form-group">
-                        <label asp-for="@Model.CommentFile" class="form-label"></label>
-                        <partial name="_CommentFileList" model="@Model.commentFileModel" />
-                    </div>
-                    
-                    <div class="row mb-3" id="commentFileArea">
-                        <input type="hidden" asp-for="@Model.comment_work_dir">
-                        <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
-                        <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
+                @if (!Model.is_editable)
+                {
+                    <div class="rounded mt-3 mb-3">
+                        <div class="form-box comment-area-box">
+                            <div class="form-group">
+                            <label asp-for="@Model.CommentFile" class="form-label"></label>
+                            <partial name="_CommentFileList" model="@Model.commentFileModel" />
+                        </div>
+                        
+                        <div class="row mb-3" id="commentFileArea">
+                            <input type="hidden" asp-for="@Model.comment_work_dir">
+                            <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
+                            <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
 
-                        <div class="col-12 commentDropArea border-0 p-2">
-                            <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
-                                <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
-                                <label class="input-group-btn hand-pointer">
-                                    <span class="btn btn-secondary">
-                                        ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.CommentFile">
-                                    </span>
-                                </label>
-                                <br>
-                                <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                            <div class="col-12 commentDropArea border-0 p-2">
+                                <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
+                                    <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                    <label class="input-group-btn hand-pointer">
+                                        <span class="btn btn-secondary">
+                                            ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.CommentFile">
+                                        </span>
+                                    </label>
+                                    <br>
+                                    <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                                </div>
+                            </div>
+                        </div>
+                            <textarea id="message" class="form-control bg-white border resize-none"
+                                    rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
+                            <div class="p-2 text-end">
+                                <button class="btn btn-sm btn-primary" id="btnAddComment" disabled><i class="bi bi-send me-2"></i>登録</button>
                             </div>
                         </div>
                     </div>
-                        <textarea id="message" class="form-control bg-white border resize-none"
-                                  rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
-                        <div class="p-2 text-end">
-                            <button class="btn btn-sm btn-primary" id="btnAddComment" disabled><i class="bi bi-send me-2"></i>登録</button>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
         </div>
     </div>
@@ -326,7 +422,7 @@
         <script src="~/js/BoardFile.js" asp-append-version="true"></script>
     }
     <script>
-        var isEditable = false
+        var isEditable = @Model.is_editable.ToString().ToLower()
         var fileRemoveList = []
         var deleteAction = "Delete"
         var deleteKey = "board_no"

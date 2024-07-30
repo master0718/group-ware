@@ -16,9 +16,23 @@ $(function () {
         window.location = baseUrl + "Board/Index"
     })
 
+    $(".back_edit").on('click', function () {
+        var path_dir_delete = $('#work_dir').val()
+        var dic_cd = $("#dic_cd").val()
+        $.ajax({
+            type: "GET",
+            url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
+        })
+
+        isEditable = false
+        var board_no = $("#board_no").val();
+        window.location.href = baseUrl + `Board/Update?id=${board_no}&isEditable=${isEditable}`
+    })
+
     $('.btnEdit').on('click', function () {
-        let itemId = $("#board_no").val();
-        window.location.href = baseUrl + `Board/Update?id=${itemId}`
+        isEditable = true
+        var board_no = $("#board_no").val();
+        window.location.href = baseUrl + `Board/Update?id=${board_no}&isEditable=${isEditable}`
     })
     if (!isEditable) {
         $(".delete_file").addClass('d-none');
@@ -76,8 +90,6 @@ $(function () {
             $('.loading').hide()
         }
     })
-
-    
 
     $('#comment_drag_area input[type="file"]').on('change', function () {
         checkButtonState();
@@ -169,6 +181,7 @@ $(function () {
     })
 
     function checkButtonState() {
+        if (isEditable === true) return
         var filesSelected = $('#comment_drag_area input[type="file"]').get(0).files.length > 0;
         var messageNotEmpty = $('#message').val().trim().length > 0;
 

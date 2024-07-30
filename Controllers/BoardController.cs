@@ -243,8 +243,6 @@ namespace web_groupware.Controllers
                 viewModel.comment_work_dir = comment_dir_work;
                 viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
-                viewModel.mode = 0;
-
                 return View(viewModel);
             }
             catch (Exception ex)
@@ -256,7 +254,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Update(int id)
+        public IActionResult Update(int id, bool? isEditable = false)
         {
             try
             {
@@ -281,7 +279,7 @@ namespace web_groupware.Controllers
                 viewModel.comment_work_dir = comment_dir_work;
                 viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
 
-                viewModel.mode = 0;
+                viewModel.is_editable = isEditable.Value;
 
                 return View(viewModel);
             }

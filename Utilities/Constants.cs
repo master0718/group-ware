@@ -61,7 +61,8 @@
         public const string Read = "既読";
         public const string Working = "対応中";
         public const string Finish = "済";
-        public static string[] AllTypes = { All, Unread, Read };
+        public const string Checked = "確認済";
+        public static string[] AllTypes = { All, Unread, Read, Checked };
     }
 
     public static class MemoCategory

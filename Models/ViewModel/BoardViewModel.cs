@@ -181,7 +181,7 @@ namespace web_groupware.Models
         public List<BoardViewModelCategory>? CategoryList = new();
 
         public int commentTotalCount;
-        public int mode;
+        public bool is_editable { get; set; } = false;
 
     }
 }
