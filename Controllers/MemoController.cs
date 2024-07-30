@@ -79,7 +79,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpPost]
-        public IActionResult Filter(int category, int filter_state, int filter_user, string filter_keyword)
+        public IActionResult Index(int category, int filter_state, int filter_user, string filter_keyword)
         {
             TempData["filter_state"] = filter_state;
             TempData["filter_user"] = filter_user;

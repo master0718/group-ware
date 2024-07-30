@@ -6,26 +6,19 @@ $(function () {
     visibleCommentCount = $(".comment-item").length
 
     $(".back").on('click', function () {
-        if (isEditable && $(this).hasClass('back-edit')) {
-            isEditable = false
-            updateOnEditableChange()
+        var path_dir_delete = $('#work_dir').val()
+        var dic_cd = $("#dic_cd").val()
+        $.ajax({
+            type: "GET",
+            url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
+        })
 
-        } else {
-
-            var path_dir_delete = $('#work_dir').val()
-            var dic_cd = $("#dic_cd").val()
-            $.ajax({
-                type: "GET",
-                url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
-            })
-
-            window.location = baseUrl + "Board/Index"
-        }
+        window.location = baseUrl + "Board/Index"
     })
 
     $('.btnEdit').on('click', function () {
-        isEditable = true
-        updateOnEditableChange()
+        let itemId = $("#board_no").val();
+        window.location.href = baseUrl + `Board/Update?id=${itemId}`
     })
     if (!isEditable) {
         $(".delete_file").addClass('d-none');
@@ -186,65 +179,6 @@ $(function () {
         }
     }
     
-    function updateOnEditableChange() {
-        if (isEditable) {
-            $('#pageTitle').text('編集')
-
-            $('.btnEdit').attr('hidden', true)
-            $('.btnDelete').attr('hidden', true)
-            $('.btnSave').removeAttr('hidden')
-            $('#btnShowOnTop').attr('hidden', true)
-            $('#title').removeAttr('readonly')
-            $('#content').removeAttr('readonly')
-            $('#board_category').removeAttr('disabled')
-            $('#applicant').removeAttr('disabled')
-
-            $('#File').removeAttr('disabled')
-            $('#drag_area').removeAttr('hidden')
-            $('#drag_area').parent().addClass('dropArea')
-            $(".btn_file").removeClass('download_file')
-            $(".btn_file").attr('data-bs-toggle', 'dropdown')
-            $(".delete_file").removeClass('d-none');
-
-            $('.comment-area-box').addClass('d-none')
-
-            $('#title').addClass('bg-white')
-            $('#board_category').removeClass('read-only')
-            $('#board_category').addClass('bg-white')
-            $('#content').addClass('bg-white')
-            $('#applicant').removeClass('read-only')
-            $('#applicant').addClass('bg-white')
-        } else {
-            $('#pageTitle').text('詳細')
-
-            $('.btnEdit').removeAttr('hidden')
-            $('.btnDelete').removeAttr('hidden')
-            $('.btnSave').attr('hidden', true)
-            $('#btnShowOnTop').removeAttr('hidden')
-            $('#title').attr('readonly', true)
-            $('#content').attr('readonly', true)
-            $('#board_category').attr('disabled', true)
-            $('#applicant').attr('disabled', true)
-
-            $('#File').attr('disabled', true)
-            $('#drag_area').attr('hidden', true)
-            $('#drag_area').parent().removeClass('dropArea')
-            $(".btn_file").addClass('download_file')
-            $(".btn_file").dropdown('hide')
-            $(".btn_file").attr('data-bs-toggle', '')
-            $(".delete_file").addClass('d-none');
-
-            $('.comment-area-box').removeClass('d-none')
-
-            $('#title').removeClass('bg-white')
-            $('#board_category').removeClass('bg-white')
-            $('#board_category').addClass('read-only')
-            $('#content').removeClass('bg-white')
-            $('#applicant').removeClass('bg-white')
-            $('#applicant').addClass('read-only')
-        }
-    }
-
     function updateOnMore(commentList) {
         visibleCommentCount += commentList.length
 

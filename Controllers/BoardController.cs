@@ -218,6 +218,44 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
+        public IActionResult Detail(int id)
+        {
+            try
+            {
+                var viewModel = GetDetailView(id);
+                if (viewModel == null)
+                {
+                    return Index();
+                }
+
+                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
+                string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+                string dir = Path.Combine(_uploadPath, dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(dir);
+
+                string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"), "comment");
+                string comment_dir = Path.Combine(_uploadPath, comment_dir_work);
+                //workディレクトリの作成
+                Directory.CreateDirectory(comment_dir);
+
+                viewModel.work_dir = dir_work;
+                viewModel.comment_work_dir = comment_dir_work;
+                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
+
+                viewModel.mode = 0;
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
+        [HttpGet]
         public IActionResult Update(int id)
         {
             try
@@ -242,6 +280,8 @@ namespace web_groupware.Controllers
                 viewModel.work_dir = dir_work;
                 viewModel.comment_work_dir = comment_dir_work;
                 viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
+
+                viewModel.mode = 0;
 
                 return View(viewModel);
             }
