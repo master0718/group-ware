@@ -5,24 +5,23 @@ $(function () {
 
     visibleCommentCount = $(".comment-item").length
 
-    $(".back").on('click', function () {
+    function removeWorkDir() {
         var path_dir_delete = $('#work_dir').val()
         var dic_cd = $("#dic_cd").val()
         $.ajax({
             type: "GET",
             url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
         })
+    }
+
+    $(".back").on('click', function () {
+        removeWorkDir();
 
         window.location = baseUrl + "Board/Index"
     })
 
     $(".back_edit").on('click', function () {
-        var path_dir_delete = $('#work_dir').val()
-        var dic_cd = $("#dic_cd").val()
-        $.ajax({
-            type: "GET",
-            url: `${baseUrl}Base/DeleteDirectory?dic_cd=${dic_cd}&work_dir=${path_dir_delete}`
-        })
+        removeWorkDir();
 
         isEditable = false
         var board_no = $("#board_no").val();
@@ -30,6 +29,8 @@ $(function () {
     })
 
     $('.btnEdit').on('click', function () {
+        removeWorkDir();
+
         isEditable = true
         var board_no = $("#board_no").val();
         window.location.href = baseUrl + `Board/Update?id=${board_no}&isEditable=${isEditable}`
@@ -133,8 +134,8 @@ $(function () {
     $('.check_main').on('click', function () {
         var board_no = $('#board_no').val()
         var a = $(this);
-        var checked_count = $('#_Checked_count' )
-        var checked_member = $('#_Checked_member')
+        var checked_count =  a.siblings('.accordion').find('#_Checked_count');
+        var checked_member =  a.siblings('.accordion').find('#_Checked_member');
         $.ajax({
             type: "Get",
             url: baseUrl + 'Board/Check_comment_main?board_no=' + board_no,
@@ -160,6 +161,41 @@ $(function () {
         })
     
     })
+
+
+    $(document).on('click', '.check_comment', function () {
+
+        var board_no = $('#board_no').val()
+        var comment_no = $(this).data('comment_no')
+        var a = $(this);
+        var checked_count =  a.siblings('.accordion').find('#_Checked_count');
+        var checked_member =  a.siblings('.accordion').find('#_Checked_member');
+        $.ajax({
+            type: "Get",
+            url: baseUrl + 'Board/Check_comment?board_no=' + board_no + "&comment_no=" + comment_no,
+            success: function (ret, status, xhr) {
+                if (ret != null) {
+                    a.text(ret[0]);
+                    checked_count.text(ret[1]);
+                    checked_member.empty();
+                    for (var i = 0; i < ret[2].length; i++) {
+                        checked_member.append('<div>' + ret[2][i] + '</div>');
+                    }
+                    console.log("成功");
+                } else {
+                    alert("失敗");
+                    console.log("失敗");
+                }
+            },
+            error: function (e) {
+                //レスポンスが返って来ない場合
+                alert("失敗");
+                console.log("失敗：　" + e);
+            }
+        })
+    
+    })
+
 
     $("#btnMore").on('click', function () {
         let board_no = $("#board_no").val()
@@ -191,7 +227,7 @@ $(function () {
             $('#btnAddComment').prop('disabled', true);
         }
     }
-    
+
     function updateOnMore(commentList) {
         visibleCommentCount += commentList.length
 
@@ -237,6 +273,12 @@ $(function () {
                 });
                 fileHtml += '</div></div>';
             }
+            var checkedListHtml = ""
+            if (item.comment_list_check_member && item.comment_list_check_member.length) {
+                for (let i = 0; i < item.comment_list_check_member.length; i ++) {
+                    checkedListHtml += `<div>${item.comment_list_check_member[i]}</div>`
+                }
+            }
 
             html += `<div class="comment-item d-flex" id="C-${item.comment_no}">
                         <span class="avatar-title rounded-circle bg-success text-white">${item.registrant_name[0]}</span>
@@ -247,6 +289,21 @@ $(function () {
                             </div>
                             <span class="comment-message">${item.message}</span>
                             ${fileHtml}
+                            <div class="row mt-1">
+                                <div class="col">
+                                    <a href="javascript:void(0)" data-board_no="${board_no}" data-comment_no="${item.comment_no}" class="check_comment me-3">${item.comment_already_checked ? comment_check_text.CHECK : comment_check_text.CANCEL}</a>
+                                    <span class="accordion" id="accordionExample-${item.comment_no}">
+                                        <span class="accordion-header alert alert-primary p-0">
+                                            <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse-${item.comment_no}" aria-expanded="true" aria-controls="collapse">${item.comment_check_count}</a>
+                                        </span>
+                                        <div id="collapse-${item.comment_no}" class="accordion-collapse collapse show" data-bs-parent="#accordionExample-${item.comment_no}" style="">
+                                            <div id="_Checked_member" class="accordion-body py-0">
+                                                ${checkedListHtml}
+                                            </div>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>`
         }
@@ -328,6 +385,20 @@ $(function () {
                             </div>
                             <span class="comment-message">${message}</span>
                             ${fileHtml}
+                            <div class="row mt-1">
+                                <div class="col">
+                                    <a href="javascript:void(0)" data-board_no="${board_no}" data-comment_no="${comment_no}" class="check_comment me-3">${comment_check_text.CHECK}</a>
+                                    <span class="accordion" id="accordionExample-${comment_no}">
+                                        <span class="accordion-header alert alert-primary p-0">
+                                            <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse-${comment_no}" aria-expanded="true" aria-controls="collapse">0名</a>
+                                        </span>
+                                        <div id="collapse-${comment_no}" class="accordion-collapse collapse show" data-bs-parent="#accordionExample-${comment_no}" style="">
+                                            <div id="_Checked_member" class="accordion-body py-0">
+                                            </div>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>`
         $("#comment-list").append($(html))

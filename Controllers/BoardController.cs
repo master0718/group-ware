@@ -218,7 +218,7 @@ namespace web_groupware.Controllers
         }
 
         [HttpGet]
-        public IActionResult Detail(int id)
+        public IActionResult Update(int id, bool isEditable = false)
         {
             try
             {
@@ -242,44 +242,7 @@ namespace web_groupware.Controllers
                 viewModel.work_dir = dir_work;
                 viewModel.comment_work_dir = comment_dir_work;
                 viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
-
-                return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-        }
-
-        [HttpGet]
-        public IActionResult Update(int id, bool? isEditable = false)
-        {
-            try
-            {
-                var viewModel = GetDetailView(id);
-                if (viewModel == null)
-                {
-                    return Index();
-                }
-
-                var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-                string dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
-                string dir = Path.Combine(_uploadPath, dir_work);
-                //workディレクトリの作成
-                Directory.CreateDirectory(dir);
-
-                string comment_dir_work = Path.Combine("work", user_id, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"), "comment");
-                string comment_dir = Path.Combine(_uploadPath, comment_dir_work);
-                //workディレクトリの作成
-                Directory.CreateDirectory(comment_dir);
-
-                viewModel.work_dir = dir_work;
-                viewModel.comment_work_dir = comment_dir_work;
-                viewModel.Upload_file_allowed_extension_1 = UPLOAD_FILE_ALLOWED_EXTENSION.IMAGE_PDF;
-
-                viewModel.is_editable = isEditable.Value;
+                viewModel.is_editable = isEditable;
 
                 return View(viewModel);
             }
@@ -497,54 +460,6 @@ namespace web_groupware.Controllers
             }
         }
 
-        public async Task<IActionResult> Confirm(int board_no)
-        {
-            var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
-            var iUser_id = Convert.ToInt32(user_id);
-            try
-            {
-                var boardChecked = await _context.T_CHECKED
-                    .Where(m => m.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
-                    .Where(m => m.first_no == board_no && m.staf_cd == iUser_id)
-                    .FirstOrDefaultAsync();
-                using (IDbContextTransaction tran = _context.Database.BeginTransaction())
-                {
-                    if (boardChecked != null)
-                    {
-                        _context.T_CHECKED.Remove(boardChecked);
-                    }
-                    else
-                    {
-                        var now = DateTime.Now;
-                        boardChecked = new T_CHECKED
-                        {
-                            check_no = GetNextNo(DataTypes.CHECK_NO),
-                            parent_id = INFO_PERSONAL_PARENT_ID.T_BOARD,
-                            first_no = board_no,
-                            second_no = 0,
-                            third_no = 0,
-                            staf_cd = iUser_id,
-                            create_user = user_id,
-                            create_date = now,
-                            update_user = user_id,
-                            update_date = now
-                        };
-                        _context.T_CHECKED.Add(boardChecked);
-                    }
-                    await _context.SaveChangesAsync();
-                    tran.Commit();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(Messages.ERROR_PREFIX + ex.Message);
-                _logger.LogError(ex.StackTrace);
-                throw;
-            }
-
-            return RedirectToAction("Index");
-        }
-
         [HttpGet]
         public IActionResult UpdateTop(int board_no)
         {
@@ -603,7 +518,7 @@ namespace web_groupware.Controllers
                     {
                         var user_id = User.FindFirst(ClaimTypes.STAF_CD).Value;
                         var btn_text = "";
-                        var t_checked_login_user = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no) && x.staf_cd == int.Parse(user_id));
+                        var t_checked_login_user = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no) && x.second_no == null && x.staf_cd == int.Parse(user_id));
                         if (t_checked_login_user == null)
                         {
                             var now = DateTime.Now;
@@ -628,7 +543,7 @@ namespace web_groupware.Controllers
                         tran.Commit();
                         var result = new List<object>();
                         result.Add(btn_text);
-                        var t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no));
+                        var t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no) && x.second_no == null);
                         result.Add(t_checked.Count() + "名");
                         var list = t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList();
                         result.Add(list);
@@ -651,6 +566,71 @@ namespace web_groupware.Controllers
                 throw;
             }
         }
+
+        /// <summary>
+        /// T_CHECKED更新 日報
+        /// </summary>
+        /// <returns></returns>
+        public IActionResult Check_comment(string board_no, string comment_no)
+        {
+            try
+            {
+                using (IDbContextTransaction tran = _context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        var user_id = User.FindFirst(ClaimTypes.STAF_CD).Value;
+                        var btn_text = "";
+                        var t_checked_login_user = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no) && x.second_no == int.Parse(comment_no) && x.staf_cd == int.Parse(user_id));
+                        if (t_checked_login_user == null)
+                        {
+                            var now = DateTime.Now;
+                            var t_checked_new = new T_CHECKED();
+                            t_checked_new.check_no = GetNextNo(DataTypes.CHECK_NO);
+                            t_checked_new.parent_id = INFO_PERSONAL_PARENT_ID.T_BOARD;
+                            t_checked_new.first_no = int.Parse(board_no);
+                            t_checked_new.second_no = int.Parse(comment_no);
+                            t_checked_new.staf_cd = int.Parse(user_id);
+                            t_checked_new.create_user = user_id;
+                            t_checked_new.create_date = now;
+                            t_checked_new.update_user = user_id;
+                            t_checked_new.update_date = now;
+                            _context.T_CHECKED.Add(t_checked_new);
+                            btn_text = Check_button_text.CANCEL;
+                        }
+                        else
+                        {
+                            _context.T_CHECKED.Remove(t_checked_login_user);
+                            btn_text = Check_button_text.CHECK;
+                        }
+                        _context.SaveChanges();
+                        tran.Commit();
+                        var result = new List<object>();
+                        result.Add(btn_text);
+                        var t_checked = _context.T_CHECKED.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == int.Parse(board_no) && x.second_no == int.Parse(comment_no));
+                        result.Add(t_checked.Count() + "名");
+                        var list = t_checked.GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y }).SelectMany(um => um.y.DefaultIfEmpty()).Select(zz => zz.staf_name).ToList();
+                        result.Add(list);
+                        return Json(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        tran.Rollback();
+                        _logger.LogError(ex.Message);
+                        _logger.LogError(ex.StackTrace);
+                        tran.Dispose();
+                        throw;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                _logger.LogError(ex.StackTrace);
+                throw;
+            }
+        }
+
 
         [HttpPost]
         public IActionResult AddComment(int board_no, string message, string work_dir)
@@ -694,7 +674,7 @@ namespace web_groupware.Controllers
                     _context.T_INFO_PERSONAL.Add(record_read);
                 }
 
-                var t_board_read = _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_REPORT && x.first_no == board_no).ToList();
+                var t_board_read = _context.T_INFO_PERSONAL.Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == board_no).ToList();
                 for (int i = 0; i < t_board_read.Count(); i++)
                 {
                     if (t_board_read[i].staf_cd.ToString() == user_id) continue;
@@ -847,7 +827,7 @@ namespace web_groupware.Controllers
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var boardList = (from b in _context.T_BOARD
-                                 let p = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == b.board_no && x.staf_cd == Convert.ToInt32(user_id))
+                                 let p = _context.T_CHECKED.FirstOrDefault(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD && x.first_no == b.board_no && x.second_no == null && x.staf_cd == Convert.ToInt32(user_id))
                                  let t = _context.T_BOARD_TOP.FirstOrDefault(x => x.board_no == b.board_no && x.staf_cd == Convert.ToInt32(user_id))
                                  select new BoardModel
                                  {
@@ -1016,13 +996,13 @@ namespace web_groupware.Controllers
                 }
                 var boardChecked = _context.T_CHECKED
                     .Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
-                    .Where(x => x.first_no == board_no && x.staf_cd == iUser_id)
+                    .Where(x => x.first_no == board_no && x.staf_cd == iUser_id && x.second_no == null)
                     .FirstOrDefault();
                 model.already_checked = boardChecked != null;
 
                 var list_t_checked_main = _context.T_CHECKED
                     .Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
-                    .Where(x => x.first_no == board_no)
+                    .Where(x => x.first_no == board_no && x.second_no == null)
                     .GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y })
                     .SelectMany(um => um.y.DefaultIfEmpty())
                     .Select(zz => zz.staf_name)
@@ -1031,18 +1011,30 @@ namespace web_groupware.Controllers
                 model.list_check_member = list_t_checked_main;
 
                 var commentList = (from c in _context.T_BOARDCOMMENT
-                                   where c.board_no == board_no
-                                   orderby c.update_date ascending
-                                   let v = Convert.ToInt32(c.update_user)
-                                   select new BoardCommentModel
-                                   {
-                                       board_no = c.board_no,
-                                       comment_no = c.comment_no,
-                                       message = c.message,
-                                       registrant_cd = v,
-                                       registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v).staf_name,
-                                       register_date = c.update_date.ToString("yyyy年M月d日 H時m分"),
-                                       CommentFileDetailList = (List<T_BOARDCOMMENT_FILE>)(from f in _context.T_BOARDCOMMENT_FILE
+                                where c.board_no == board_no
+                                orderby c.update_date ascending
+                                let v = Convert.ToInt32(c.update_user)
+                                let commentChecked = _context.T_CHECKED
+                                    .Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
+                                    .Where(x => x.first_no == board_no && x.second_no == c.comment_no && x.staf_cd == iUser_id)
+                                    .FirstOrDefault()
+                                let comment_already_checked = commentChecked != null
+                                let list_t_checked_comment = _context.T_CHECKED
+                                    .Where(x => x.parent_id == INFO_PERSONAL_PARENT_ID.T_BOARD)
+                                    .Where(x => x.first_no == board_no && x.second_no == c.comment_no)
+                                    .GroupJoin(_context.M_STAFF, x => x.staf_cd, y => y.staf_cd, (x, y) => new { x, y })
+                                    .SelectMany(um => um.y.DefaultIfEmpty())
+                                    .Select(zz => zz.staf_name)
+                                    .ToList()
+                                select new BoardCommentModel
+                                {
+                                    board_no = c.board_no,
+                                    comment_no = c.comment_no,
+                                    message = c.message,
+                                    registrant_cd = v,
+                                    registrant_name = _context.M_STAFF.FirstOrDefault(x => x.staf_cd == v).staf_name,
+                                    register_date = c.update_date.ToString("yyyy年M月d日 H時m分"),
+                                    CommentFileDetailList = (from f in _context.T_BOARDCOMMENT_FILE
                                                                 where f.board_no == board_no && f.comment_no == c.comment_no
                                                                 select new T_BOARDCOMMENT_FILE
                                                                 {
@@ -1051,8 +1043,11 @@ namespace web_groupware.Controllers
                                                                     file_no = f.file_no,
                                                                     filename = f.filename,
                                                                     filepath = f.filepath,
-                                                                })
-                                   }).Take(5).ToList();
+                                                                }).ToList(),
+                                    comment_check_count = list_t_checked_comment.Count() + "名",
+                                    comment_already_checked = comment_already_checked,
+                                    comment_list_check_member = list_t_checked_comment
+                                }).Take(5).ToList();
 
                 var commentCount = (from c in _context.T_BOARDCOMMENT
                                     where c.board_no == board_no

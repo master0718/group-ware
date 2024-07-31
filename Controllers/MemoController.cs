@@ -153,9 +153,7 @@ namespace web_groupware.Controllers
 
                 if (selected_pesonal_state != 0)
                 {
-                    bool check_personal_state = false;
-                    if (selected_pesonal_state - 1 == 1)
-                        check_personal_state = true;
+                    bool check_personal_state = selected_pesonal_state == 2 ? true : false;
 
                     memoList = memoList
                         .Where(memo =>
@@ -178,7 +176,7 @@ namespace web_groupware.Controllers
                         {
                             var memoChecked = _context.T_CHECKED
                                 .Where(x => x.parent_id == CHECK_PARENT_ID.T_MEMO)
-                                .Where(x => x.first_no == memo.memo_no && x.staf_cd == user_id)
+                                .Where(x => x.first_no == memo.memo_no && x.staf_cd == memo.receiver_cd)
                                 .FirstOrDefault();
 
                             return memoChecked != null;

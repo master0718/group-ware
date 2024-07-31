@@ -19,7 +19,14 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Home" asp-action="Index">ホーム</a></li>
                     <li class="breadcrumb-item"><a class="text-decoration-none" asp-controller="Board" asp-action="Index">掲示板</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">詳細</li>
+                    @if (Model.is_editable)
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">編集</li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">詳細</li>
+                    }
                 </ol>
             </nav>
         </div>
@@ -27,7 +34,14 @@
             <form asp-action="Update" id="boardForm" class="form-box" method="post" enctype="multipart/form-data">
                 <div class="card-header justify-content-between d-flex align-items-center">
                     <span>
-                        <h4 class="mb-0" id="pageTitle">詳細</h4>
+                        @if (Model.is_editable)
+                        {
+                            <h4 class="mb-0" id="pageTitle">編集</h4>
+                        }
+                        else
+                        {
+                            <h4 class="mb-0" id="pageTitle">詳細</h4>
+                        }                    
                     </span>
                     <div class="d-flex justify-content-end">
                         @if (Model.is_editable)
@@ -46,7 +60,7 @@
                             </button>
                             <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
                                 <i class="bi bi-pencil"></i> 変更
-                            </button>                        
+                            </button>
                             <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                                 <i class="bi bi-trash3"></i> 削除
                             </button>
@@ -287,7 +301,7 @@
                             </button>
                             <button type="button" class="btn btn-primary btnEdit" style="margin-right: 10px">
                                 <i class="bi bi-pencil"></i> 変更
-                            </button>                        
+                            </button>
                             <button type="button" class="btn btn-danger btnDelete" data-toggle='modal' data-target="#modal-delete" onClick="onDeleteConfirmModal()" style="margin-right: 10px">
                                 <i class="bi bi-trash3"></i> 削除
                             </button>
@@ -357,10 +371,39 @@
                                         </div>
                                     </div>
                                 }
+                                <div class="row mt-1">
+                                    <div class="col">
+                                        @{
+                                            var comment_btn_text_main = "";
+                                            @if (!item.comment_already_checked)
+                                            {
+                                                comment_btn_text_main = Check_button_text.CHECK;
+                                            }
+                                            else
+                                            {
+                                                comment_btn_text_main = Check_button_text.CANCEL;
+                                            }
+                                        }
+                                        <a href="javascript:void(0)" data-board_no="@item.board_no" data-comment_no="@item.comment_no" class="check_comment me-3">@comment_btn_text_main</a>
+                                        <span class="accordion" id="accordionExample-@item.comment_no">
+                                            <span class="accordion-header alert alert-primary p-0">
+                                                <a href="javascript:void(0)" id="_Checked_count" class="" data-bs-toggle="collapse" data-bs-target="#collapse-@item.comment_no" aria-expanded="false" aria-controls="collapse">
+                                                    @item.comment_check_count
+                                                </a>
+                                            </span>
+                                            <div id="collapse-@item.comment_no" class="accordion-collapse collapse" data-bs-parent="#accordionExample-@item.comment_no">
+                                                <div id="_Checked_member" class="accordion-body py-0">
+                                                    @foreach (var member in item.comment_list_check_member )
+                                                    {
+                                                        <div>@member</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            
                         </div>
-
                     }
                 }
             </div>
@@ -434,5 +477,9 @@
         var deleteKey = "board_no"
         var deleteId = $('#board_no').val()
         var PREVIEW_ALLOWED_EXTENSION_LIST = @Html.Raw(allowedExtensionsJson);
+        var comment_check_text = {
+            CHECK: '@Check_button_text.CHECK',
+            CANCEL: '@Check_button_text.CANCEL'
+        }
     </script>
 }
