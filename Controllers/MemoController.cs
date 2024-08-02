@@ -139,6 +139,7 @@ namespace web_groupware.Controllers
                 int user_id = Convert.ToInt32(@User.FindFirst(ClaimTypes.STAF_CD).Value);
 
                 List<T_MEMO>? memoList = null;
+
                 if (keyword != null && keyword != "")
                 {
                     var keyword_ = keyword.ToLower();
