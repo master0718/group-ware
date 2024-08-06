@@ -154,6 +154,7 @@ namespace web_groupware.Controllers
                 if (selected_pesonal_state != 0)
                 {
                     bool check_personal_state = selected_pesonal_state == 2 ? true : false;
+                    
                     memoList = memoList
                         .Where(memo =>
                         {
