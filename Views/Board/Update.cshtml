@@ -69,6 +69,7 @@
                 </div>
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                     <input hidden asp-for="@Model.board_no" />
                     <input hidden asp-for="@Model.registrant_name" />
                     <input hidden asp-for="@Model.applicant_cd" />
@@ -342,7 +343,6 @@
                                                     <input type="hidden" asp-for="@file.file_no">
                                                     <button class="border-0 p-0 dropdown-toggle btn_file fileAreaInnerWidth" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: var(--bs-card-bg);">
                                                         <div class="div_tooltip" data-toggle="tooltip" data-placement="top" title="@file.filename">
-
                                                             <div class="div_img_file bg-light p-2">
                                                                 @{
                                                                     var icon = System.IO.Path.GetExtension(file.filename).Remove(0, 1) + ".svg";
