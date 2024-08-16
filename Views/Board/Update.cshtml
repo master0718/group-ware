@@ -418,34 +418,33 @@
                 <div class="col-12 text-center @more_clazz">
                     <div id="btnMore"><div class="btn-more"></div></div>
                 </div>
-
                 @if (!Model.is_editable)
                 {
                     <div class="rounded mt-3 mb-3">
                         <div class="form-box comment-area-box">
                             <div class="form-group">
-                            <label asp-for="@Model.CommentFile" class="form-label"></label>
-                            <partial name="_CommentFileList" model="@Model.commentFileModel" />
-                        </div>
+                                <label asp-for="@Model.CommentFile" class="form-label"></label>
+                                <partial name="_CommentFileList" model="@Model.commentFileModel" />
+                            </div>
                         
-                        <div class="row mb-3" id="commentFileArea">
-                            <input type="hidden" asp-for="@Model.comment_work_dir">
-                            <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
-                            <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
+                            <div class="row mb-3" id="commentFileArea">
+                                <input type="hidden" asp-for="@Model.comment_work_dir">
+                                <input type="hidden" id="comment_dic_cd" value="@DIC_KB_700_DIRECTORY.BOARD">
+                                <div class="validation-extension-error text-danger d-none"><span>アップロード可能なファイルはファイルの種類は</span>@Model.Upload_file_allowed_extension_1<span>のみです。</span></div>
 
-                            <div class="col-12 commentDropArea border-0 p-2">
-                                <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
-                                    <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
-                                    <label class="input-group-btn hand-pointer">
-                                        <span class="btn btn-secondary">
-                                            ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.CommentFile">
-                                        </span>
-                                    </label>
-                                    <br>
-                                    <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                                <div class="col-12 commentDropArea border-0 p-2">
+                                    <div id="comment_drag_area" class="text-center px-3 py-3 bg-white">
+                                        <span>ファイルをドラッグ＆ドロップするかクリップボードから画像を貼り付けしてください　または　</span>
+                                        <label class="input-group-btn hand-pointer">
+                                            <span class="btn btn-secondary">
+                                                ファイル選択<input type="file" multiple class="d-none" asp-for="@Model.CommentFile">
+                                            </span>
+                                        </label>
+                                        <br>
+                                        <span>ファイル追加（Shiftキーを押しながらファイルを複数選択可能）</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                             <textarea id="message" class="form-control bg-white border resize-none"
                                     rows="3" placeholder="コメント（&#64;を入力してメンバーに通知）" style="margin-top: 0px; margin-bottom: 0px"></textarea>
                             <div class="p-2 text-end">
