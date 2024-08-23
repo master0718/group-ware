@@ -56,7 +56,6 @@ namespace web_groupware.Controllers
                 _logger.LogError(ex.StackTrace);
                 throw;
             }
-
         }
 
         [HttpPost]
@@ -328,12 +327,10 @@ namespace web_groupware.Controllers
             }
         }
 
-
         public async Task<T_TODO> itemGet(int todo_no)
         {
 
             var item = await _context.T_TODO.FirstOrDefaultAsync(m => m.todo_no == todo_no);
-
             return item;
         }
 
@@ -376,7 +373,6 @@ namespace web_groupware.Controllers
                 }
 
             }
-
             return model;
         }
 
@@ -460,7 +456,6 @@ namespace web_groupware.Controllers
             {
                 var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                 var now = DateTime.Now;
-                
 
                 var model = _context.T_TODO.FirstOrDefault(x => x.todo_no == request.todo_no);
                 model.title = request.title;
@@ -470,6 +465,7 @@ namespace web_groupware.Controllers
                 model.update_date = now;
                 model.response_status = request.response_status;
                 model.update_user = _context.M_STAFF.FirstOrDefault(x => x.staf_name == request.update_user).staf_cd.ToString();
+                
                 if (request.deadline_set == 0)
                 {
                     model.deadline_date = null;
@@ -478,7 +474,6 @@ namespace web_groupware.Controllers
                 {
                     model.deadline_date = DateTime.ParseExact(request.deadline_date, "yyyy/MM/dd", CultureInfo.InvariantCulture);
                 }
-                
                 _context.T_TODO.Update(model);
 
                 var targetModel = _context.T_TODOTARGET.Where(x => x.todo_no == request.todo_no).ToList();
