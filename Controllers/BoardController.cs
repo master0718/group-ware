@@ -1243,6 +1243,7 @@ namespace web_groupware.Controllers
                         update_date = now
                     };
                     await _context.T_BOARDCOMMENT_FILE.AddAsync(record_file);
+                    
 
                     //ファイルをworkからmainにコピー
                     System.IO.File.Copy(work_dir_files[i], Path.Combine(dir_main, file_name));
