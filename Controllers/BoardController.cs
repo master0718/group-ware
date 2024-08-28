@@ -1228,7 +1228,6 @@ namespace web_groupware.Controllers
                     var file_name = Path.GetFileName(renamed_file);
                     var user_id = @User.FindFirst(ClaimTypes.STAF_CD).Value;
                     var now = DateTime.Now;
-
                     T_BOARDCOMMENT_FILE record_file = new()
                     {
                         board_no = board_no,
